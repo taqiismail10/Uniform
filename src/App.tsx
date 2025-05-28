@@ -1,8 +1,8 @@
 
 import './App.css'
-import { Button } from "@/components/ui/button"
-import NavBar from './NavBar'
-import Home from './Home'
+import NavBar from './components/NavBar'
+import Home from './components/Home'
+import Footer from './components/Footer'
 
 
 function App() {
@@ -11,8 +11,7 @@ function App() {
     <>
       <NavBar />
       <Home />
-      <h2>Hello World</h2>
-      <Button variant="outline" className='bg-black text-white'>Button</Button>
+      <Footer />
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { Button } from "./components/ui/button";
+import { Button } from "./ui/button";
 import { LuNotebookPen } from "react-icons/lu";
 import { LiaMapMarkedAltSolid } from "react-icons/lia";
 
