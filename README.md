@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # First time setup
 
 -   `git clone https://github.com/your-username/your-repository-name.git`
@@ -28,7 +27,7 @@
 -   `git push origin <your-name>-dev`
 
 # Go to GitHub and create a Pull Request from <your-name>-dev to main
-=======
+
 # 🎓 Uniform - Integrated System for University Applicants
 
 UniForm is a centralized web application designed to simplify the university admission process in Bangladesh. Built as part of a Web Engineering Lab course, the system enables students to apply to multiple university admission units with a single academic profile. It also empowers universities to manage unit-based admission criteria, ensuring transparency and efficiency in the process.
@@ -37,29 +36,30 @@ UniForm is a centralized web application designed to simplify the university adm
 
 ## 🚀 Features
 
-- 🔐 Secure authentication system (JWT-based) for Students and Admins
-- 📝 One-time academic form submission reused across applications
-- 🏛️ University unit management (A, B, C, D or custom labels)
-- 🎯 Stream and GPA-based eligibility validation
-- 📦 RESTful API with Express & Prisma ORM
-- 🐳 Dockerized backend for scalable deployment
-- ⚙️ CI/CD integration with GitHub Actions
-- 🌐 Frontend deployable on Vercel
+-   🔐 Secure authentication system (JWT-based) for Students and Admins
+-   📝 One-time academic form submission reused across applications
+-   🏛️ University unit management (A, B, C, D or custom labels)
+-   🎯 Stream and GPA-based eligibility validation
+-   📦 RESTful API with Express & Prisma ORM
+-   🐳 Dockerized backend for scalable deployment
+-   ⚙️ CI/CD integration with GitHub Actions
+-   🌐 Frontend deployable on Vercel
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer         | Technology                     |
-|---------------|--------------------------------|
-| Frontend      | React + Vite (Vercel)          |
-| Backend       | Node.js + Express              |
-| ORM/Database  | Prisma + PostgreSQL            |
-| Authentication| JSON Web Tokens (JWT)          |
-| DevOps        | Docker + GitHub Actions        |
-| Hosting       | Vercel (Frontend), Docker (API)|
+| Layer          | Technology                      |
+| -------------- | ------------------------------- |
+| Frontend       | React + Vite (Vercel)           |
+| Backend        | Node.js + Express               |
+| ORM/Database   | Prisma + PostgreSQL             |
+| Authentication | JSON Web Tokens (JWT)           |
+| DevOps         | Docker + GitHub Actions         |
+| Hosting        | Vercel (Frontend), Docker (API) |
 
 ---
+
 ## License
 
 **UniForm** is a proprietary software product developed by  
@@ -75,8 +75,3 @@ If you are interested in using or licensing UniForm for commercial or institutio
 > 🌐 https://uniform-bd.com (coming soon)
 
 © 2025 UniForm Platform. All rights reserved.
-
-
-
-
->>>>>>> main
