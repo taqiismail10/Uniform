@@ -1,54 +1,29 @@
-# React + TypeScript + Vite
+# First time setup
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+git clone https://github.com/your-username/your-repository-name.git
+cd your-repository-name
+git checkout -b <your-name>-dev # Create and switch to your dedicated branch
+git push -u origin <your-name>-dev # Push your empty branch to GitHub
 
-Currently, two official plugins are available:
+# Daily workflow
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+git checkout main
+git pull origin main # Get latest changes from the main branch
+git checkout <your-name>-dev
+git merge main # Merge main into your branch to stay updated
 
-## Expanding the ESLint configuration
+# Make your code changes
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+git add .
+git commit -m "My meaningful commit message"
+git push origin <your-name>-dev # Push your changes to your dedicated branch
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+# When your work is done for a feature/part
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+# Ensure your branch is up-to-date with main and all conflicts are resolved
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+git checkout <your-name>-dev
+git merge main # (again, just to be sure)
+git push origin <your-name>-dev
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+# Go to GitHub and create a Pull Request from <your-name>-dev to main
