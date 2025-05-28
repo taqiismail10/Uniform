@@ -77,6 +77,3 @@ If you are interested in using or licensing UniForm for commercial or institutio
 © 2025 UniForm Platform. All rights reserved.
 
 
-
-
->>>>>>> main
