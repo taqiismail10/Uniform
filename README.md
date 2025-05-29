@@ -48,7 +48,7 @@ If you are interested in using or licensing UniForm for commercial or institutio
 
 # First time setup
 
--   `git clone https://github.com/your-username/your-repository-name.git`
+-   `git clone https://github.com/taqiismail10/Uniform.git`
 -   `cd your-repository-name`
 -   `git checkout -b <your-name>-dev` # Create and switch to your dedicated branch
 -   `git push -u origin <your-name>-dev` # Push your empty branch to GitHub
