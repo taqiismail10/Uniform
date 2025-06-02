@@ -1,0 +1,84 @@
+/* uniform/frontend/src/styles/common.css */
+
+/*
+  This file contains custom CSS rules, primarily using Tailwind's @apply directive.
+  It helps to centralize styles for custom components or global overrides.
+*/
+
+/* --- Custom Button Styles --- */
+
+/* Primary Button: Dark background, light text */
+.btn-primary-custom {
+	@apply px-4 py-3 text-sm font-semibold rounded-md transition-all duration-75 ease-in-out whitespace-nowrap;
+	@apply bg-black text-white border border-black;
+	@apply shadow-sm;
+
+	/* Hover effect for light mode */
+	@apply hover:text-gray-400 hover:shadow-md;
+
+	/* Responsive sizing */
+	@apply md:px-6 md:py-4 md:text-base;
+	@apply lg:px-8 lg:py-5 lg:text-lg;
+
+	/* Dark mode specific styles */
+	.dark & {
+		@apply bg-white text-black border border-white;
+		@apply hover:bg-gray-300 hover:shadow-md;
+	}
+}
+
+/* Secondary Button: Light background, dark text (often used for 'outline' feel) */
+.btn-secondary-custom {
+	@apply px-4 py-3 text-sm font-semibold rounded-md transition-all duration-200 ease-in-out whitespace-nowrap;
+	@apply bg-white text-black border border-gray-300; /* Subtle border for contrast */
+	@apply shadow-sm; /* Subtle shadow for depth */
+
+	/* Hover effect for light mode */
+	@apply hover:text-gray-400 hover:shadow-md;
+
+	/* Responsive sizing */
+	@apply md:px-6 md:py-4 md:text-base;
+	@apply lg:px-8 lg:py-5 lg:text-lg;
+
+	/* Dark mode specific styles */
+	.dark & {
+		/* Apply to this element when parent has .dark */
+		@apply bg-gray-950 text-gray-100 border border-gray-700; /* Darker background, light text, darker border for dark mode */
+		@apply hover:bg-gray-800 hover:shadow-md; /* Slightly lighter background on hover in dark mode */
+	}
+}
+
+/* --- Common Card Styles --- */
+.card-custom {
+	@apply p-6 bg-white rounded-lg shadow-md transition-all duration-300 ease-in-out;
+	@apply hover:shadow-lg; /* Lift effect on hover */
+	@apply dark:bg-gray-800 dark:text-gray-100; /* Dark mode colors */
+	@apply sm:p-8; /* Responsive padding for larger screens */
+}
+
+/* --- Global Link Styles --- */
+
+/* Specific style for navigation links (more prominent hover) */
+.nav-link {
+	@apply font-medium relative; /* Added relative for the border animation */
+	@apply text-gray-700 dark:text-gray-300; /* Base color for nav links */
+	@apply transition-colors duration-100 ease-in-out; /* Main text color transition */
+
+	/* Underline effect on hover */
+	&::after {
+		content: "";
+		@apply absolute bottom-0 left-0 w-full h-[2px] bg-gray-700 dark:bg-gray-300 transition-transform duration-200 origin-left scale-x-0;
+	}
+
+	&:hover::after {
+		@apply scale-x-100;
+	}
+
+	/* Specific text color change on hover, overriding global 'a:hover' slightly */
+	@apply hover:text-gray-400 dark:hover:text-gray-400;
+}
+
+/* My preferable style: A subtle focus ring on interactive elements when navigating with keyboard for accessibility */
+*:focus-visible {
+	@apply outline-none ring-2 ring-offset-2 ring-black dark:ring-white ring-offset-white dark:ring-offset-black;
+}

@@ -6,29 +6,30 @@ UniForm is a centralized web application designed to simplify the university adm
 
 ## 🚀 Features
 
-- 🔐 Secure authentication system (JWT-based) for Students and Admins
-- 📝 One-time academic form submission reused across applications
-- 🏛️ University unit management (A, B, C, D or custom labels)
-- 🎯 Stream and GPA-based eligibility validation
-- 📦 RESTful API with Express & Prisma ORM
-- 🐳 Dockerized backend for scalable deployment
-- ⚙️ CI/CD integration with GitHub Actions
-- 🌐 Frontend deployable on Vercel
+-   🔐 Secure authentication system (JWT-based) for Students and Admins
+-   📝 One-time academic form submission reused across applications
+-   🏛️ University unit management (A, B, C, D or custom labels)
+-   🎯 Stream and GPA-based eligibility validation
+-   📦 RESTful API with Express & Prisma ORM
+-   🐳 Dockerized backend for scalable deployment
+-   ⚙️ CI/CD integration with GitHub Actions
+-   🌐 Frontend deployable on Vercel
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer         | Technology                     |
-|---------------|--------------------------------|
-| Frontend      | React + Vite (Vercel)          |
-| Backend       | Node.js + Express              |
-| ORM/Database  | Prisma + PostgreSQL            |
-| Authentication| JSON Web Tokens (JWT)          |
-| DevOps        | Docker + GitHub Actions        |
-| Hosting       | Vercel (Frontend), Docker (API)|
+| Layer          | Technology                      |
+| -------------- | ------------------------------- |
+| Frontend       | React + Vite (Vercel)           |
+| Backend        | Node.js + Express               |
+| ORM/Database   | Prisma + PostgreSQL             |
+| Authentication | JSON Web Tokens (JWT)           |
+| DevOps         | Docker + GitHub Actions         |
+| Hosting        | Vercel (Frontend), Docker (API) |
 
 ---
+
 ## License
 
 **UniForm** is a proprietary software product developed by  
@@ -45,6 +46,32 @@ If you are interested in using or licensing UniForm for commercial or institutio
 
 © 2025 UniForm Platform. All rights reserved.
 
+# First time setup
 
+-   `git clone https://github.com/taqiismail10/Uniform.git`
+-   `cd your-repository-name`
+-   `git checkout -b <your-name>-dev` # Create and switch to your dedicated branch
+-   `git push -u origin <your-name>-dev` # Push your empty branch to GitHub
 
+# Daily workflow
 
+-   `git checkout main`
+-   `git pull origin main` # Get latest changes from the main branch
+-   `git checkout <your-name>-dev`
+-   `git merge main` # Merge main into your branch to stay updated
+
+# Make your code changes
+
+-   `git add .`
+-   `git commit -m "My meaningful commit message"`
+-   `git push origin <your-name>-dev` # Push your changes to your dedicated branch
+
+# When your work is done for a feature/part
+
+# Ensure your branch is up-to-date with main and all conflicts are resolved
+
+-   `git checkout <your-name>-dev`
+-   `git merge main` # (again, just to be sure)
+-   `git push origin <your-name>-dev`
+
+# Go to GitHub and create a Pull Request from <your-name>-dev to main
