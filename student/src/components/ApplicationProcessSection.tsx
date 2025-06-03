@@ -1,6 +1,6 @@
 // uniform/frontend/src/components/ApplicationProcessSection.tsx
 
-import { FaUser, FaBuilding, FaPaperPlane, FaChartBar, FaArrowRight } from 'react-icons/fa';
+import { User, Building, Send, BarChart, ArrowRight } from 'lucide-react';
 
 interface ProcessStepProps {
   icon: React.ElementType;
@@ -21,13 +21,13 @@ const ApplicationProcessSection: React.FC = () => {
     <section className="section-padding bg-white dark:bg-gray-950 my-8 sm:my-12 md:my-16 lg:my-20">
       <div className="container mx-auto max-w-6xl flex flex-col items-center">
         <div className="flex flex-col md:flex-row items-center justify-center w-full space-x-8 md:space-x-8 my-12 md:my-16 lg:my-20">
-          <ProcessStep icon={FaUser} title="Profile" />
+          <ProcessStep icon={User} title="Profile" />
           <Arrow className="hidden md:block" />
-          <ProcessStep icon={FaBuilding} title="Select Uni" />
+          <ProcessStep icon={Building} title="Select Uni" />
           <Arrow className="hidden md:block" />
-          <ProcessStep icon={FaPaperPlane} title="Apply" />
+          <ProcessStep icon={Send} title="Apply" />
           <Arrow className="hidden md:block" />
-          <ProcessStep icon={FaChartBar} title="Track" />
+          <ProcessStep icon={BarChart} title="Track" />
         </div>
       </div>
     </section>
@@ -40,7 +40,7 @@ interface ArrowProps {
 
 const Arrow: React.FC<ArrowProps> = ({ className }) => (
   <div className={`flex items-center justify-center text-gray-400 mx-4 ${className}`}>
-    <FaArrowRight className="w-8 h-8" />
+    <ArrowRight className="w-8 h-8" />
   </div>
 );
 

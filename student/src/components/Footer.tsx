@@ -1,6 +1,6 @@
 // uniform/frontend/src/components/Footer.tsx
 
-import { FaTwitter, FaYoutube, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { Twitter, Youtube, Instagram, Linkedin } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -12,16 +12,16 @@ const Footer: React.FC = () => {
             {/* Social media links: 'transition-colors duration-200' is handled by global 'a' rule in common.css */}
             {/* 'hover:text-white' is intentional here for contrast on dark background */}
             <a href="#" className="text-gray-400 hover:text-white">
-              <FaTwitter className="w-6 h-6" />
+              <Twitter className="w-6 h-6" />
             </a>
             <a href="#" className="text-gray-400 hover:text-white">
-              <FaYoutube className="w-6 h-6" />
+              <Youtube className="w-6 h-6" />
             </a>
             <a href="#" className="text-gray-400 hover:text-white">
-              <FaInstagram className="w-6 h-6" />
+              <Instagram className="w-6 h-6" />
             </a>
             <a href="#" className="text-gray-400 hover:text-white">
-              <FaLinkedin className="w-6 h-6" />
+              <Linkedin className="w-6 h-6" />
             </a>
           </div>
         </div>

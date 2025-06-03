@@ -8,7 +8,8 @@ const NavBar: React.FC = () => {
   return (
     <nav className="relative flex items-center justify-between px-6 md:px-8 py-4 md:py-5 bg-white shadow-lg border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800">
       {/* Logo */}
-      <a href="#" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <a href="#" className="text-xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <img src="/logo.svg" alt="Logo" className="h-8 md:h-10 inline-block mr-2" />
         UniForm
       </a>
 

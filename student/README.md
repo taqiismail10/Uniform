@@ -2,7 +2,7 @@
 
 # UniForm Frontend Setup - Your Personal Steps (Exact Sequence)
 
-This document outlines the successful setup process for the UniForm frontend application, using the precise sequence of commands and actions you performed. (Install all the dependencies in Use `--legacy-peer-deps` mode)
+This document outlines the successful setup process for the UniForm frontend application, using the precise sequence of commands and actions you performed. (Install all the dependencies in `--legacy-peer-deps` mode)
 
 ## 1. Project Initialization & Core Dependencies
 
@@ -12,13 +12,13 @@ This document outlines the successful setup process for the UniForm frontend app
         ```cmd
         npm create vite@latest
         ```
-    -   Project name: frontend
+    -   Project name: student
     -   Framework: react
     -   Typescript + swe
 
 2.  **Navigate into Project Directory:**
     ```cmd
-    cd frontend
+    cd student
     ```
 3.  **Install Initial Project Dependencies:**
     ```cmd
@@ -50,10 +50,10 @@ This document outlines the successful setup process for the UniForm frontend app
         ```cmd
         fsutil file createnew .env 0
         ```
-    -   Added the following content to `uniform/frontend/.env`:
+    -   Added the following content to `uniform/student/.env`:
 
         ```bash
-        # uniform/frontend/.env
+        # uniform/student/.env
 
         # Base URL for your UniForm Backend API
         # Ensure this matches the port your backend is running on (default 5000)
@@ -64,10 +64,10 @@ This document outlines the successful setup process for the UniForm frontend app
 
 1.  **Modified `src/App.tsx`:**
 
-    -   Replaced the content of `uniform/frontend/src/App.tsx` with the following code:
+    -   Replaced the content of `uniform/student/src/App.tsx` with the following code:
 
         ```tsx
-        // uniform/frontend/src/App.tsx
+        // uniform/student/src/App.tsx
 
         import { useState, useEffect } from "react";
         import axios from "axios";
@@ -163,11 +163,11 @@ This document outlines the successful setup process for the UniForm frontend app
         export default App;
         ```
 
-## 6. Install React-Icon
+## 6. Install Lucide-react [Lucide-React](https://lucide.dev/guide/packages/lucide-react)
 
 1.  **Start Frontend Development Server:**
     ```cmd
-    npm install react-icons
+    npm install lucide-react
     ```
 
 ## 7. Running the Development Server
