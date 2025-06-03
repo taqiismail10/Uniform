@@ -21,7 +21,7 @@ const NavBar: React.FC = () => {
 
       {/* Sign Up / Login Buttons (Desktop) */}
       <div className="hidden md:flex items-center space-x-4 ml-6">
-        <a href="#" className="nav-link text-base lg:text-lg">Login</a>
+        <a href="/login" className="nav-link text-base lg:text-lg">Login</a>
         <Button className="btn-primary-custom">
           Sign Up
         </Button>
