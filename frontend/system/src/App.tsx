@@ -1,4 +1,4 @@
-// uniform/university/src/App.tsx
+// uniform/system/src/App.tsx
 
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -51,7 +51,7 @@ function App() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-8">
         <h1 className="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-4">
-          UniForm University
+          UniForm System
         </h1>
         <p className="text-lg">
           React + TypeScript + Tailwind CSS + Shadcn/ui

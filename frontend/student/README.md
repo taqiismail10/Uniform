@@ -8,77 +8,66 @@ This document outlines the successful setup process for the UniForm frontend app
 
 1.  **Create Vite React Application:**
 
--   Executed the command to create the initial project:
-
-    ```cmd
-    npm create vite@latest
-    ```
-
--   Project name: system
--   Framework: react
--   Typescript + swe
+    -   Executed the command to create the initial project:
+        ```cmd
+        npm create vite@latest
+        ```
+    -   Project name: student
+    -   Framework: react
+    -   Typescript + swe
 
 2.  **Navigate into Project Directory:**
-
-```cmd
-cd system
-```
-
+    ```cmd
+    cd student
+    ```
 3.  **Install Initial Project Dependencies:**
-
-```cmd
-npm install
-```
+    ```cmd
+    npm install
+    ```
 
 ## 2. Tailwind CSS & Shadcn/ui Integration
 
 1.  **Followed Official Shadcn/ui Vite Installation Guide:**
-
--   Referred to the instructions provided in the link: [https://ui.shadcn.com/docs/installation/vite](https://ui.shadcn.com/docs/installation/vite)
--   _(Based on the link, this implicitly involved installing Tailwind CSS and running `npx shadcn-ui@latest init`, and potentially `npx shadcn-ui@latest add button`.)_
+    -   Referred to the instructions provided in the link: [https://ui.shadcn.com/docs/installation/vite](https://ui.shadcn.com/docs/installation/vite)
+    -   _(Based on the link, this implicitly involved installing Tailwind CSS and running `npx shadcn-ui@latest init`, and potentially `npx shadcn-ui@latest add button`.)_
 
 ## 3. Additional Dependencies
 
 1.  **Install Axios:**
-
-```cmd
-npm install axios
-```
-
+    ```cmd
+    npm install axios
+    ```
 2.  **Install React Router DOM:**
-
-```cmd
-npm install react-router-dom
-```
+    ```cmd
+    npm install react-router-dom
+    ```
 
 ## 4. Environment Variables Configuration
 
 1.  **Create `.env` file:**
 
--   Executed the command to create the `.env` file:
+    -   Executed the command to create the `.env` file:
+        ```cmd
+        fsutil file createnew .env 0
+        ```
+    -   Added the following content to `frontend/student/.env`:
 
-    ```cmd
-    fsutil file createnew .env 0
-    ```
+        ```bash
+        # frontend/student/.env
 
--   Added the following content to `uniform/system/.env`:
-
-    ```bash
-    # uniform/system/.env
-
-    # Base URL for your UniForm Backend API
-    # Ensure this matches the port your backend is running on (default 5000)
-    VITE_API_BASE_URL=http://localhost:5000/
-    ```
+        # Base URL for your UniForm Backend API
+        # Ensure this matches the port your backend is running on (default 5000)
+        VITE_API_BASE_URL=http://localhost:5000/
+        ```
 
 ## 5. Main Application Component (`App.tsx`)
 
-1.  **Modified `src/App.tsx`:**
+1.  **Modified `src/App.tsx`:
 
--   Replaced the content of `uniform/system/src/App.tsx` with the following code:
+-   Replaced the content of `frontend/student/src/App.tsx` with the following code:
 
     ```tsx
-    // uniform/system/src/App.tsx
+    // frontend/student/src/App.tsx
 
     import { useState, useEffect } from "react";
     import axios from "axios";
@@ -130,7 +119,7 @@ npm install react-router-dom
     		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
     			<header className="text-center mb-8">
     				<h1 className="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-4">
-    					UniForm System
+    					UniForm Frontend
     				</h1>
     				<p className="text-lg">
     					React + TypeScript + Tailwind CSS + Shadcn/ui
@@ -177,15 +166,14 @@ npm install react-router-dom
 ## 6. Install Lucide-react [Lucide-React](https://lucide.dev/guide/packages/lucide-react)
 
 1.  **Start Frontend Development Server:**
-
-```cmd
-npm install lucide-react
-```
+    ```cmd
+    npm install lucide-react
+    ```
 
 ## 7. Running the Development Server
 
 1.  **Start Frontend Development Server:**
-
-```cmd
-npm run dev
-```
+    ```cmd
+    npm run dev
+    ```
+---

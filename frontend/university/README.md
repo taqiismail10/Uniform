@@ -63,11 +63,11 @@ npm install react-router-dom
     fsutil file createnew .env 0
     ```
 
--   Added the following content to `uniform/university/.env`:
+-   Added the following content to `frontend/university/.env`:
 
 
     ```bash
-    # uniform/university/.env
+    # frontend/university/.env
 
     # Base URL for your UniForm Backend API
     # Ensure this matches the port your backend is running on (default 5000)
@@ -76,13 +76,13 @@ npm install react-router-dom
 
 ## 5. Main Application Component (`App.tsx`)
 
-1.  **Modified `src/App.tsx`:**
+1.  **Modified `src/App.tsx`:
 
--   Replaced the content of `uniform/university/src/App.tsx` with the following code:
+-   Replaced the content of `frontend/university/src/App.tsx` with the following code:
 
 
     ```tsx
-    // uniform/university/src/App.tsx
+    // frontend/university/src/App.tsx
 
     import { useState, useEffect } from "react";
     import axios from "axios";
@@ -193,3 +193,5 @@ npm install lucide-react
 ```cmd
 npm run dev
 ```
+
+---
