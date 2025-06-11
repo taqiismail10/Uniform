@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+.dashboard-container {
+	@apply m-4;
+}
+
+.dashboard-nav {
+	@apply flex flex-col sm:flex-row items-center justify-between border-b border-gray-200;
+	@apply gap-2 p-4;
+}
+
+.reg-id {
+	@apply border border-gray-200 rounded-full;
+	@apply py-1 px-6 sm:py-2 sm:px-8;
+	@apply bg-gray-100;
+}
+
+.search-bar {
+	@apply flex items-center gap-2 border border-gray-300 rounded-lg;
+	@apply m-4 mx-8;
+	@apply p-1 sm:p-2 sm:px-4;
+}
+
+.search-icon {
+	@apply text-gray-400;
+}
+
+.search-input {
+	@apply w-full border-none focus:outline-none;
+	@apply p-2;
+}
+
+.filters {
+	@apply flex items-center justify-start;
+	@apply gap-2 p-2 px-10;
+}
+
+.filter-dropdown {
+	@apply rounded-full;
+	@apply w-auto min-w-[7rem];
+	@apply sm:w-36;
+}
+
+.university-list {
+	@apply w-auto m-4 mx-6;
+	@apply p-1 sm:p-2 sm:px-4;
+}
+
+.university {
+	@apply hover:shadow-lg hover:scale-101 transition-all duration-200;
+}

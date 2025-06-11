@@ -1,0 +1,669 @@
+{
+  "studentInfo": {
+    "name": "Aminul Islam",
+    "registrationNumber": "S2023001234",
+    "applicationsSubmitted": 5,
+    "pendingActions": 2,
+    "upcomingDeadlines": 3,
+    "applications": [
+      { "id": 1, "university": "Dhaka University", "program": "BSc in CSE", "status": "Submitted", "actionLink": "#" },
+      { "id": 2, "university": "BUET", "program": "BSc in EEE", "status": "Under Review", "actionLink": "#" },
+      { "id": 3, "university": "Jahangirnagar University", "program": "BBA", "status": "Accepted", "actionLink": "#" },
+      { "id": 4, "university": "NSU", "program": "MSc in CS", "status": "Rejected", "actionLink": "#" }
+    ],
+    "notifications": [
+      { "id": 1, "text": "Your application for DU has been submitted.", "time": "2 hours ago" },
+      { "id": 2, "text": "BUET admission test circular published.", "time": "1 day ago" },
+      { "id": 3, "text": "Reminder: Pay application fee for JU.", "time": "3 days ago" }
+    ],
+    "quickLinks": [
+      { "id": 1, "text": "How to Apply Guides", "link": "#" },
+      { "id": 2, "text": "Previous Year Question Papers", "link": "#" },
+      { "id": 3, "text": "Document Checklist", "link": "#" },
+      { "id": 4, "text": "University Admission Circulars", "link": "#" }
+    ]
+  },
+  "universities": [
+    {
+      "id": "buet",
+      "name": "Bangladesh University of Engineering and Technology",
+      "shortName": "BUET",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "Engineering",
+      "website": "https://www.buet.ac.bd/",
+      "logoUrl": "/logos/buet.png",
+      "deadline": "To be announced (typically Oct-Nov)",
+      "units": [
+        { "name": "KA Unit", "details": "Faculty of Engineering, Faculty of Civil Engineering, etc." },
+        { "name": "KHA Unit", "details": "Faculty of Architecture and Planning" }
+      ],
+      "description": "Bangladesh University of Engineering and Technology, abbreviated as BUET, is a public technological university in Dhaka, Bangladesh. Founded in 1876 as the Dacca Survey School, it is the oldest institution for the study of engineering, architecture and urban planning in Bangladesh."
+    },
+    {
+      "id": "du",
+      "name": "Dhaka University",
+      "shortName": "DU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://www.du.ac.bd/",
+      "logoUrl": "/logos/du.png",
+      "deadline": "To be announced (typically Oct-Nov)",
+      "units": [
+        { "name": "A Unit", "details": "Science Faculty" },
+        { "name": "B Unit", "details": "Arts Faculty" },
+        { "name": "C Unit", "details": "Business Faculty" },
+        { "name": "D Unit", "details": "Combined Sciences, Arts & Business" },
+        { "name": "Cha Unit", "details": "Fine Arts Faculty" }
+      ],
+      "description": "The University of Dhaka, is a public research university located in Dhaka, Bangladesh. It is the oldest university in Bangladesh. On the first day of July 1921, the university opened its doors to students."
+    },
+    {
+      "id": "cu",
+      "name": "University of Chittagong",
+      "shortName": "CU",
+      "locationCity": "Chattogram",
+      "locationFull": "Chattogram, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://www.cu.ac.bd/",
+      "logoUrl": "/logos/cu.png",
+      "deadline": "To be announced (typically Oct-Nov)",
+      "units": [
+        { "name": "A Unit", "details": "Science Faculty" },
+        { "name": "B Unit", "details": "Arts Faculty" },
+        { "name": "C Unit", "details": "Business Administration Faculty" },
+        { "name": "D Unit", "details": "Social Science Faculty" },
+        { "name": "E Unit", "details": "Law Faculty" },
+        { "name": "F Unit", "details": "Engineering Faculty" },
+        { "name": "G Unit", "details": "Institute of Education and Research" },
+        { "name": "H Unit", "details": "Institute of Forestry and Environmental Sciences" }
+      ],
+      "description": "The University of Chittagong is a public university located in Chattogram, Bangladesh. It is one of the largest and most comprehensive universities in the country."
+    },
+    {
+      "id": "ju",
+      "name": "Jahangirnagar University",
+      "shortName": "JU",
+      "locationCity": "Savar",
+      "locationFull": "Savar, Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://www.juniv.edu/",
+      "logoUrl": "/logos/ju.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "A Unit", "details": "Mathematical and Physical Sciences" },
+        { "name": "B Unit", "details": "Social Sciences" },
+        { "name": "C Unit", "details": "Arts and Humanities" },
+        { "name": "D Unit", "details": "Biological Sciences" },
+        { "name": "E Unit", "details": "Business Administration" }
+      ],
+      "description": "Jahangirnagar University is a public university in Bangladesh, based in Savar, Dhaka. It is the only fully residential university in Bangladesh."
+    },
+    {
+      "id": "nsu",
+      "name": "North South University",
+      "shortName": "NSU",
+      "locationCity": "Dhaka",
+      "locationFull": "Bashundhara, Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "General",
+      "website": "http://www.northsouth.edu/",
+      "logoUrl": "/logos/nsu.png",
+      "deadline": "Rolling Admissions (multiple intakes)",
+      "units": [
+        { "name": "Undergraduate Programs", "details": "Various departments including ECE, BBA, Pharmacy, English, Economics, etc." },
+        { "name": "Graduate Programs", "details": "Various Master's programs" }
+      ],
+      "description": "North South University is the first private university in Bangladesh. Its business school is the first in Bangladesh to receive American accreditation from the ACBSP."
+    },
+    {
+      "id": "cuet",
+      "name": "Chittagong University of Engineering & Technology",
+      "shortName": "CUET",
+      "locationCity": "Chattogram",
+      "locationFull": "Chattogram, Bangladesh",
+      "type": "Public",
+      "category": "Engineering",
+      "website": "https://www.cuet.ac.bd/",
+      "logoUrl": "/logos/cuet.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "Engineering Faculties", "details": "Various engineering disciplines" }
+      ],
+      "description": "Chittagong University of Engineering & Technology, commonly referred to as CUET, is a public engineering university in Bangladesh located in Raozan Upazila under Chittagong District."
+    },
+    {
+      "id": "ru",
+      "name": "University of Rajshahi",
+      "shortName": "RU",
+      "locationCity": "Rajshahi",
+      "locationFull": "Motihar, Rajshahi, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "http://www.ru.ac.bd/",
+      "logoUrl": "/logos/ru.png",
+      "deadline": "To be announced (typically Oct-Nov)",
+      "units": [
+        { "name": "Science Group", "details": "Science and Engineering related faculties" },
+        { "name": "Arts Group", "details": "Arts, Social Science, Business, Law faculties" }
+      ],
+      "description": "The University of Rajshahi is a public university located in Rajshahi, Bangladesh. Established in 1953, it is the second oldest university in Bangladesh."
+    },
+    {
+      "id": "sust",
+      "name": "Shahjalal University of Science and Technology",
+      "shortName": "SUST",
+      "locationCity": "Sylhet",
+      "locationFull": "Kumargaon, Sylhet, Bangladesh",
+      "type": "Public",
+      "category": "Science & Technology",
+      "website": "https://www.sust.edu/",
+      "logoUrl": "/logos/sust.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "A Unit", "details": "Science, Engineering and Technology faculties" },
+        { "name": "B Unit", "details": "Social Science, Business Administration, Humanities faculties" }
+      ],
+      "description": "Shahjalal University of Science and Technology (SUST) is a public university in Bangladesh. It is the first science and technology university in the country."
+    },
+    {
+      "id": "ku",
+      "name": "Khulna University",
+      "shortName": "KU",
+      "locationCity": "Khulna",
+      "locationFull": "Khulna, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://ku.ac.bd/",
+      "logoUrl": "/logos/ku.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "A Unit", "details": "Science, Engineering, and Technology" },
+        { "name": "B Unit", "details": "Arts and Humanities, Law, Business Administration" }
+      ],
+      "description": "Khulna University is a public university in Khulna, Bangladesh. It was established in 1991 and is the only university in Bangladesh that does not have a formal student politics."
+    },
+    {
+      "id": "kuet",
+      "name": "Khulna University of Engineering & Technology",
+      "shortName": "KUET",
+      "locationCity": "Khulna",
+      "locationFull": "Khulna, Bangladesh",
+      "type": "Public",
+      "category": "Engineering",
+      "website": "https://www.kuet.ac.bd/",
+      "logoUrl": "/logos/kuet.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "Engineering Faculties", "details": "Various engineering disciplines" }
+      ],
+      "description": "Khulna University of Engineering & Technology, commonly known as KUET, is a public engineering university in Bangladesh located in Khulna."
+    },
+    {
+      "id": "ruet",
+      "name": "Rajshahi University of Engineering & Technology",
+      "shortName": "RUET",
+      "locationCity": "Rajshahi",
+      "locationFull": "Rajshahi, Bangladesh",
+      "type": "Public",
+      "category": "Engineering",
+      "website": "https://www.ruet.ac.bd/",
+      "logoUrl": "/logos/ruet.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "Engineering Faculties", "details": "Various engineering disciplines" }
+      ],
+      "description": "Rajshahi University of Engineering & Technology, commonly known as RUET, is a public engineering university in Bangladesh located in Rajshahi."
+    },
+    {
+      "id": "aiub",
+      "name": "American International University-Bangladesh",
+      "shortName": "AIUB",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "General",
+      "website": "https://www.aiub.edu/",
+      "logoUrl": "/logos/aiub.png",
+      "deadline": "Rolling Admissions (multiple intakes)",
+      "units": [
+        { "name": "Undergraduate Admissions", "details": "Admission to various faculties like Engineering, Business, Arts and Social Sciences." }
+      ],
+      "description": "American International University-Bangladesh (AIUB) is a private university in Dhaka, Bangladesh, offering a wide range of undergraduate and graduate programs."
+    },
+    {
+      "id": "bracu",
+      "name": "BRAC University",
+      "shortName": "BRACU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "General",
+      "website": "https://www.bracu.ac.bd/",
+      "logoUrl": "/logos/bracu.png",
+      "deadline": "Rolling Admissions (multiple intakes)",
+      "units": [
+        { "name": "Undergraduate Programs", "details": "Admission to departments such as CSE, EEE, BBA, Architecture, Law, etc." }
+      ],
+      "description": "BRAC University is a private university in Dhaka, Bangladesh. It was established in 2001 with a mission to foster human potential through quality education and research."
+    },
+    {
+      "id": "diu",
+      "name": "Daffodil International University",
+      "shortName": "DIU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "General",
+      "website": "https://daffodilvarsity.edu.bd/",
+      "logoUrl": "/logos/diu.png",
+      "deadline": "Rolling Admissions (multiple intakes)",
+      "units": [
+        { "name": "Undergraduate Programs", "details": "Wide range of programs in engineering, business, humanities, etc." }
+      ],
+      "description": "Daffodil International University is a private university in Bangladesh. It offers various undergraduate and postgraduate programs and is known for its focus on digital education."
+    },
+    {
+      "id": "uiu",
+      "name": "United International University",
+      "shortName": "UIU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "General",
+      "website": "https://www.uiu.ac.bd/",
+      "logoUrl": "/logos/uiu.png",
+      "deadline": "Rolling Admissions (multiple intakes)",
+      "units": [
+        { "name": "Undergraduate Programs", "details": "Programs in CSE, EEE, BBA, Economics, English, etc." }
+      ],
+      "description": "United International University (UIU) is a private university in Dhaka, Bangladesh. It offers a wide range of academic programs, with a focus on business, engineering, and social sciences."
+    },
+    {
+      "id": "aust",
+      "name": "Ahsanullah University of Science and Technology",
+      "shortName": "AUST",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "Engineering",
+      "website": "https://www.aust.edu/",
+      "logoUrl": "/logos/aust.png",
+      "deadline": "Varies by program",
+      "units": [
+        { "name": "Engineering Programs", "details": "BSc in EEE, CSE, Civil, Mechanical, etc." },
+        { "name": "Architecture Programs", "details": "Bachelor of Architecture" }
+      ],
+      "description": "Ahsanullah University of Science and Technology (AUST) is a private engineering university in Bangladesh. It is known for its strong programs in engineering and architecture."
+    },
+    {
+      "id": "iub",
+      "name": "Independent University, Bangladesh",
+      "shortName": "IUB",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "General",
+      "website": "https://www.iub.edu.bd/",
+      "logoUrl": "/logos/iub.png",
+      "deadline": "Rolling Admissions (multiple intakes)",
+      "units": [
+        { "name": "Undergraduate Admissions", "details": "Wide array of programs in various schools like Business, Engineering & Technology, Arts & Humanities." }
+      ],
+      "description": "Independent University, Bangladesh (IUB) is a leading private university in Bangladesh, offering a liberal arts-based education with a strong emphasis on research and global engagement."
+    },
+    {
+      "id": "ewu",
+      "name": "East West University",
+      "shortName": "EWU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Private",
+      "category": "General",
+      "website": "https://www.ewubd.edu/",
+      "logoUrl": "/logos/ewu.png",
+      "deadline": "Rolling Admissions (multiple intakes)",
+      "units": [
+        { "name": "Undergraduate Admissions", "details": "Programs in Business, Engineering & Technology, Liberal Arts & Social Sciences." }
+      ],
+      "description": "East West University (EWU) is a private university in Bangladesh, established in 1996. It is known for its academic excellence and diverse programs."
+    },
+    {
+      "id": "jnu",
+      "name": "Jagannath University",
+      "shortName": "JnU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://www.jnu.ac.bd/",
+      "logoUrl": "/logos/jnu.png",
+      "deadline": "To be announced (typically Oct-Nov)",
+      "units": [
+        { "name": "A Unit", "details": "Science Faculty" },
+        { "name": "B Unit", "details": "Arts Faculty" },
+        { "name": "C Unit", "details": "Business Faculty" },
+        { "name": "D Unit", "details": "Social Science Faculty" },
+        { "name": "E Unit", "details": "Law Faculty" }
+      ],
+      "description": "Jagannath University is a public university in Dhaka, Bangladesh. It was established as a college in 1868 and was upgraded to a full-fledged university in 2005."
+    },
+    {
+      "id": "bau",
+      "name": "Bangladesh Agricultural University",
+      "shortName": "BAU",
+      "locationCity": "Mymensingh",
+      "locationFull": "Mymensingh, Bangladesh",
+      "type": "Public",
+      "category": "Agricultural",
+      "website": "http://www.bau.edu.bd/",
+      "logoUrl": "/logos/bau.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "Undergraduate Admission", "details": "Admission to various agricultural disciplines." }
+      ],
+      "description": "Bangladesh Agricultural University (BAU) is a public university in Bangladesh, established in 1961. It is the premier agricultural education and research institution in the country."
+    },
+    {
+      "id": "cvasu",
+      "name": "Chittagong Veterinary and Animal Sciences University",
+      "shortName": "CVASU",
+      "locationCity": "Chattogram",
+      "locationFull": "Chattogram, Bangladesh",
+      "type": "Public",
+      "category": "Veterinary & Animal Science",
+      "website": "https://www.cvasu.ac.bd/",
+      "logoUrl": "/logos/cvasu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "FVAS", "details": "Faculty of Veterinary Medicine" },
+        { "name": "FMS", "details": "Faculty of Food Science and Technology" }
+      ],
+      "description": "Chittagong Veterinary and Animal Sciences University (CVASU) is a public university in Bangladesh focused on veterinary medicine, animal science, and food science."
+    },
+    {
+      "id": "nstu",
+      "name": "Noakhali Science and Technology University",
+      "shortName": "NSTU",
+      "locationCity": "Noakhali",
+      "locationFull": "Noakhali, Bangladesh",
+      "type": "Public",
+      "category": "Science & Technology",
+      "website": "https://www.nstu.edu.bd/",
+      "logoUrl": "/logos/nstu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "A Unit", "details": "Science and Engineering related faculties" },
+        { "name": "B Unit", "details": "Social Sciences, Business, Arts" }
+      ],
+      "description": "Noakhali Science and Technology University (NSTU) is a public university in Bangladesh. It offers a wide range of programs in science, technology, and other disciplines."
+    },
+    {
+      "id": "pust",
+      "name": "Pabna University of Science and Technology",
+      "shortName": "PUST",
+      "locationCity": "Pabna",
+      "locationFull": "Pabna, Bangladesh",
+      "type": "Public",
+      "category": "Science & Technology",
+      "website": "https://pust.ac.bd/",
+      "logoUrl": "/logos/pust.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Science and Engineering", "details": "Various engineering and science departments" },
+        { "name": "Arts and Business", "details": "Humanities, Business, Social Sciences" }
+      ],
+      "description": "Pabna University of Science and Technology (PUST) is a public university in Bangladesh, established in 2008, focusing on science and technology education."
+    },
+    {
+      "id": "just",
+      "name": "Jessore University of Science & Technology",
+      "shortName": "JUST",
+      "locationCity": "Jessore",
+      "locationFull": "Jessore, Bangladesh",
+      "type": "Public",
+      "category": "Science & Technology",
+      "website": "https://www.just.edu.bd/",
+      "logoUrl": "/logos/just.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Science and Engineering", "details": "Various engineering and science departments" },
+        { "name": "Applied Science", "details": "Applied science and technology related programs" }
+      ],
+      "description": "Jessore University of Science & Technology (JUST) is a public university in Bangladesh, established in 2007, promoting scientific and technological education."
+    },
+    {
+      "id": "butex",
+      "name": "Bangladesh University of Textiles",
+      "shortName": "BUTEX",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "Textiles",
+      "website": "http://www.butex.edu.bd/",
+      "logoUrl": "/logos/butex.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Textile Engineering", "details": "Specialized programs in textile engineering and fashion design." }
+      ],
+      "description": "Bangladesh University of Textiles (BUTEX) is the only public university in Bangladesh specializing in textile education."
+    },
+    {
+      "id": "bsmmu",
+      "name": "Bangabandhu Sheikh Mujib Medical University",
+      "shortName": "BSMMU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "Medical",
+      "website": "https://www.bsmmu.edu.bd/",
+      "logoUrl": "/logos/bsmmu.png",
+      "deadline": "Varies by program/postgraduate course",
+      "units": [
+        { "name": "Medical and Dental Admission", "details": "Postgraduate courses in various medical specialties." }
+      ],
+      "description": "Bangabandhu Sheikh Mujib Medical University (BSMMU) is the first public medical university in Bangladesh, offering postgraduate medical education and research."
+    },
+    {
+      "id": "bup",
+      "name": "Bangladesh University of Professionals",
+      "shortName": "BUP",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://bup.edu.bd/",
+      "logoUrl": "/logos/bup.png",
+      "deadline": "To be announced (typically Oct-Nov)",
+      "units": [
+        { "name": "Faculty of Business Studies", "details": "BBA, MBA" },
+        { "name": "Faculty of Science & Technology", "details": "CSE, ICT, EEE" },
+        { "name": "Faculty of Arts & Social Sciences", "details": "English, International Relations" }
+      ],
+      "description": "Bangladesh University of Professionals (BUP) is a public university run by the Armed Forces of Bangladesh. It offers a wide range of undergraduate and graduate programs."
+    },
+    {
+      "id": "mist",
+      "name": "Military Institute of Science and Technology",
+      "shortName": "MIST",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "Engineering",
+      "website": "https://mist.ac.bd/",
+      "logoUrl": "/logos/mist.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "Engineering Programs", "details": "Various engineering disciplines including Civil, Mechanical, CSE, EEE, Aeronautical, etc." }
+      ],
+      "description": "Military Institute of Science and Technology (MIST) is a public engineering institute in Bangladesh, offering technical education under the Bangladesh Armed Forces."
+    },
+    {
+      "id": "gstu",
+      "name": "Gopalganj Science and Technology University",
+      "shortName": "GSTU",
+      "locationCity": "Gopalganj",
+      "locationFull": "Gopalganj, Bangladesh",
+      "type": "Public",
+      "category": "Science & Technology",
+      "website": "https://bsmrstu.edu.bd/",
+      "logoUrl": "/logos/gstu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Science, Engineering & Technology", "details": "Various science and engineering programs" },
+        { "name": "Life Science", "details": "Programs in relevant fields" }
+      ],
+      "description": "Bangabandhu Sheikh Mujibur Rahman Science and Technology University (BSMRSTU), commonly known as Gopalganj Science and Technology University (GSTU), is a public university in Gopalganj, Bangladesh."
+    },
+    {
+      "id": "mbstu",
+      "name": "Mawlana Bhashani Science and Technology University",
+      "shortName": "MBSTU",
+      "locationCity": "Tangail",
+      "locationFull": "Tangail, Bangladesh",
+      "type": "Public",
+      "category": "Science & Technology",
+      "website": "http://www.mbstu.ac.bd/",
+      "logoUrl": "/logos/mbstu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Science and Engineering", "details": "Various science and engineering disciplines." }
+      ],
+      "description": "Mawlana Bhashani Science and Technology University (MBSTU) is a public university in Tangail, Bangladesh, focusing on science and technology education."
+    },
+    {
+      "id": "pstu",
+      "name": "Patuakhali Science And Technology University",
+      "shortName": "PSTU",
+      "locationCity": "Patuakhali",
+      "locationFull": "Patuakhali, Bangladesh",
+      "type": "Public",
+      "category": "Science & Technology, Agricultural",
+      "website": "http://www.pstu.ac.bd/",
+      "logoUrl": "/logos/pstu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Agricultural Sciences", "details": "Programs in agriculture and fisheries." },
+        { "name": "Engineering and Technology", "details": "Various engineering and science programs." }
+      ],
+      "description": "Patuakhali Science And Technology University (PSTU) is a public university in Patuakhali, Bangladesh, with a focus on science, technology, and agricultural education."
+    },
+    {
+      "id": "sau",
+      "name": "Sher-e-Bangla Agricultural University",
+      "shortName": "SAU",
+      "locationCity": "Dhaka",
+      "locationFull": "Dhaka, Bangladesh",
+      "type": "Public",
+      "category": "Agricultural",
+      "website": "https://www.sau.edu.bd/",
+      "logoUrl": "/logos/sau.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Agricultural Sciences", "details": "Programs in agriculture, fisheries, and animal science." }
+      ],
+      "description": "Sher-e-Bangla Agricultural University (SAU) is a public agricultural university in Dhaka, Bangladesh, offering specialized education in agricultural sciences."
+    }
+    ,
+    {
+      "id": "cou",
+      "name": "Comilla University",
+      "shortName": "CoU",
+      "locationCity": "Comilla",
+      "locationFull": "Comilla, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://cou.ac.bd/",
+      "logoUrl": "/logos/cou.png",
+      "deadline": "To be announced (typically Nov-Dec)",
+      "units": [
+        { "name": "Science & Engineering", "details": "Various science and engineering faculties." },
+        { "name": "Arts, Social Science & Business", "details": "Faculties in humanities, social sciences, and business administration." }
+      ],
+      "description": "Comilla University (CoU) is a public university located in Comilla, Bangladesh, established in 2006, offering a range of undergraduate and postgraduate programs."
+    },
+    {
+      "id": "jkkniu",
+      "name": "Jatiya Kabi Kazi Nazrul Islam University",
+      "shortName": "JKKNIU",
+      "locationCity": "Mymensingh",
+      "locationFull": "Mymensingh, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://jkkniu.edu.bd/",
+      "logoUrl": "/logos/jkkniu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Arts", "details": "Various departments in Arts and Humanities." },
+        { "name": "Science & Engineering", "details": "Departments in science and engineering." }
+      ],
+      "description": "Jatiya Kabi Kazi Nazrul Islam University (JKKNIU) is a public university in Trishal, Mymensingh, Bangladesh, named after the national poet Kazi Nazrul Islam."
+    },
+    {
+      "id": "iu",
+      "name": "Islamic University, Bangladesh",
+      "shortName": "IU",
+      "locationCity": "Kushtia",
+      "locationFull": "Kushtia, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://www.iu.ac.bd/",
+      "logoUrl": "/logos/iu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Theology & Islamic Studies", "details": "Specialized religious studies." },
+        { "name": "Applied Science & Technology", "details": "Departments in science and technology." }
+      ],
+      "description": "Islamic University, Bangladesh (IU) is a public university in Kushtia, Bangladesh, with a strong focus on Islamic studies alongside modern disciplines."
+    },
+    {
+      "id": "brur",
+      "name": "Begum Rokeya University, Rangpur",
+      "shortName": "BRUR",
+      "locationCity": "Rangpur",
+      "locationFull": "Rangpur, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://brur.ac.bd/",
+      "logoUrl": "/logos/brur.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Science", "details": "Faculties related to science and engineering." },
+        { "name": "Arts & Social Sciences", "details": "Humanities, social sciences, and business faculties." }
+      ],
+      "description": "Begum Rokeya University, Rangpur (BRUR) is a public university in Rangpur, Bangladesh, established in 2008, named after the pioneer of women's rights in Bengal."
+    },
+    {
+      "id": "bu",
+      "name": "University of Barishal",
+      "shortName": "BU",
+      "locationCity": "Barishal",
+      "locationFull": "Barishal, Bangladesh",
+      "type": "Public",
+      "category": "General",
+      "website": "https://bu.ac.bd/",
+      "logoUrl": "/logos/bu.png",
+      "deadline": "To be announced (typically Dec-Jan)",
+      "units": [
+        { "name": "Science", "details": "Science and engineering faculties." },
+        { "name": "Arts, Business & Social Sciences", "details": "Humanities, business administration, and social sciences faculties." }
+      ],
+      "description": "University of Barishal (BU) is a public university in Barishal, Bangladesh, established in 2011, offering diverse academic programs."
+    }
+  ],
+  "divisions": [
+    { "id": "barishal", "name": "Barishal Division" },
+    { "id": "chattogram", "name": "Chattogram Division" },
+    { "id": "dhaka", "name": "Dhaka Division" },
+    { "id": "khulna", "name": "Khulna Division" },
+    { "id": "mymensingh", "name": "Mymensingh Division" },
+    { "id": "rajshahi", "name": "Rajshahi Division" },
+    { "id": "rangpur", "name": "Rangpur Division" },
+    { "id": "sylhet", "name": "Sylhet Division" }
+  ]
+}
