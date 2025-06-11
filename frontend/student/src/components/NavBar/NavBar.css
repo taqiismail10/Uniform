@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+.logo {
+	@apply flex items-center justify-center;
+}
+
+.logo img {
+	@apply h-10 w-10 md:h-12 md:w-12 items-center;
+}
+
+.nav-links {
+	@apply flex flex-col sm:flex-row gap-2 sm:gap-8 items-start sm:items-center;
+	@apply font-bold text-gray-700;
+	@apply hover:text-gray-900;
+	@apply transition-colors duration-200;
+}
+
+.nav-buttons {
+	@apply flex gap-4 items-center;
+}
+
+.user-icon {
+	@apply h-10 w-10 p-1 mr-3 rounded-full;
+	@apply bg-black text-white;
+	@apply cursor-pointer hover:scale-102 hover:shadow-lg;
+	@apply transition-transform duration-200;
+}
+
+/* Styles for the user dropdown menu */
+.user-menu-dropdown {
+	@apply hidden absolute top-full right-5 mt-2 w-52 rounded-md border border-gray-200 bg-white shadow-md z-10;
+	@apply py-8 px-4;
+	@apply flex-col gap-2;
+}
+
+.user-menu-dropdown.open {
+	@apply flex;
+}
+
+.user-menu-dropdown .user-info {
+	@apply flex items-center gap-2 pb-2 border-b border-gray-200;
+}
+
+.user-menu-dropdown .user-avatar {
+	@apply w-8 h-8 p-1 rounded-full bg-gray-300;
+}
+
+.user-menu-dropdown .user-name {
+	@apply font-bold text-sm;
+}
+
+.user-menu-dropdown .menu-item {
+	@apply block px-4 py-2 mb-4 text-sm text-gray-700 cursor-pointer no-underline;
+}
+
+.user-menu-dropdown .menu-item:hover {
+	@apply bg-gray-200;
+}
+
+/* Hamburger Functionalities */
+.hamburger-icon {
+	@apply flex items-center justify-center w-11 h-11 p-2 rounded-sm;
+	@apply bg-white text-gray-800;
+	@apply cursor-pointer hover:bg-gray-100 hover:shadow-md;
+	@apply transition-all duration-200;
+}
+
+.hamburger-menu-dropdown {
+	@apply hidden fixed top-0 right-0 h-full w-64 bg-white shadow-md z-50;
+	@apply py-8 px-4;
+	@apply flex flex-col gap-2;
+}
+
+.hamburger-menu-dropdown.open {
+	@apply flex;
+}
+
+.hamburger-menu-dropdown .user-info {
+	@apply flex items-center gap-2 pb-2 border-b border-gray-200;
+}
+
+.hamburger-menu-dropdown .user-avatar {
+	@apply w-8 h-8 p-1 rounded-full bg-gray-300;
+}
+
+.hamburger-menu-dropdown .user-name {
+	@apply font-bold text-sm;
+}
+
+.hamburger-menu-dropdown .menu-item {
+	@apply block px-4 py-2 mb-4 text-sm text-gray-700 cursor-pointer no-underline;
+}
+
+.hamburger-menu-dropdown .menu-item:hover {
+	@apply bg-gray-200;
+}

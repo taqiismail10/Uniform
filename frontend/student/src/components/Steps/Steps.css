@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+.steps-container {
+	@apply flex flex-col m-4 p-2 pt-8 sm:px-6 md:px-8;
+}
+
+.steps-grid {
+	@apply flex flex-col md:flex-row m-4 md:mb-8 p-2 py-8 sm:px-4 md:px-6 items-center justify-around gap-2 sm:gap-4;
+}
+
+.step-item {
+	@apply flex flex-col items-center gap-2 p-4 border border-gray-200;
+	@apply text-center;
+	@apply bg-gray-100 rounded-md hover:shadow-lg transition-shadow;
+	@apply w-fit sm:w-auto aspect-square;
+	box-shadow: 0 0 5px rgba(73, 72, 72, 0.2);
+	transition: box-shadow 0.3s ease-in-out;
+}
+
+.step-item:hover {
+	box-shadow: 0 0 15px rgba(73, 72, 72, 0.2);
+}
+
+.step-item-icon {
+	@apply stroke-1 sm:stroke-2 lg:stroke-3;
+}
+
+.step-arrow-icon {
+	@apply stroke-1 sm:stroke-2 lg:stroke-3 rotate-90 md:rotate-0;
+}

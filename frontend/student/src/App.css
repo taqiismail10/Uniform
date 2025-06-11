@@ -1,38 +1,76 @@
+@import "tailwindcss";
+
 #root {
-	max-width: full-width;
-	margin: 0 auto;
-	padding: 0.5rem;
-	text-align: center;
+	font-family: "Inter", sans-serif;
+	padding: 0;
 }
 
-.logo {
-	height: 6em;
-	padding: 1.5em;
-	will-change: filter;
-	transition: filter 300ms;
-}
-.logo:hover {
-	filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-	filter: drop-shadow(0 0 2em #61dafbaa);
+/* Link Hover Affect */
+.nav-links a {
+	position: relative;
+	text-decoration: none;
 }
 
-@keyframes logo-spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
+.nav-links a::before {
+	content: "";
+	position: absolute;
+	display: block;
+	width: 100%;
+	height: 2px;
+	bottom: 0;
+	left: 0;
+	background-color: #000;
+	transform: scaleX(0);
+	transition: transform 0.3s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-	a:nth-of-type(2) .logo {
-		animation: logo-spin infinite 20s linear;
-	}
+.nav-links a.active::before {
+	transform: scaleX(1);
 }
 
-.read-the-docs {
-	color: #888;
+.nav-links a:hover::before {
+	transform: scaleX(1);
+}
+
+.button-primary {
+	@apply bg-black text-white font-bold py-2 px-6 w-full sm:w-fit rounded-md;
+	@apply cursor-pointer hover:bg-gray-800 hover:scale-101 transition-all duration-200;
+	@apply py-3 px-8 text-lg sm:text-base;
+}
+
+.button-secondary {
+	@apply bg-white text-black font-bold py-2 px-6 w-full sm:w-fit rounded-md;
+	@apply border cursor-pointer border-gray-800 hover:bg-gray-100 hover:scale-101 transition-all duration-200;
+	@apply py-3 px-8 text-lg sm:text-base;
+}
+
+h1 {
+	@apply text-4xl md:text-5xl font-semibold text-gray-800;
+}
+
+h2 {
+	@apply text-2xl md:text-3xl font-semibold text-gray-700;
+}
+
+h3 {
+	@apply text-xl md:text-2xl font-medium text-gray-600;
+}
+
+p {
+	@apply text-base md:text-lg text-gray-600;
+}
+
+.card-holder {
+	@apply flex flex-col md:flex-row justify-around gap-1 lg:gap-2 xl:gap-4;
+	@apply p-2 lg:p-4 xl:p-8 bg-gray-100;
+}
+
+.card {
+	@apply flex flex-col items-center justify-start gap-2 xl:gap-4 border border-gray-100;
+	@apply p-8 md:p-10 lg:p-14 xl:px-18 m-2 md:m-4 lg:m-6 xl:m-8 text-center rounded-md bg-white;
+	@apply shadow-md hover:shadow-lg;
+}
+
+.card-icon {
+	@apply size-10 sm:size-12 md:size-14 xl:size-16;
 }
