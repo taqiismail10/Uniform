@@ -7,8 +7,10 @@ export const Route = createFileRoute('/')({
 
 function RouteComponent() {
   return (
-    <>
-      <LandingPage />
-    </>
+    <main>
+      <div>
+        <LandingPage />
+      </div>
+    </main>
   )
 }

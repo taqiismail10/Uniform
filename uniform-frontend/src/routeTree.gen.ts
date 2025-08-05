@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentIndexRouteImport } from './routes/student/index'
 import { Route as StudentDashboardRouteImport } from './routes/student/dashboard'
 import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorized'
+import { Route as AuthStudentLoginRouteImport } from './routes/_auth/studentLogin'
+import { Route as AuthRegistrationRouteImport } from './routes/_auth/registration'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +37,16 @@ const AuthUnauthorizedRoute = AuthUnauthorizedRouteImport.update({
   path: '/unauthorized',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthStudentLoginRoute = AuthStudentLoginRouteImport.update({
+  id: '/_auth/studentLogin',
+  path: '/studentLogin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRegistrationRoute = AuthRegistrationRouteImport.update({
+  id: '/_auth/registration',
+  path: '/registration',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/_auth/login',
   path: '/login',
@@ -44,6 +56,8 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
+  '/registration': typeof AuthRegistrationRoute
+  '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student': typeof StudentIndexRoute
@@ -51,6 +65,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
+  '/registration': typeof AuthRegistrationRoute
+  '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student': typeof StudentIndexRoute
@@ -59,6 +75,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth/login': typeof AuthLoginRoute
+  '/_auth/registration': typeof AuthRegistrationRoute
+  '/_auth/studentLogin': typeof AuthStudentLoginRoute
   '/_auth/unauthorized': typeof AuthUnauthorizedRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/': typeof StudentIndexRoute
@@ -68,15 +86,26 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/registration'
+    | '/studentLogin'
     | '/unauthorized'
     | '/student/dashboard'
     | '/student'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/unauthorized' | '/student/dashboard' | '/student'
+  to:
+    | '/'
+    | '/login'
+    | '/registration'
+    | '/studentLogin'
+    | '/unauthorized'
+    | '/student/dashboard'
+    | '/student'
   id:
     | '__root__'
     | '/'
     | '/_auth/login'
+    | '/_auth/registration'
+    | '/_auth/studentLogin'
     | '/_auth/unauthorized'
     | '/student/dashboard'
     | '/student/'
@@ -85,6 +114,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthRegistrationRoute: typeof AuthRegistrationRoute
+  AuthStudentLoginRoute: typeof AuthStudentLoginRoute
   AuthUnauthorizedRoute: typeof AuthUnauthorizedRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
   StudentIndexRoute: typeof StudentIndexRoute
@@ -120,6 +151,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthUnauthorizedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/studentLogin': {
+      id: '/_auth/studentLogin'
+      path: '/studentLogin'
+      fullPath: '/studentLogin'
+      preLoaderRoute: typeof AuthStudentLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/registration': {
+      id: '/_auth/registration'
+      path: '/registration'
+      fullPath: '/registration'
+      preLoaderRoute: typeof AuthRegistrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth/login': {
       id: '/_auth/login'
       path: '/login'
@@ -133,6 +178,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthRegistrationRoute: AuthRegistrationRoute,
+  AuthStudentLoginRoute: AuthStudentLoginRoute,
   AuthUnauthorizedRoute: AuthUnauthorizedRoute,
   StudentDashboardRoute: StudentDashboardRoute,
   StudentIndexRoute: StudentIndexRoute,

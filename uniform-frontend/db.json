@@ -2,8 +2,7 @@
   "users": [
     {
       "userId": "user-id-1",
-      "firstName": "Monir",
-      "lastName": "Sarkar",
+      "userName": "Monir Sarkar",
       "email": "monir123@example.com",
       "phone": "+8801234567890",
       "password": "Monir123",
@@ -15,8 +14,7 @@
     },
     {
       "userId": "user-id-2",
-      "firstName": "Anika",
-      "lastName": "Ahmed",
+      "userName": "Anika Ahmed",
       "email": "anikahmed@example.com",
       "phone": "+8809876543210",
       "password": "Anika123",
@@ -28,8 +26,7 @@
     },
     {
       "userId": "user-id-3",
-      "firstName": "Rahim",
-      "lastName": "Khan",
+      "userName": "Rahim Khan",
       "email": "rahimkhan@example.com",
       "phone": "+8805555555555",
       "password": "Rahim123",
@@ -44,7 +41,7 @@
   "institutions": [
     {
       "institutionId": "institution-id-1",
-      "name": "University of Dhaka",
+      "institutionName": "University of Dhaka",
       "type": "UNIVERSITY",
       "description": "Leading public university in Bangladesh",
       "website": "https://du.ac.bd",
@@ -53,7 +50,7 @@
     },
     {
       "institutionId": "institution-id-2",
-      "name": "Bangladesh University of Engineering and Technology",
+      "institutionName": "Bangladesh University of Engineering and Technology",
       "type": "UNIVERSITY",
       "description": "Top engineering university in Bangladesh",
       "website": "https://www.buet.ac.bd",
@@ -62,7 +59,7 @@
     },
     {
       "institutionId": "institution-id-3",
-      "name": "North South University",
+      "institutionName": "North South University",
       "type": "PRIVATE_UNIVERSITY",
       "description": "Leading private university in Bangladesh",
       "website": "https://www.northsouth.edu",
@@ -71,7 +68,7 @@
     },
     {
       "institutionId": "institution-id-4",
-      "name": "BRAC University",
+      "institutionName": "BRAC University",
       "type": "PRIVATE_UNIVERSITY",
       "description": "Renowned private university in Bangladesh",
       "website": "https://www.bracu.ac.bd",
@@ -80,7 +77,7 @@
     },
     {
       "institutionId": "institution-id-5",
-      "name": "Khulna University of Engineering and Technology",
+      "institutionName": "Khulna University of Engineering and Technology",
       "type": "ENIGNEERING UNIVERSITY",
       "description": "Top engineering university in Khulna",
       "website": "https://www.kuet.ac.bd",
@@ -89,7 +86,7 @@
     },
     {
       "institutionId": "institution-id-6",
-      "name": "Chittagong University of Engineering and Technology",
+      "institutionName": "Chittagong University of Engineering and Technology",
       "type": "ENIGNEERING UNIVERSITY",
       "description": "Leading engineering university in Chittagong",
       "website": "https://www.cuet.ac.bd",
