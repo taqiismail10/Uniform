@@ -5,7 +5,7 @@ const API_URL = "http://localhost:5000";
 
 export interface Institution {
   institutionId: string;
-  name: string;
+  institutionName: string;
   type: string;
   description: string;
   website: string;
@@ -25,6 +25,7 @@ export const userLogin = async (
         password
       }
     });
+    console.log("Login Successful from api call: ", response.data[0]);
     return response.data[0] || null;
   } catch (error) {
     console.log("Login Failed from api call: ", error);
