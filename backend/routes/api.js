@@ -1,5 +1,7 @@
 import { Router } from "express";
 import authController from "../controllers/AuthController.js";
+import profileController from "../controllers/ProfileController.js";
+import authMiddleware from "../middleware/Authenticate.js";
 
 const router = Router();
 
@@ -7,9 +9,9 @@ router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
 
 // // * Profile routes
-// router.get("/profile", authMiddleware, profileController.index); // Private route
-// router.put("/profile/:id", authMiddleware, profileController.update); // Private route
-// // router.get("/profile/:id", authMiddleware, profileController.show); // Private route
+router.get("/profile", authMiddleware, profileController.index); // Private route
+router.put("/profile/:id", authMiddleware, profileController.update); // Private route
+// router.get("/profile/:id", authMiddleware, profileController.show); // Private route
 
 // // Form routes
 // router.post("/form", authMiddleware, formController.submitForm);
