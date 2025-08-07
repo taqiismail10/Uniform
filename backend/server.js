@@ -16,5 +16,8 @@ app.get("/", (req, res) => {
 });
 
 
+import apiRoutes from "./routes/api.js";
+app.use("/api", apiRoutes);
+
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
