@@ -19,17 +19,49 @@ UniForm is a centralized web application designed to simplify the university adm
 
 ## 🧱 Tech Stack
 
-| Layer         | Technology                     |
-|---------------|--------------------------------|
-| Frontend      | React + Vite (Vercel)          |
-| Backend       | Node.js + Express              |
-| ORM/Database  | Prisma + PostgreSQL            |
-| Authentication| JSON Web Tokens (JWT)          |
-| DevOps        | Docker + GitHub Actions        |
-| Hosting       | Vercel (Frontend), Docker (API)|
+| Layer          | Technology                      |
+| -------------- | ------------------------------- |
+| Frontend       | React + Vite (Vercel)           |
+| Backend        | Node.js + Express               |
+| ORM/Database   | Prisma + PostgreSQL             |
+| Authentication | JSON Web Tokens (JWT)           |
+| DevOps         | Docker + GitHub Actions         |
+| Hosting        | Vercel (Frontend), Docker (API) |
 
----
-## License
+## 🛠️ Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/taqiismail10/Uniform.git
+cd Uniform/backend
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Environment Variables
+
+This project uses environment variables for configuration. The actual `.env` file is not included in the repository for security reasons.
+
+1. Copy the example file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Fill in the required values in your new `.env` file.
+
+> **Note:** Refer to `.env.example` for all required variables. If you are unsure about any value, contact the development team.
+
+### 4. Run the development server
+
+```bash
+npm run server
+```
+
+The server should now be running at `http://localhost:5000` (or the port you set in `.env`).
 
 **UniForm** is a proprietary software product developed by  
 **Taqi Ismail**, **Aong Cho Thing Marma**, and **Md. Sadman Sami Khan**.
@@ -44,7 +76,3 @@ If you are interested in using or licensing UniForm for commercial or institutio
 > 🌐 https://uniform-bd.com (coming soon)
 
 © 2025 UniForm Platform. All rights reserved.
-
-
-
-
