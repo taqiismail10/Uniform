@@ -14,7 +14,7 @@ export const registerSchema = vine.object({
   password: vine.string().trim().minLength(6).maxLength(100).confirmed(),
   password_confirmation: vine.string(),
   address: vine.string(),
-  role: vine.enum(["STUDENT", "ADMIN", "UNIVERSITY_ADMIN"]),
+  role: vine.enum(["STUDENT", "SYSTEM_ADMIN", "INSTITUTION_ADMIN"]),
 
   // ✅ Added `dob` validation
   dob: vine
@@ -27,11 +27,17 @@ export const loginSchema = vine.object({
   email: vine.string().trim().email(),
   password: vine.string(),
   // password_confirmation: vine.string(),
-  role: vine.enum(["STUDENT", "ADMIN", "UNIVERSITY_ADMIN"]),
+  role: vine.enum(["STUDENT"]),
 });
 
 export const adminLoginSchema = vine.object({
   email: vine.string().email(),
   password: vine.string(),
-  role: vine.enum(["ADMIN"]), // This is causing the issue
+  role: vine.enum(["SYSTEM_ADMIN", "INSTITUTION_ADMIN"]),
 });
+
+// export const adminLoginSchema = vine.object({
+//   email: vine.string().email(),
+//   password: vine.string(),
+//   role: vine.enum(["INSTITUTION_ADMIN"]), // This is causing the issue
+// });

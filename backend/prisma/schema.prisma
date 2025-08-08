@@ -40,13 +40,25 @@ model Form {
 
 }
 
+model Systemadmin {
+  systemAdminId String @id @default(uuid())
+  email         String @unique
+  password      String @db.VarChar(255)
+  role          String @default("SYSTEM_ADMIN")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+}
+
 model Admin {
   adminId   String   @id @default(uuid())
   email     String   @unique
   password  String   @db.VarChar(255)
-  role      String   @default("ADMIN")
+  role      String   @default("INSTITUTION_ADMIN")
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [institutionId])
 }
 
 model Institution {
@@ -59,6 +71,8 @@ model Institution {
 
   institutionForms                         InstitutionForm[]
   AppliedInstitution                       AppliedInstitution[]
+
+  admins                                   Admin[] // Relation to Admin
 
   InstitutionCategory                      InstitutionCategory? @relation(fields: [institutionCategoryInstitutionCategoryId], references: [institutionCategoryId])
 

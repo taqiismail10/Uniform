@@ -1,4 +1,4 @@
-// import { generateRandomNum, imageValidator } from "../utils/helper.js";
+import { generateRandomNum, imageValidator } from "../utils/helper.js";
 
 class profileController {
   static async index(req, res) {
