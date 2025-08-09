@@ -20,13 +20,14 @@ const adminMiddleware = async (req, res, next) => {
       });
     }
 
+    console.log("Decoded user:", user);
     // Check if the user has the "ADMIN" role
-    // if (user.role !== "INSTITUTION_ADMIN") {
-    //   return res.status(403).json({
-    //     status: 403,
-    //     message: "Access denied",
-    //   });
-    // }
+    if (user.role !== "INSTITUTION_ADMIN") {
+      return res.status(403).json({
+        status: 403,
+        message: "Access denied",
+      });
+    }
 
     req.admin = user; // Attach the decoded admin data to the request
     next();

@@ -33,8 +33,11 @@ class adminAuthController {
         // Generate JWT token
         const payloadData = {
           adminId: findAdmin.adminId,
-          email: findAdmin.email,
+          // email: findAdmin.email,
+          role: findAdmin.role,
         };
+        console.log("Payload Data:", findAdmin.role); // Debugging log
+        console.log("Payload Data:", payloadData); // Debugging log
 
         const token = jwt.sign(payloadData, process.env.JWT_SECRET, {
           expiresIn: "365d",
