@@ -9,8 +9,7 @@ datasource db {
 
 model Student {
   studentId String   @id @default(uuid())
-  firstName String   @db.VarChar(190)
-  lastName  String   @db.VarChar(190)
+  fullName String   @db.VarChar(190)
   email     String   @unique
   phone     String?  @db.VarChar(15)
   password  String   @db.VarChar(255) // Ensure this field exists
@@ -18,6 +17,12 @@ model Student {
   role      String   @default("STUDENT") // Ensure role exists
   dob       DateTime
   profile   String?
+    createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  forms              Form[]
+  AppliedInstitution AppliedInstitution[]
+
 
 }
 
@@ -31,16 +36,29 @@ model Form {
   sscRoll   Int    @unique
   hscGPA    Float
   sscGPA    Float
+  student Student @relation(fields: [studentId], references: [studentId])
 
+}
+
+model Systemadmin {
+  systemAdminId String @id @default(uuid())
+  email         String @unique
+  password      String @db.VarChar(255)
+  role          String @default("SYSTEM_ADMIN")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 }
 
 model Admin {
   adminId   String   @id @default(uuid())
   email     String   @unique
   password  String   @db.VarChar(255)
-  role      String   @default("ADMIN")
+  role      String   @default("INSTITUTION_ADMIN")
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [institutionId])
 }
 
 model Institution {
@@ -50,6 +68,11 @@ model Institution {
   requirementsSscGPA Float
 
   institutionCategoryInstitutionCategoryId String?               @db.VarChar(255) // Foreign key to InstitutionCategory
+
+  institutionForms                         InstitutionForm[]
+  AppliedInstitution                       AppliedInstitution[]
+
+  admins                                   Admin[] // Relation to Admin
 
   InstitutionCategory                      InstitutionCategory? @relation(fields: [institutionCategoryInstitutionCategoryId], references: [institutionCategoryId])
 
@@ -72,6 +95,9 @@ model InstitutionForm {
   fieldType         String // e.g., "text", "number", "file"
   isRequired        Boolean @default(true)
 
+    institution Institution @relation(fields: [institutionId], references: [institutionId])
+
+
 }
 
 model AppliedInstitution {
@@ -79,7 +105,8 @@ model AppliedInstitution {
   studentId     String
   institutionId String
 
-
+  student     Student     @relation(fields: [studentId], references: [studentId])
+  institution Institution @relation(fields: [institutionId], references: [institutionId])
 }
 
 
