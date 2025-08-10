@@ -129,7 +129,6 @@ PUT http://localhost:5000/api/admin/update-password
 GET http://localhost:5000/api/profile
 
 ```json
-{
   "status": 200,
   "profile": {
     "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
@@ -144,11 +143,13 @@ GET http://localhost:5000/api/profile
     "createdAt": "2025-08-07T06:06:17.419Z",
     "updatedAt": "2025-08-07T06:06:17.419Z"
   },
+```
+
+```json
   "user": {
     "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
     "email": "aongcho880@example.com",
     "iat": 1754579660,
     "exp": 1786115660
   }
-}
 ```
