@@ -17,7 +17,11 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentIndexRouteImport } from './routes/student/index'
+import { Route as InstitutionIndexRouteImport } from './routes/institution/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as StudentDashboardRouteImport } from './routes/student/dashboard'
+import { Route as InstitutionDashboardRouteImport } from './routes/institution/dashboard'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorized'
 import { Route as AuthStudentLoginRouteImport } from './routes/_auth/studentLogin'
 import { Route as AuthRegistrationRouteImport } from './routes/_auth/registration'
@@ -65,9 +69,29 @@ const StudentIndexRoute = StudentIndexRouteImport.update({
   path: '/student/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InstitutionIndexRoute = InstitutionIndexRouteImport.update({
+  id: '/institution/',
+  path: '/institution/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentDashboardRoute = StudentDashboardRouteImport.update({
   id: '/student/dashboard',
   path: '/student/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstitutionDashboardRoute = InstitutionDashboardRouteImport.update({
+  id: '/institution/dashboard',
+  path: '/institution/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthUnauthorizedRoute = AuthUnauthorizedRouteImport.update({
@@ -115,7 +139,11 @@ export interface FileRoutesByFullPath {
   '/registration': typeof AuthRegistrationRoute
   '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
+  '/admin': typeof AdminIndexRoute
+  '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,7 +160,11 @@ export interface FileRoutesByTo {
   '/registration': typeof AuthRegistrationRoute
   '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
+  '/admin': typeof AdminIndexRoute
+  '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
 }
 export interface FileRoutesById {
@@ -150,7 +182,11 @@ export interface FileRoutesById {
   '/_auth/registration': typeof AuthRegistrationRoute
   '/_auth/studentLogin': typeof AuthStudentLoginRoute
   '/_auth/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
+  '/admin/': typeof AdminIndexRoute
+  '/institution/': typeof InstitutionIndexRoute
   '/student/': typeof StudentIndexRoute
 }
 export interface FileRouteTypes {
@@ -169,7 +205,11 @@ export interface FileRouteTypes {
     | '/registration'
     | '/studentLogin'
     | '/unauthorized'
+    | '/admin/dashboard'
+    | '/institution/dashboard'
     | '/student/dashboard'
+    | '/admin'
+    | '/institution'
     | '/student'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -186,7 +226,11 @@ export interface FileRouteTypes {
     | '/registration'
     | '/studentLogin'
     | '/unauthorized'
+    | '/admin/dashboard'
+    | '/institution/dashboard'
     | '/student/dashboard'
+    | '/admin'
+    | '/institution'
     | '/student'
   id:
     | '__root__'
@@ -203,7 +247,11 @@ export interface FileRouteTypes {
     | '/_auth/registration'
     | '/_auth/studentLogin'
     | '/_auth/unauthorized'
+    | '/admin/dashboard'
+    | '/institution/dashboard'
     | '/student/dashboard'
+    | '/admin/'
+    | '/institution/'
     | '/student/'
   fileRoutesById: FileRoutesById
 }
@@ -221,7 +269,11 @@ export interface RootRouteChildren {
   AuthRegistrationRoute: typeof AuthRegistrationRoute
   AuthStudentLoginRoute: typeof AuthStudentLoginRoute
   AuthUnauthorizedRoute: typeof AuthUnauthorizedRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  InstitutionDashboardRoute: typeof InstitutionDashboardRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  InstitutionIndexRoute: typeof InstitutionIndexRoute
   StudentIndexRoute: typeof StudentIndexRoute
 }
 
@@ -283,11 +335,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/institution/': {
+      id: '/institution/'
+      path: '/institution'
+      fullPath: '/institution'
+      preLoaderRoute: typeof InstitutionIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student/dashboard': {
       id: '/student/dashboard'
       path: '/student/dashboard'
       fullPath: '/student/dashboard'
       preLoaderRoute: typeof StudentDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/institution/dashboard': {
+      id: '/institution/dashboard'
+      path: '/institution/dashboard'
+      fullPath: '/institution/dashboard'
+      preLoaderRoute: typeof InstitutionDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/unauthorized': {
@@ -349,7 +429,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRegistrationRoute: AuthRegistrationRoute,
   AuthStudentLoginRoute: AuthStudentLoginRoute,
   AuthUnauthorizedRoute: AuthUnauthorizedRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  InstitutionDashboardRoute: InstitutionDashboardRoute,
   StudentDashboardRoute: StudentDashboardRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  InstitutionIndexRoute: InstitutionIndexRoute,
   StudentIndexRoute: StudentIndexRoute,
 }
 export const routeTree = rootRouteImport
