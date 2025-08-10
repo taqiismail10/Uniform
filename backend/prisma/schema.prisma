@@ -72,7 +72,7 @@ model Institution {
   website            String?
   establishedYear    Int?
   logoUrl            String? // Institution logo
-  
+
   requirementsHscGPA Float?
   requirementsSscGPA Float?
 
@@ -90,7 +90,7 @@ model Institution {
 model InstitutionCategory {
   institutionCategoryId String @id @default(uuid())
   name                  String
-  description           String
+  description           String?
 
   institutions Institution[]
 }
