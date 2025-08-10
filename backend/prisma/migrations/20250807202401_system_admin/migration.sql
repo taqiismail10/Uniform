@@ -1,0 +1,14 @@
+-- CreateTable
+CREATE TABLE "public"."SYSTEM_ADMIN" (
+    "systemAdminId" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'SYSTEM_ADMIN',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "SYSTEM_ADMIN_pkey" PRIMARY KEY ("systemAdminId")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SYSTEM_ADMIN_email_key" ON "public"."SYSTEM_ADMIN"("email");
