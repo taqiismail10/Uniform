@@ -1,5 +1,6 @@
 import NavBar from "../NavBar"
 import Feature from "./Feature"
+import { Footer } from "./Footer"
 import Hero from "./Hero"
 import Process from "./Process"
 import ReadyToApply from "./ReadyToApply"
@@ -17,6 +18,7 @@ const LandingPage = () => {
         <Testimonial />
         <Support />
         <ReadyToApply />
+        <Footer />
       </div>
     </div>
   )

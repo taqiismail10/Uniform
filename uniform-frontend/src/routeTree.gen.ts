@@ -9,6 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentIndexRouteImport } from './routes/student/index'
 import { Route as StudentDashboardRouteImport } from './routes/student/dashboard'
@@ -16,7 +22,39 @@ import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorize
 import { Route as AuthStudentLoginRouteImport } from './routes/_auth/studentLogin'
 import { Route as AuthRegistrationRouteImport } from './routes/_auth/registration'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AuthInstitutionLoginRouteImport } from './routes/_auth/institutionLogin'
+import { Route as AuthAdminLoginRouteImport } from './routes/_auth/adminLogin'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -52,9 +90,27 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthInstitutionLoginRoute = AuthInstitutionLoginRouteImport.update({
+  id: '/_auth/institutionLogin',
+  path: '/institutionLogin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthAdminLoginRoute = AuthAdminLoginRouteImport.update({
+  id: '/_auth/adminLogin',
+  path: '/adminLogin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/adminLogin': typeof AuthAdminLoginRoute
+  '/institutionLogin': typeof AuthInstitutionLoginRoute
   '/login': typeof AuthLoginRoute
   '/registration': typeof AuthRegistrationRoute
   '/studentLogin': typeof AuthStudentLoginRoute
@@ -64,6 +120,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/adminLogin': typeof AuthAdminLoginRoute
+  '/institutionLogin': typeof AuthInstitutionLoginRoute
   '/login': typeof AuthLoginRoute
   '/registration': typeof AuthRegistrationRoute
   '/studentLogin': typeof AuthStudentLoginRoute
@@ -74,6 +138,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/_auth/adminLogin': typeof AuthAdminLoginRoute
+  '/_auth/institutionLogin': typeof AuthInstitutionLoginRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/registration': typeof AuthRegistrationRoute
   '/_auth/studentLogin': typeof AuthStudentLoginRoute
@@ -85,6 +157,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
+    | '/contact'
+    | '/cookies'
+    | '/help'
+    | '/privacy'
+    | '/terms'
+    | '/adminLogin'
+    | '/institutionLogin'
     | '/login'
     | '/registration'
     | '/studentLogin'
@@ -94,6 +174,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/contact'
+    | '/cookies'
+    | '/help'
+    | '/privacy'
+    | '/terms'
+    | '/adminLogin'
+    | '/institutionLogin'
     | '/login'
     | '/registration'
     | '/studentLogin'
@@ -103,6 +191,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
+    | '/contact'
+    | '/cookies'
+    | '/help'
+    | '/privacy'
+    | '/terms'
+    | '/_auth/adminLogin'
+    | '/_auth/institutionLogin'
     | '/_auth/login'
     | '/_auth/registration'
     | '/_auth/studentLogin'
@@ -113,6 +209,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
+  HelpRoute: typeof HelpRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  AuthAdminLoginRoute: typeof AuthAdminLoginRoute
+  AuthInstitutionLoginRoute: typeof AuthInstitutionLoginRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegistrationRoute: typeof AuthRegistrationRoute
   AuthStudentLoginRoute: typeof AuthStudentLoginRoute
@@ -123,6 +227,48 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -172,11 +318,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/institutionLogin': {
+      id: '/_auth/institutionLogin'
+      path: '/institutionLogin'
+      fullPath: '/institutionLogin'
+      preLoaderRoute: typeof AuthInstitutionLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/adminLogin': {
+      id: '/_auth/adminLogin'
+      path: '/adminLogin'
+      fullPath: '/adminLogin'
+      preLoaderRoute: typeof AuthAdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
+  HelpRoute: HelpRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
+  AuthAdminLoginRoute: AuthAdminLoginRoute,
+  AuthInstitutionLoginRoute: AuthInstitutionLoginRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegistrationRoute: AuthRegistrationRoute,
   AuthStudentLoginRoute: AuthStudentLoginRoute,

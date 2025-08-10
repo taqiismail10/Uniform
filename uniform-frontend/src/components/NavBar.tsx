@@ -128,7 +128,7 @@ const NavBar = () => {
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
               <Button variant="ghost" asChild>
-                <Link to="/login">Login</Link>
+                <Link to="/studentLogin">Login</Link>
               </Button>
               <Button asChild>
                 <Link to="/registration">Registration</Link>
@@ -207,7 +207,7 @@ const NavBar = () => {
               className="w-full justify-start"
               asChild
             >
-              <Link to="/login" onClick={closeMenu}>Login</Link>
+              <Link to="/studentLogin" onClick={closeMenu}>Login</Link>
             </Button>
           </div>
           <div>
