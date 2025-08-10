@@ -67,15 +67,17 @@ function RouteComponent() {
           {/* Left side - Image and Info */}
           <div className="hidden md:flex md:w-1/2 lg:w-2/3 items-center justify-center p-8 bg-gray-50">
             <div className="max-w-md">
-              <div className="mb-4 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-gray-900 rounded-full">
-                    <GraduationCap className="h-10 w-10 text-white" />
+              <Link to='/'>
+                <div className="mb-4 text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="p-3 bg-gray-900 rounded-full">
+                      <GraduationCap className="h-10 w-10 text-white" />
+                    </div>
                   </div>
+                  <h2 className="text-3xl font-bold text-gray-900">Welcome to UniForm</h2>
+                  <p className="mt-2 text-gray-600">Centralized University Admission Application System</p>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">Welcome to UniForm</h2>
-                <p className="mt-2 text-gray-600">Centralized University Admission Application System</p>
-              </div>
+              </Link>
               <img
                 className="w-full h-auto"
                 src="/src/assets/student_using_laptop.svg"
