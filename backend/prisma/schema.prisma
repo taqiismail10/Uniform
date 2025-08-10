@@ -17,7 +17,7 @@ model Student {
   role      String   @default("STUDENT") // Ensure role exists
   dob       DateTime
   profile   String?
-    createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   forms              Form[]
@@ -63,9 +63,18 @@ model Admin {
 
 model Institution {
   institutionId      String @id @default(uuid())
-  name               String
-  requirementsHscGPA Float
-  requirementsSscGPA Float
+  name               String @unique
+
+  description        String? @db.Text
+  address            String? @db.VarChar(500)
+  phone              String? @db.VarChar(20)
+  email              String?
+  website            String?
+  establishedYear    Int?
+  logoUrl            String? // Institution logo
+  
+  requirementsHscGPA Float?
+  requirementsSscGPA Float?
 
   institutionCategoryInstitutionCategoryId String?               @db.VarChar(255) // Foreign key to InstitutionCategory
 
