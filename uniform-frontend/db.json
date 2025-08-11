@@ -1,0 +1,98 @@
+{
+  "users": [
+    {
+      "userId": "user-id-1",
+      "userName": "Monir Sarkar",
+      "email": "monir123@example.com",
+      "phone": "+8801234567890",
+      "password": "Monir123",
+      "address": "123 Main Street",
+      "role": "STUDENT",
+      "dob": "2000-01-01T00:00:00.000Z",
+      "examPath": "NATIONAL",
+      "medium": "Bangla"
+    },
+    {
+      "userId": "user-id-2",
+      "userName": "Anika Ahmed",
+      "email": "anikahmed@example.com",
+      "phone": "+8809876543210",
+      "password": "Anika123",
+      "address": "456 Elm Street",
+      "role": "STUDENT",
+      "dob": "2001-02-02T00:00:00.000Z",
+      "examPath": "BIRTISH",
+      "medium": "English"
+    },
+    {
+      "userId": "user-id-3",
+      "userName": "Rahim Khan",
+      "email": "rahimkhan@example.com",
+      "phone": "+8805555555555",
+      "password": "Rahim123",
+      "address": "789 Oak Street",
+      "role": "STUDENT",
+      "dob": "2002-03-03T00:00:00.000Z",
+      "examPath": "NATIONAL",
+      "medium": "Bangla"
+    }
+  ],
+
+  "institutions": [
+    {
+      "institutionId": "institution-id-1",
+      "institutionName": "University of Dhaka",
+      "type": "UNIVERSITY",
+      "description": "Leading public university in Bangladesh",
+      "website": "https://du.ac.bd",
+      "location": "Dhaka, Bangladesh",
+      "establishedIn": "1921-07-01T00:00:00.000Z"
+    },
+    {
+      "institutionId": "institution-id-2",
+      "institutionName": "Bangladesh University of Engineering and Technology",
+      "type": "UNIVERSITY",
+      "description": "Top engineering university in Bangladesh",
+      "website": "https://www.buet.ac.bd",
+      "location": "Dhaka, Bangladesh",
+      "establishedIn": "1962-01-01T00:00:00.000Z"
+    },
+    {
+      "institutionId": "institution-id-3",
+      "institutionName": "North South University",
+      "type": "PRIVATE_UNIVERSITY",
+      "description": "Leading private university in Bangladesh",
+      "website": "https://www.northsouth.edu",
+      "location": "Dhaka, Bangladesh",
+      "establishedIn": "1992-01-01T00:00:00.000Z"
+    },
+    {
+      "institutionId": "institution-id-4",
+      "institutionName": "BRAC University",
+      "type": "PRIVATE_UNIVERSITY",
+      "description": "Renowned private university in Bangladesh",
+      "website": "https://www.bracu.ac.bd",
+      "location": "Dhaka, Bangladesh",
+      "establishedIn": "2001-01-01T00:00:00.000Z"
+    },
+    {
+      "institutionId": "institution-id-5",
+      "institutionName": "Khulna University of Engineering and Technology",
+      "type": "ENIGNEERING UNIVERSITY",
+      "description": "Top engineering university in Khulna",
+      "website": "https://www.kuet.ac.bd",
+      "location": "Khulna, Bangladesh",
+      "establishedIn": "2003-01-01T00:00:00.000Z"
+    },
+    {
+      "institutionId": "institution-id-6",
+      "institutionName": "Chittagong University of Engineering and Technology",
+      "type": "ENIGNEERING UNIVERSITY",
+      "description": "Leading engineering university in Chittagong",
+      "website": "https://www.cuet.ac.bd",
+      "location": "Chittagong, Bangladesh",
+      "establishedIn": "2003-01-01T00:00:00.000Z"
+    }
+  ]
+
+}

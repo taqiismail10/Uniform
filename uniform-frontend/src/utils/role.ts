@@ -1,0 +1,6 @@
+
+export const ROLES = {
+  ADMIN: 'ADMIN',
+  UNIVERSITY: 'UNIVERSITY',
+  STUDENT: 'STUDENT'
+}

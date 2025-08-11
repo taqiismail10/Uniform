@@ -6,14 +6,14 @@ UniForm is a centralized web application designed to simplify the university adm
 
 ## 🚀 Features
 
-- 🔐 Secure authentication system (JWT-based) for Students and Admins
-- 📝 One-time academic form submission reused across applications
-- 🏛️ University unit management (A, B, C, D or custom labels)
-- 🎯 Stream and GPA-based eligibility validation
-- 📦 RESTful API with Express & Prisma ORM
-- 🐳 Dockerized backend for scalable deployment
-- ⚙️ CI/CD integration with GitHub Actions
-- 🌐 Frontend deployable on Vercel
+-   🔐 Secure authentication system (JWT-based) for Students and Admins
+-   📝 One-time academic form submission reused across applications
+-   🏛️ University unit management (A, B, C, D or custom labels)
+-   🎯 Stream and GPA-based eligibility validation
+-   📦 RESTful API with Express & Prisma ORM
+-   🐳 Dockerized backend for scalable deployment
+-   ⚙️ CI/CD integration with GitHub Actions
+-   🌐 Frontend deployable on Vercel
 
 ---
 
@@ -48,9 +48,9 @@ npm install
 This project uses environment variables for configuration. The actual `.env` file is not included in the repository for security reasons.
 
 1. Copy the example file:
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 2. Fill in the required values in your new `.env` file.
 
 > **Note:** Refer to `.env.example` for all required variables. If you are unsure about any value, contact the development team.
