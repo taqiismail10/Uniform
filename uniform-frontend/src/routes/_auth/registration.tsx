@@ -341,13 +341,13 @@ function RouteComponent() {
                 required
                 disabled={isLoading}
               />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="terms" className="ml-2 flex items-center gap-1 text-sm text-gray-700">
                 I agree to the
                 <Link to="/terms" className="text-gray-900 font-medium hover:text-gray-700 transition">
                   Terms of Service
                 </Link>
                 and
-                <Link to="/privacy" className="text-gray-900 hover:text-gray-700 transition">
+                <Link to="/privacy" className="text-gray-900 font-medium hover:text-gray-700 transition">
                   Privacy Policy
                 </Link>
               </label>
