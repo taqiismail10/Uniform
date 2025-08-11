@@ -1,9 +1,9 @@
+// uniform-frontend/src/context/AuthContext.tsx
 import { createContext } from "react";
 
 export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
+  userId: string;
+  userName: string;
   email: string;
   phone: string;
   password: string;

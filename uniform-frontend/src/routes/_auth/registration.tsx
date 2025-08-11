@@ -1,23 +1,36 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { GraduationCap, Eye, EyeOff } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { GraduationCap, Eye, EyeOff, Calendar } from 'lucide-react'
 import { useState } from 'react'
+import { useAuth } from '@/context/useAuth'
+import { toast } from 'sonner'
+import { registerUser } from '@/api'
+import studentImage from '@/assets/student_using_laptop.svg'
+import axios from 'axios'
 
 export const Route = createFileRoute('/_auth/registration')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    fullName: '',
+    userName: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
+    address: '',
+    dob: '',
+    examPath: '',
+    medium: '',
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,10 +41,89 @@ function RouteComponent() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle registration logic here
-    console.log(formData)
+
+    // Password validation
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Password Mismatch", {
+        description: "Passwords do not match. Please try again."
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Prepare user data for API
+      const userData = {
+        userName: formData.userName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        address: formData.address,
+        role: "STUDENT",
+        dob: formData.dob,
+        examPath: formData.examPath,
+        medium: formData.medium,
+      };
+
+      // Call the register API
+      const newUser = await registerUser(userData);
+
+      if (newUser) {
+        // Log the user in
+        login(newUser);
+
+        toast.success("Registration Successful", {
+          description: "Your account has been created successfully."
+        });
+
+        // Navigate to dashboard
+        navigate({ to: '/student/dashboard' });
+      } else {
+        toast.error("Registration Failed", {
+          description: "There was a problem creating your account. Please try again."
+        });
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+
+      let errorMessage = "There was a problem creating your account. Please try again.";
+
+      // Check if error is an Axios error
+      if (axios.isAxiosError(error)) {
+        // Handle axios specific errors
+        if (error.response) {
+          // Server responded with error status
+          const status = error.response.status;
+          if (status === 409) {
+            errorMessage = "An account with this email already exists.";
+          } else if (status === 400) {
+            errorMessage = "Invalid registration data. Please check your inputs.";
+          }
+        } else if (error.request) {
+          // Request was made but no response received
+          errorMessage = "Network error. Please check your internet connection.";
+        }
+      } else if (error instanceof Error) {
+        // Handle generic JavaScript errors
+        errorMessage = error.message;
+      }
+
+      toast.error("Registration Failed", {
+        description: errorMessage
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -53,7 +145,7 @@ function RouteComponent() {
             </Link>
             <img
               className="w-full h-auto"
-              src="/src/assets/student_using_laptop.svg"
+              src={studentImage}
               alt="Student using UniForm"
             />
           </div>
@@ -68,18 +160,19 @@ function RouteComponent() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-gray-700 font-medium">
+              <Label htmlFor="userName" className="text-gray-700 font-medium">
                 Full Name
               </Label>
               <Input
                 type="text"
-                id="fullName"
-                name="fullName"
+                id="userName"
+                name="userName"
                 placeholder="Enter your full name"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
-                value={formData.fullName}
+                value={formData.userName}
                 onChange={handleChange}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -96,6 +189,7 @@ function RouteComponent() {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -112,7 +206,76 @@ function RouteComponent() {
                 value={formData.phone}
                 onChange={handleChange}
                 required
+                disabled={isLoading}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-gray-700 font-medium">
+                Address
+              </Label>
+              <Input
+                type="text"
+                id="address"
+                name="address"
+                placeholder="Enter your address"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                value={formData.address}
+                onChange={handleChange}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dob" className="text-gray-700 font-medium">
+                Date of Birth
+              </Label>
+              <div className="relative">
+                <Input
+                  type="date"
+                  id="dob"
+                  name="dob"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                  value={formData.dob}
+                  onChange={handleChange}
+                  required
+                  disabled={isLoading}
+                />
+                <Calendar className="absolute right-3 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="examPath" className="text-gray-700 font-medium">
+                  Exam Path
+                </Label>
+                <Select value={formData.examPath} onValueChange={(value) => handleSelectChange('examPath', value)} disabled={isLoading}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select exam path" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NATIONAL">National Curriculum</SelectItem>
+                    <SelectItem value="BRITISH">British Curriculum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="medium" className="text-gray-700 font-medium">
+                  Medium
+                </Label>
+                <Select value={formData.medium} onValueChange={(value) => handleSelectChange('medium', value)} disabled={isLoading}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select medium" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Bangla">Bangla</SelectItem>
+                    <SelectItem value="English">English</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -129,11 +292,13 @@ function RouteComponent() {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -154,11 +319,13 @@ function RouteComponent() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={isLoading}
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -172,6 +339,7 @@ function RouteComponent() {
                 type="checkbox"
                 className="mt-1 h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded"
                 required
+                disabled={isLoading}
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                 I agree to the <a href="#" className="text-gray-900 hover:text-gray-700 transition">Terms of Service</a> and <a href="#" className="text-gray-900 hover:text-gray-700 transition">Privacy Policy</a>
@@ -181,9 +349,19 @@ function RouteComponent() {
             <Button
               type="submit"
               className="w-full py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition duration-300 flex items-center justify-center gap-2 mt-6"
+              disabled={isLoading}
             >
-              <GraduationCap className="h-5 w-5" />
-              Create Account
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <GraduationCap className="h-5 w-5" />
+                  Create Account
+                </>
+              )}
             </Button>
           </form>
 

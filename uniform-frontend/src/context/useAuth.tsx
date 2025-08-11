@@ -1,5 +1,7 @@
-import { useContext } from "react"
-import { AuthContext } from "./AuthContext"
+// uniform-frontend/src/context/useAuth.tsx
+
+import { useContext } from "react";
+import { AuthContext } from "./AuthContext";
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -9,4 +11,4 @@ export const useAuth = () => {
   }
 
   return context;
-}
+};
