@@ -342,7 +342,14 @@ function RouteComponent() {
                 disabled={isLoading}
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-                I agree to the <a href="#" className="text-gray-900 hover:text-gray-700 transition">Terms of Service</a> and <a href="#" className="text-gray-900 hover:text-gray-700 transition">Privacy Policy</a>
+                I agree to the
+                <Link to="/terms" className="text-gray-900 font-medium hover:text-gray-700 transition">
+                  Terms of Service
+                </Link>
+                and
+                <Link to="/privacy" className="text-gray-900 hover:text-gray-700 transition">
+                  Privacy Policy
+                </Link>
               </label>
             </div>
 
