@@ -1,3 +1,5 @@
+// backend/routes/api.js
+
 import { Router } from "express";
 import authController from "../controllers/AuthController.js";
 import profileController from "../controllers/ProfileController.js";

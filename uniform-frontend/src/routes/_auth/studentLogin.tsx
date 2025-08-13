@@ -1,5 +1,4 @@
 // uniform-frontend/src/routes/_auth/studentLogin.tsx
-
 import { userLogin } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,10 +28,8 @@ function RouteComponent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     // Reset error state
     setError('')
-
     // Basic validation
     if (!email || !password) {
       toast.error("Validation Error", {
@@ -40,28 +37,22 @@ function RouteComponent() {
       });
       return;
     }
-
     setIsLoading(true);
-
     try {
       // Call the updated userLogin API function
-      const user = await userLogin(email, password);
-
+      const user = await userLogin(email, password, "STUDENT");
       if (user) {
-        // Store user data in localStorage if remember me is checked
+        // Store user data in localStorage/sessionStorage based on remember me
         if (rememberMe) {
           localStorage.setItem('user', JSON.stringify(user));
         } else {
           sessionStorage.setItem('user', JSON.stringify(user));
         }
-
         // Update auth context
         authLogin(user);
-
         toast.success("Login Successful", {
           description: `Welcome back, ${user.userName}! Redirecting to dashboard...`
         });
-
         // Navigate to dashboard
         navigate({ to: '/student/dashboard' });
       } else {
@@ -72,19 +63,27 @@ function RouteComponent() {
       }
     } catch (error) {
       console.error("Login error:", error);
-
       // Handle different error scenarios
       let errorMessage = "An error occurred during login. Please try again later.";
-
       if (axios.isAxiosError(error)) {
         // Handle axios specific errors
         if (error.response) {
           // Server responded with error status
           const status = error.response.status;
-          if (status === 401) {
+          const responseData = error.response.data;
+          if (status === 400) {
+            if (responseData.message === "Invalid Credentials") {
+              errorMessage = "Invalid email or password.";
+            } else if (responseData.message === "User not found") {
+              errorMessage = "No account found with this email address.";
+            } else if (responseData.errors) {
+              // Handle validation errors
+              const validationErrors = responseData.errors;
+              const firstError = Object.values(validationErrors)[0];
+              errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+            }
+          } else if (status === 401) {
             errorMessage = "Invalid email or password.";
-          } else if (status === 404) {
-            errorMessage = "User not found. Please check your credentials.";
           } else if (status === 500) {
             errorMessage = "Server error. Please try again later.";
           }
@@ -96,7 +95,6 @@ function RouteComponent() {
         // Handle generic JavaScript errors
         errorMessage = error.message;
       }
-
       setError(errorMessage);
       toast.error("Login Failed", {
         description: errorMessage
@@ -104,7 +102,7 @@ function RouteComponent() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -133,19 +131,17 @@ function RouteComponent() {
               <div className="mt-8 text-center">
                 <div className="inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg">
                   <Calendar className="h-5 w-5 text-blue-500 mr-2" />
-                  <span className="text-sm font-medium text-blue-700">Admission Deadline: June 30, 2023</span>
+                  <span className="text-sm font-medium text-blue-700">Admission Deadline: June 30, 2025</span>
                 </div>
               </div>
             </div>
           </div>
-
           {/* Right side - Login Form */}
           <div className="w-full md:w-1/2 lg:w-2/5 p-8 md:p-12 flex flex-col justify-center">
             <div className="mb-10">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Login to UniForm</h1>
               <p className="text-gray-600">Access your university admission portal</p>
             </div>
-
             {/* Error message display */}
             {error && (
               <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg flex items-center">
@@ -153,7 +149,6 @@ function RouteComponent() {
                 <span className="text-sm">{error}</span>
               </div>
             )}
-
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700 font-medium">
@@ -170,7 +165,6 @@ function RouteComponent() {
                   disabled={isLoading}
                 />
               </div>
-
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label htmlFor="password" className="text-gray-700 font-medium">
@@ -201,7 +195,6 @@ function RouteComponent() {
                   </button>
                 </div>
               </div>
-
               <div className="flex items-center">
                 <div className="relative flex items-center">
                   <input
@@ -227,7 +220,6 @@ function RouteComponent() {
                   Remember me
                 </label>
               </div>
-
               <Button
                 type="submit"
                 className="w-full py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition duration-300 flex items-center justify-center gap-2"
@@ -246,14 +238,12 @@ function RouteComponent() {
                 )}
               </Button>
             </form>
-
             <p className="mt-8 text-center text-sm text-gray-600">
               Don't have an account?{' '}
               <Link to="/registration" className="font-medium text-gray-900 hover:text-gray-700 transition">
                 Sign up
               </Link>
             </p>
-
             <div className="mt-6 pt-6 border-t border-gray-200">
               <p className="text-xs text-center text-gray-500">
                 UniForm - A Web Engineering Lab Project for Bangladesh University Admissions

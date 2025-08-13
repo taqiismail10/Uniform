@@ -1,3 +1,4 @@
+// uniform-frontend/src/routes/student/dashboard.tsx
 import ProtectedRoutes from '@/utils/ProtectedRoutes';
 import { ROLES } from '@/utils/role';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
@@ -7,11 +8,11 @@ import { useEffect, useState } from 'react';
 import {
   getInstitutions,
   getAcademicInfo,
-  getDocuments,
   getApplications,
-  getUserById
+  getUserProfile,
+  updateUserProfile
 } from '@/api';
-import type { Application, Institution, UserData, AcademicInfo, Document } from '@/components/student/types';
+import type { Application, Institution, UserData, AcademicInfo } from '@/components/student/types';
 import Header from '@/components/student/Header';
 import DashboardStats from '@/components/student/DashboardStats';
 import ApplicationStatus from '@/components/student/ApplicationStatus';
@@ -22,109 +23,94 @@ import AcademicInfoPage from '@/components/student/AcademicInfoPage';
 
 export const Route = createFileRoute('/student/dashboard')({
   component: () => (
-    <ProtectedRoutes role={ROLES.STUDENT} >
+    <ProtectedRoutes role={ROLES.STUDENT}>
       <RouteComponent />
     </ProtectedRoutes>
   ),
   loader: async () => {
-    return await getInstitutions();
+    try {
+      return await getInstitutions();
+    } catch (error) {
+      console.error("Error loading institutions:", error);
+      return []; // Return empty array on error
+    }
   }
-})
+});
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [academicInfo, setAcademicInfo] = useState<AcademicInfo | null>(null);
-  const [documents, setDocuments] = useState<Document[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState({
     academicInfo: true,
-    documents: true,
     applications: true
   });
   const [activeSection, setActiveSection] = useState('dashboard');
   const institutions = Route.useLoaderData() as Institution[];
 
-  // Get user data from local storage
+  // Get user data from API
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const userJson = localStorage.getItem('user');
-        if (userJson) {
-          const parsedUser = JSON.parse(userJson);
-          setUserData(parsedUser);
+        // Get user profile from API
+        const userProfile = await getUserProfile();
+        if (userProfile) {
+          setUserData(userProfile);
 
-          // Fetch complete user data from API
-          if (parsedUser.userId) {
-            const fullUserData = await getUserById(parsedUser.userId);
-            if (fullUserData) {
-              setUserData(fullUserData);
+          // Fetch academic info
+          try {
+            const academicData = await getAcademicInfo(userProfile.userId);
+            if (academicData) {
+              setAcademicInfo(academicData);
             }
+          } catch (error) {
+            console.error("Error fetching academic info:", error);
+            toast.error("Data Error", {
+              description: "Could not load academic information."
+            });
+          } finally {
+            setDataLoading(prev => ({ ...prev, academicInfo: false }));
+          }
 
-            // Fetch academic info
-            try {
-              const academicData = await getAcademicInfo(parsedUser.userId);
-              if (academicData) {
-                setAcademicInfo(academicData);
-              }
-            } catch (error) {
-              console.error("Error fetching academic info:", error);
-              toast.error("Data Error", {
-                description: "Could not load academic information."
-              });
-            } finally {
-              setDataLoading(prev => ({ ...prev, academicInfo: false }));
-            }
-
-            // Fetch documents
-            try {
-              const documentsData = await getDocuments(parsedUser.userId);
-              setDocuments(documentsData);
-            } catch (error) {
-              console.error("Error fetching documents:", error);
-              toast.error("Data Error", {
-                description: "Could not load documents."
-              });
-            } finally {
-              setDataLoading(prev => ({ ...prev, documents: false }));
-            }
-
-            // Fetch applications
-            try {
-              const applicationsData = await getApplications(parsedUser.userId);
-              setApplications(applicationsData);
-            } catch (error) {
-              console.error("Error fetching applications:", error);
-              toast.error("Data Error", {
-                description: "Could not load applications."
-              });
-            } finally {
-              setDataLoading(prev => ({ ...prev, applications: false }));
-            }
+          // Fetch applications
+          try {
+            const applicationsData = await getApplications(userProfile.userId);
+            setApplications(applicationsData);
+          } catch (error) {
+            console.error("Error fetching applications:", error);
+            toast.error("Data Error", {
+              description: "Could not load applications."
+            });
+          } finally {
+            setDataLoading(prev => ({ ...prev, applications: false }));
           }
         } else {
           toast.error("Authentication Error", {
             description: "Please login again to continue."
           });
-          logout();
-          navigate({ to: '/login' });
+          handleLogout();
         }
       } catch (error) {
-        console.error("Error parsing user data from local storage:", error);
+        console.error("Error fetching user data:", error);
         toast.error("Data Error", {
           description: "Could not load user data. Please login again."
         });
-        logout();
-        navigate({ to: '/login' });
+        handleLogout();
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserData();
-  }, [logout, navigate]);
+  }, [user, logout, navigate]);
 
   const handleLogout = () => {
     logout();
@@ -134,56 +120,37 @@ function RouteComponent() {
     navigate({ to: '/login' });
   };
 
-  // Handle document upload
-  const handleDocumentUpload = async (type: Document['type'], file: File) => {
+  // Handle profile update
+  const handleProfileUpdate = async (updatedData: Partial<UserData>) => {
     if (!userData) return;
 
     try {
-      // In a real app, you would upload the file to a server
-      // For now, we'll simulate a successful upload
-      const newDocument: Document = {
-        id: Math.random().toString(36).substr(2, 9),
-        userId: userData.userId, // Add the missing userId property
-        name: file.name,
-        type,
-        url: URL.createObjectURL(file), // In real app, this would be the server URL
-        uploadedAt: new Date().toISOString()
-      };
-
-      // Remove existing document of same type and add new one
-      setDocuments(prev =>
-        prev.filter(doc => doc.type !== type).concat(newDocument)
-      );
-
-      toast.success("Document Uploaded", {
-        description: `${file.name} has been uploaded successfully.`
-      });
-    } catch (error) {
-      console.error("Error uploading document:", error);
-      toast.error("Upload Failed", {
-        description: "Could not upload the document. Please try again."
-      });
-    }
-  };
-
-  // Handle document deletion
-  const handleDocumentDelete = async (id: string) => {
-    const docToDelete = documents.find(doc => doc.id === id);
-    if (docToDelete) {
-      try {
-        // In a real app, you would call the API to delete the document
-        // For now, we'll simulate a successful deletion
-        setDocuments(prev => prev.filter(doc => doc.id !== id));
-
-        toast.success("Document Deleted", {
-          description: `${docToDelete.name} has been removed.`
-        });
-      } catch (error) {
-        console.error("Error deleting document:", error);
-        toast.error("Deletion Failed", {
-          description: "Could not delete the document. Please try again."
+      const success = await updateUserProfile(userData.userId, updatedData);
+      if (success) {
+        // Refetch the updated user profile
+        const updatedUserProfile = await getUserProfile();
+        if (updatedUserProfile) {
+          setUserData(updatedUserProfile);
+          // Update localStorage with new user data
+          localStorage.setItem('user', JSON.stringify(updatedUserProfile));
+          toast.success("Profile Updated", {
+            description: "Your profile has been updated successfully."
+          });
+        } else {
+          toast.error("Update Failed", {
+            description: "Profile updated but failed to refresh data."
+          });
+        }
+      } else {
+        toast.error("Update Failed", {
+          description: "Could not update your profile. Please try again."
         });
       }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Update Failed", {
+        description: "An error occurred while updating your profile."
+      });
     }
   };
 
@@ -236,17 +203,18 @@ function RouteComponent() {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
       />
-
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {activeSection === 'dashboard' && (
           <>
             <DashboardStats stats={dashboardStats} />
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
-                <ProfileInfo userData={userData} onLogout={handleLogout} />
+                <ProfileInfo
+                  userData={userData}
+                  onLogout={handleLogout}
+                  onUpdate={handleProfileUpdate}
+                />
               </div>
-
               <div className="lg:col-span-2">
                 {dataLoading.applications ? (
                   <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
@@ -268,18 +236,13 @@ function RouteComponent() {
             </div>
           </>
         )}
-
         {activeSection === 'universities' && (
           <UniversitiesSection institutions={institutions} />
         )}
-
         {activeSection === 'academic-info' && (
           <AcademicInfoPage
             academicInfo={academicInfo}
-            documents={documents}
-            onDocumentUpload={handleDocumentUpload}
-            onDocumentDelete={handleDocumentDelete}
-            loading={dataLoading.academicInfo || dataLoading.documents}
+            loading={dataLoading.academicInfo}
             userId={userData.userId}
             onAcademicInfoUpdate={handleAcademicInfoUpdate}
           />

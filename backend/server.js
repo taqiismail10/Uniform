@@ -1,3 +1,5 @@
+// backend/server.js
+
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
@@ -12,7 +14,7 @@ app.use(cors());
 app.use(fileUpload());
 
 app.get("/", (req, res) => {
-  return res.json({ message: "Hello, it's working..." });
+	return res.json({ message: "Hello, it's working..." });
 });
 
 import apiRoutes from "./routes/api.js";

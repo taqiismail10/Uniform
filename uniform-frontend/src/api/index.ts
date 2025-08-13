@@ -1,10 +1,9 @@
-// uniform-frontend/src/api/index.ts
-
 import axios from "axios";
 import type { User } from "@/context/AuthContext";
-import type { Institution, AcademicInfo, Document, Application, UserData } from "@/components/student/types";
+import type { Institution, AcademicInfo, Application, UserData } from "@/components/student/types";
 
-const API_URL = "http://localhost:5000";
+// Update the API URL to match your backend
+const API_URL = "http://localhost:5000/api";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -17,10 +16,10 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const userJson = localStorage.getItem('user');
-    if (userJson) {
-      const user = JSON.parse(userJson);
-      config.headers.Authorization = `Bearer ${user.userId}`;
+    // Get access token from localStorage
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      config.headers.Authorization = accessToken;
     }
     return config;
   },
@@ -38,30 +37,359 @@ api.interceptors.response.use(
   }
 );
 
-// Register User
-export const registerUser = async (userData: Omit<User, 'userId'>): Promise<User | null> => {
+// Register User - Updated to include academic details
+export const registerUser = async (userData: {
+  userName: string;
+  email: string;
+  phone: string;
+  password: string;
+  address: string;
+  role: string;
+  dob: string;
+  examPath: string;
+  medium: string;
+  // Academic details
+  sscRoll?: string;
+  sscRegistration?: string;
+  sscGpa?: string;
+  sscYear?: string;
+  sscBoard?: string;
+  hscRoll?: string;
+  hscRegistration?: string;
+  hscGpa?: string;
+  hscYear?: string;
+  hscBoard?: string;
+  dakhilRoll?: string;
+  dakhilRegistration?: string;
+  dakhilGpa?: string;
+  dakhilYear?: string;
+  dakhilBoard?: string;
+  alimRoll?: string;
+  alimRegistration?: string;
+  alimGpa?: string;
+  alimYear?: string;
+  alimBoard?: string;
+}): Promise<User | null> => {
   try {
-    const response = await api.post<User>('/users', userData);
-    return response.data;
+    // Format the phone number to ensure it's in the correct format
+    const formatPhoneNumber = (phone: string): string => {
+      // Remove all non-digit characters
+      const cleaned = phone.replace(/\D/g, '');
+
+      // If the cleaned string starts with '880', then we add a '+' at the beginning
+      if (cleaned.startsWith('880')) {
+        return `+${cleaned}`;
+      }
+
+      // If it starts with '0', then we replace the leading '0' with '+880'
+      if (cleaned.startsWith('0')) {
+        return `+880${cleaned.substring(1)}`;
+      }
+
+      // If it starts with '1' (assuming it's a local number without country code and without leading 0)
+      if (cleaned.startsWith('1')) {
+        return `+880${cleaned}`;
+      }
+
+      // If none of the above, return the original phone (or throw an error, but we'll just return as is)
+      return phone;
+    };
+
+    const formattedPhone = formatPhoneNumber(userData.phone);
+
+    // Transform frontend data to match backend schema
+    const backendData = {
+      fullName: userData.userName, // Backend expects 'fullName'
+      email: userData.email,
+      phone: formattedPhone, // Use formatted phone number
+      password: userData.password,
+      password_confirmation: userData.password, // Backend requires confirmation
+      address: userData.address,
+      role: userData.role,
+      dob: new Date(userData.dob).toISOString(), // Convert to ISO string format
+      examPath: userData.examPath,
+      medium: userData.medium,
+      // Include academic details based on examPath
+      ...(userData.examPath === 'NATIONAL' && {
+        sscRoll: userData.sscRoll,
+        sscRegistration: userData.sscRegistration,
+        sscGpa: userData.sscGpa ? parseFloat(userData.sscGpa) : undefined,
+        sscYear: userData.sscYear ? parseInt(userData.sscYear) : undefined,
+        sscBoard: userData.sscBoard,
+        hscRoll: userData.hscRoll,
+        hscRegistration: userData.hscRegistration,
+        hscGpa: userData.hscGpa ? parseFloat(userData.hscGpa) : undefined,
+        hscYear: userData.hscYear ? parseInt(userData.hscYear) : undefined,
+        hscBoard: userData.hscBoard,
+      }),
+      ...(userData.examPath === 'MADRASHA' && {
+        dakhilRoll: userData.dakhilRoll,
+        dakhilRegistration: userData.dakhilRegistration,
+        dakhilGpa: userData.dakhilGpa ? parseFloat(userData.dakhilGpa) : undefined,
+        dakhilYear: userData.dakhilYear ? parseInt(userData.dakhilYear) : undefined,
+        dakhilBoard: userData.dakhilBoard,
+        alimRoll: userData.alimRoll,
+        alimRegistration: userData.alimRegistration,
+        alimGpa: userData.alimGpa ? parseFloat(userData.alimGpa) : undefined,
+        alimYear: userData.alimYear ? parseInt(userData.alimYear) : undefined,
+        alimBoard: userData.alimBoard,
+      }),
+    };
+
+    const response = await api.post('/auth/register', backendData);
+    if (response.data.status === 200) {
+      // Transform backend response to frontend User format
+      const backendUser = response.data.user;
+      const frontendUser: User = {
+        userId: backendUser.studentId,
+        userName: backendUser.fullName,
+        email: backendUser.email,
+        phone: backendUser.phone || '',
+        password: '', // Don't store password
+        address: backendUser.address || '',
+        role: backendUser.role,
+        dob: backendUser.dob || '',
+        examPath: backendUser.examPath || '',
+        medium: backendUser.medium || '',
+        // Academic details
+        sscRoll: backendUser.sscRoll,
+        sscRegistration: backendUser.sscRegistration,
+        sscGpa: backendUser.sscGpa?.toString(),
+        sscYear: backendUser.sscYear?.toString(),
+        sscBoard: backendUser.sscBoard,
+        hscRoll: backendUser.hscRoll,
+        hscRegistration: backendUser.hscRegistration,
+        hscGpa: backendUser.hscGpa?.toString(),
+        hscYear: backendUser.hscYear?.toString(),
+        hscBoard: backendUser.hscBoard,
+        dakhilRoll: backendUser.dakhilRoll,
+        dakhilRegistration: backendUser.dakhilRegistration,
+        dakhilGpa: backendUser.dakhilGpa?.toString(),
+        dakhilYear: backendUser.dakhilYear?.toString(),
+        dakhilBoard: backendUser.dakhilBoard,
+        alimRoll: backendUser.alimRoll,
+        alimRegistration: backendUser.alimRegistration,
+        alimGpa: backendUser.alimGpa?.toString(),
+        alimYear: backendUser.alimYear?.toString(),
+        alimBoard: backendUser.alimBoard,
+      };
+      return frontendUser;
+    }
+    return null;
   } catch (error) {
     console.error("Registration Failed:", error);
+    throw error; // Re-throw to let calling component handle specific errors
+  }
+};
+
+// Login User - Updated to handle the new response format
+export const userLogin = async (
+  email: string,
+  password: string,
+  role: string = "STUDENT"
+): Promise<User | null> => {
+  try {
+    const response = await api.post('/auth/login', {
+      email,
+      password,
+      role
+    });
+    if (response.data.status === 200) {
+      localStorage.setItem('accessToken', response.data.access_token);
+      const userProfile = await getUserProfile();
+      return userProfile;
+    }
+    return null;
+  } catch (error) {
+    console.error("Login Failed:", error);
+    throw error;
+  }
+};
+
+// Get User Profile - Updated to include academic details
+export const getUserProfile = async (): Promise<User | null> => {
+  try {
+    const response = await api.get('/profile');
+    if (response.data.status === 200) {
+      const backendProfile = response.data.profile;
+      const frontendUser: User = {
+        userId: backendProfile.studentId,
+        userName: backendProfile.fullName,
+        email: backendProfile.email,
+        phone: backendProfile.phone || '',
+        password: '', // Don't store password
+        address: backendProfile.address || '',
+        role: backendProfile.role,
+        dob: backendProfile.dob || '',
+        examPath: backendProfile.examPath || '',
+        medium: backendProfile.medium || '',
+        // Academic details
+        sscRoll: backendProfile.sscRoll,
+        sscRegistration: backendProfile.sscRegistration,
+        sscGpa: backendProfile.sscGpa?.toString(),
+        sscYear: backendProfile.sscYear?.toString(),
+        sscBoard: backendProfile.sscBoard,
+        hscRoll: backendProfile.hscRoll,
+        hscRegistration: backendProfile.hscRegistration,
+        hscGpa: backendProfile.hscGpa?.toString(),
+        hscYear: backendProfile.hscYear?.toString(),
+        hscBoard: backendProfile.hscBoard,
+        dakhilRoll: backendProfile.dakhilRoll,
+        dakhilRegistration: backendProfile.dakhilRegistration,
+        dakhilGpa: backendProfile.dakhilGpa?.toString(),
+        dakhilYear: backendProfile.dakhilYear?.toString(),
+        dakhilBoard: backendProfile.dakhilBoard,
+        alimRoll: backendProfile.alimRoll,
+        alimRegistration: backendProfile.alimRegistration,
+        alimGpa: backendProfile.alimGpa?.toString(),
+        alimYear: backendProfile.alimYear?.toString(),
+        alimBoard: backendProfile.alimBoard,
+      };
+      return frontendUser;
+    }
+    return null;
+  } catch (error) {
+    console.error("Get User Profile Failed:", error);
     return null;
   }
 };
 
-// Login User
-export const userLogin = async (
-  email: string,
-  password: string
-): Promise<User | null> => {
+// Get Academic Details - New function
+export const getAcademicDetails = async (): Promise<User | null> => {
   try {
-    const response = await api.get<User[]>('/users', {
-      params: { email, password }
-    });
-    return response.data[0] || null;
-  } catch (error) {
-    console.error("Login Failed:", error);
+    const response = await api.get('/profile/academic');
+    if (response.data.status === 200) {
+      const academicDetails = response.data.academicDetails;
+      const frontendUser: User = {
+        userId: academicDetails.studentId,
+        userName: '',
+        email: '',
+        phone: '',
+        password: '',
+        address: '',
+        role: '',
+        dob: '',
+        examPath: academicDetails.examPath || '',
+        medium: academicDetails.medium || '',
+        // Academic details
+        sscRoll: academicDetails.sscRoll,
+        sscRegistration: academicDetails.sscRegistration,
+        sscGpa: academicDetails.sscGpa?.toString(),
+        sscYear: academicDetails.sscYear?.toString(),
+        sscBoard: academicDetails.sscBoard,
+        hscRoll: academicDetails.hscRoll,
+        hscRegistration: academicDetails.hscRegistration,
+        hscGpa: academicDetails.hscGpa?.toString(),
+        hscYear: academicDetails.hscYear?.toString(),
+        hscBoard: academicDetails.hscBoard,
+        dakhilRoll: academicDetails.dakhilRoll,
+        dakhilRegistration: academicDetails.dakhilRegistration,
+        dakhilGpa: academicDetails.dakhilGpa?.toString(),
+        dakhilYear: academicDetails.dakhilYear?.toString(),
+        dakhilBoard: academicDetails.dakhilBoard,
+        alimRoll: academicDetails.alimRoll,
+        alimRegistration: academicDetails.alimRegistration,
+        alimGpa: academicDetails.alimGpa?.toString(),
+        alimYear: academicDetails.alimYear?.toString(),
+        alimBoard: academicDetails.alimBoard,
+      };
+      return frontendUser;
+    }
     return null;
+  } catch (error) {
+    console.error("Get Academic Details Failed:", error);
+    return null;
+  }
+};
+
+// Update User Profile - Updated to handle more than just profile image
+export const updateUserProfile = async (
+  userId: string,
+  profileData: {
+    profileImage?: File;
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    dob?: string;
+    examPath?: string;
+    medium?: string;
+    // Academic details
+    sscRoll?: string;
+    sscRegistration?: string;
+    sscGpa?: string;
+    sscYear?: string;
+    sscBoard?: string;
+    hscRoll?: string;
+    hscRegistration?: string;
+    hscGpa?: string;
+    hscYear?: string;
+    hscBoard?: string;
+    dakhilRoll?: string;
+    dakhilRegistration?: string;
+    dakhilGpa?: string;
+    dakhilYear?: string;
+    dakhilBoard?: string;
+    alimRoll?: string;
+    alimRegistration?: string;
+    alimGpa?: string;
+    alimYear?: string;
+    alimBoard?: string;
+  }
+): Promise<boolean> => {
+  try {
+    const formData = new FormData();
+
+    // Add profile image if provided
+    if (profileData.profileImage) {
+      formData.append('profile', profileData.profileImage);
+    }
+
+    // Add other fields
+    if (profileData.fullName) formData.append('fullName', profileData.fullName);
+    if (profileData.email) formData.append('email', profileData.email);
+    if (profileData.phone) formData.append('phone', profileData.phone);
+    if (profileData.address) formData.append('address', profileData.address);
+    if (profileData.dob) formData.append('dob', profileData.dob);
+    if (profileData.examPath) formData.append('examPath', profileData.examPath);
+    if (profileData.medium) formData.append('medium', profileData.medium);
+
+    // Add academic details based on examPath
+    if (profileData.examPath === 'NATIONAL') {
+      if (profileData.sscRoll) formData.append('sscRoll', profileData.sscRoll);
+      if (profileData.sscRegistration) formData.append('sscRegistration', profileData.sscRegistration);
+      if (profileData.sscGpa) formData.append('sscGpa', profileData.sscGpa);
+      if (profileData.sscYear) formData.append('sscYear', profileData.sscYear);
+      if (profileData.sscBoard) formData.append('sscBoard', profileData.sscBoard);
+      if (profileData.hscRoll) formData.append('hscRoll', profileData.hscRoll);
+      if (profileData.hscRegistration) formData.append('hscRegistration', profileData.hscRegistration);
+      if (profileData.hscGpa) formData.append('hscGpa', profileData.hscGpa);
+      if (profileData.hscYear) formData.append('hscYear', profileData.hscYear);
+      if (profileData.hscBoard) formData.append('hscBoard', profileData.hscBoard);
+    }
+
+    if (profileData.examPath === 'MADRASHA') {
+      if (profileData.dakhilRoll) formData.append('dakhilRoll', profileData.dakhilRoll);
+      if (profileData.dakhilRegistration) formData.append('dakhilRegistration', profileData.dakhilRegistration);
+      if (profileData.dakhilGpa) formData.append('dakhilGpa', profileData.dakhilGpa);
+      if (profileData.dakhilYear) formData.append('dakhilYear', profileData.dakhilYear);
+      if (profileData.dakhilBoard) formData.append('dakhilBoard', profileData.dakhilBoard);
+      if (profileData.alimRoll) formData.append('alimRoll', profileData.alimRoll);
+      if (profileData.alimRegistration) formData.append('alimRegistration', profileData.alimRegistration);
+      if (profileData.alimGpa) formData.append('alimGpa', profileData.alimGpa);
+      if (profileData.alimYear) formData.append('alimYear', profileData.alimYear);
+      if (profileData.alimBoard) formData.append('alimBoard', profileData.alimBoard);
+    }
+
+    const response = await api.put(`/profile/${userId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.status === 200;
+  } catch (error) {
+    console.error("Update User Profile Failed:", error);
+    return false;
   }
 };
 
@@ -76,12 +404,10 @@ export const getInstitutions = async (): Promise<Institution[]> => {
   }
 };
 
-// Get Academic Info by User ID
+// Get Academic Info by User ID - Deprecated in favor of getAcademicDetails
 export const getAcademicInfo = async (userId: string): Promise<AcademicInfo | null> => {
   try {
-    const response = await api.get<AcademicInfo[]>('/academicInfo', {
-      params: { userId }
-    });
+    const response = await api.get<AcademicInfo[]>(`/academicInfo?userId=${userId}`);
     return response.data[0] || null;
   } catch (error) {
     console.error("Get Academic Info Failed:", error);
@@ -89,18 +415,14 @@ export const getAcademicInfo = async (userId: string): Promise<AcademicInfo | nu
   }
 };
 
-// Create or Update Academic Info
+// Create or Update Academic Info - Deprecated in favor of updateUserProfile
 export const saveAcademicInfo = async (academicInfo: AcademicInfo): Promise<AcademicInfo | null> => {
   try {
-    // Remove id if it's undefined (for new records)
     const { id, ...data } = academicInfo;
-
     if (id) {
-      // Update existing
       const response = await api.put<AcademicInfo>(`/academicInfo/${id}`, data);
       return response.data;
     } else {
-      // Create new
       const response = await api.post<AcademicInfo>('/academicInfo', data);
       return response.data;
     }
@@ -110,47 +432,10 @@ export const saveAcademicInfo = async (academicInfo: AcademicInfo): Promise<Acad
   }
 };
 
-// Get Documents by User ID
-export const getDocuments = async (userId: string): Promise<Document[]> => {
-  try {
-    const response = await api.get<Document[]>('/documents', {
-      params: { userId }
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Get Documents Failed:", error);
-    return [];
-  }
-};
-
-// Upload Document
-export const uploadDocument = async (document: Omit<Document, 'id'>): Promise<Document | null> => {
-  try {
-    const response = await api.post<Document>('/documents', document);
-    return response.data;
-  } catch (error) {
-    console.error("Upload Document Failed:", error);
-    return null;
-  }
-};
-
-// Delete Document
-export const deleteDocument = async (documentId: string): Promise<boolean> => {
-  try {
-    await api.delete(`/documents/${documentId}`);
-    return true;
-  } catch (error) {
-    console.error("Delete Document Failed:", error);
-    return false;
-  }
-};
-
 // Get Applications by User ID
 export const getApplications = async (userId: string): Promise<Application[]> => {
   try {
-    const response = await api.get<Application[]>('/applications', {
-      params: { userId }
-    });
+    const response = await api.get<Application[]>(`/applications?userId=${userId}`);
     return response.data;
   } catch (error) {
     console.error("Get Applications Failed:", error);
@@ -201,20 +486,6 @@ export const getUserById = async (userId: string): Promise<UserData | null> => {
     return response.data;
   } catch (error) {
     console.error("Get User Failed:", error);
-    return null;
-  }
-};
-
-// Update User Profile
-export const updateUserProfile = async (
-  userId: string,
-  userData: Partial<UserData>
-): Promise<UserData | null> => {
-  try {
-    const response = await api.patch<UserData>(`/users/${userId}`, userData);
-    return response.data;
-  } catch (error) {
-    console.error("Update User Profile Failed:", error);
     return null;
   }
 };

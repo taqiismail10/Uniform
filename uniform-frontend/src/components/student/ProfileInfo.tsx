@@ -1,93 +1,257 @@
-import { User, Mail, Phone, Calendar, MapPin, BookOpen, Globe, LogOut } from 'lucide-react';
-import type { UserData } from './types';
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Edit, Camera, Save, X } from 'lucide-react';
+import type { UserData } from '@/components/student/types';
 
 interface ProfileInfoProps {
   userData: UserData;
   onLogout: () => void;
+  onUpdate?: (updatedData: Partial<UserData>) => void;
 }
 
-export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+export default function ProfileInfo({ userData, onLogout, onUpdate }: ProfileInfoProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [formData, setFormData] = useState<UserData>({ ...userData });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelClick = () => {
+    setIsEditing(false);
+    setFormData({ ...userData });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveClick = async () => {
+    setIsLoading(true);
+    try {
+      if (onUpdate) {
+        await onUpdate(formData);
+      }
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-      <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">Profile Information</h3>
-        <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details and information</p>
-      </div>
-      <div className="px-4 py-5 sm:p-6">
-        <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-          <div className="sm:col-span-1">
-            <dt className="text-sm font-medium text-gray-500 flex items-center">
-              <User className="h-4 w-4 mr-2 text-gray-400" />
-              Full Name
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">{userData.userName}</dd>
+    <Card className="w-full">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between">
+          Profile Information
+          {!isEditing && onUpdate && (
+            <Button variant="outline" size="sm" onClick={handleEditClick}>
+              <Edit className="h-4 w-4 mr-1" />
+              Edit
+            </Button>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Profile Picture Section */}
+        <div className="flex flex-col items-center space-y-4">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden border-4 border-white shadow-md">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                  <span className="text-xl font-semibold text-gray-600">
+                    {userData.userName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
+            {isEditing && (
+              <button
+                type="button"
+                className="absolute bottom-0 right-0 bg-gray-900 rounded-full p-1.5 shadow-md hover:bg-gray-800 transition-colors"
+                onClick={triggerFileInput}
+              >
+                <Camera className="h-4 w-4 text-white" />
+              </button>
+            )}
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
           </div>
-          <div className="sm:col-span-1">
-            <dt className="text-sm font-medium text-gray-500 flex items-center">
-              <Mail className="h-4 w-4 mr-2 text-gray-400" />
-              Email Address
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">{userData.email}</dd>
-          </div>
-          <div className="sm:col-span-1">
-            <dt className="text-sm font-medium text-gray-500 flex items-center">
-              <Phone className="h-4 w-4 mr-2 text-gray-400" />
-              Phone Number
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">{userData.phone}</dd>
-          </div>
-          <div className="sm:col-span-1">
-            <dt className="text-sm font-medium text-gray-500 flex items-center">
-              <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-              Date of Birth
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">{formatDate(userData.dob)}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="text-sm font-medium text-gray-500 flex items-center">
-              <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-              Address
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">{userData.address}</dd>
-          </div>
-          <div className="sm:col-span-1">
-            <dt className="text-sm font-medium text-gray-500 flex items-center">
-              <BookOpen className="h-4 w-4 mr-2 text-gray-400" />
-              Exam Path
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">{userData.examPath}</dd>
-          </div>
-          <div className="sm:col-span-1">
-            <dt className="text-sm font-medium text-gray-500 flex items-center">
-              <Globe className="h-4 w-4 mr-2 text-gray-400" />
-              Medium
-            </dt>
-            <dd className="mt-1 text-sm text-gray-900">{userData.medium}</dd>
-          </div>
-        </dl>
-      </div>
-      <div className="px-4 py-4 bg-gray-50 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-          >
-            Edit Profile
-          </button>
-          <button
-            onClick={onLogout}
-            className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </button>
+          {isEditing && (
+            <p className="text-sm text-gray-500 text-center">
+              Click the camera icon to update your profile picture
+            </p>
+          )}
         </div>
-      </div>
-    </div>
+
+        {/* Profile Information */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="userName">Full Name</Label>
+            {isEditing ? (
+              <Input
+                id="userName"
+                name="userName"
+                value={formData.userName}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">{userData.userName}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            {isEditing ? (
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">{userData.email}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            {isEditing ? (
+              <Input
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">{userData.phone}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            {isEditing ? (
+              <Input
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">{userData.address}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dob">Date of Birth</Label>
+            {isEditing ? (
+              <Input
+                id="dob"
+                name="dob"
+                type="date"
+                value={formData.dob}
+                onChange={handleInputChange}
+                disabled={isLoading}
+              />
+            ) : (
+              <p className="text-gray-900 font-medium">
+                {new Date(userData.dob).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="examPath">Exam Path</Label>
+            <p className="text-gray-900 font-medium">{userData.examPath}</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="medium">Medium</Label>
+            <p className="text-gray-900 font-medium">{userData.medium}</p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        {isEditing && (
+          <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200">
+            <Button type="button" variant="outline" onClick={handleCancelClick} disabled={isLoading}>
+              <X className="h-4 w-4 mr-1" />
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleSaveClick} disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-1" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {/* Logout Button */}
+        <div className="pt-4 border-t border-gray-200">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={onLogout}
+            disabled={isLoading}
+          >
+            Logout
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

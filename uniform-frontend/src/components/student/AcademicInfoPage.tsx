@@ -1,7 +1,6 @@
 // uniform-frontend/src/components/student/AcademicInfoPage.tsx
-
 import { useState } from 'react';
-import type { AcademicInfo, Document } from '@/components/student/types';
+import type { AcademicInfo } from '@/components/student/types';
 import AcademicInfoSection from './AcademicInfoSection';
 import AcademicInfoForm from './AcademicInfoForm';
 import { saveAcademicInfo } from '@/api';
@@ -11,9 +10,6 @@ import { Edit } from 'lucide-react';
 
 interface AcademicInfoPageProps {
   academicInfo: AcademicInfo | null;
-  documents: Document[];
-  onDocumentUpload: (type: Document['type'], file: File) => void;
-  onDocumentDelete: (id: string) => void;
   loading?: boolean;
   userId: string;
   onAcademicInfoUpdate?: (academicInfo: AcademicInfo) => void;
@@ -21,9 +17,6 @@ interface AcademicInfoPageProps {
 
 export default function AcademicInfoPage({
   academicInfo,
-  documents,
-  onDocumentUpload,
-  onDocumentDelete,
   loading = false,
   userId,
   onAcademicInfoUpdate
@@ -67,7 +60,7 @@ export default function AcademicInfoPage({
       <div className="w-full">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Academic Information</h2>
-          <p className="mt-1 text-gray-600">Manage your academic details and documents</p>
+          <p className="mt-1 text-gray-600">Your academic details</p>
         </div>
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6 flex justify-center items-center h-64">
@@ -86,7 +79,7 @@ export default function AcademicInfoPage({
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Academic Information</h2>
-          <p className="mt-1 text-gray-600">Manage your academic details and documents</p>
+          <p className="mt-1 text-gray-600">Your academic details</p>
         </div>
         {academicInfo && !isEditing && (
           <Button onClick={handleEditClick}>
@@ -107,9 +100,6 @@ export default function AcademicInfoPage({
       ) : academicInfo ? (
         <AcademicInfoSection
           academicInfo={academicInfo}
-          documents={documents}
-          onDocumentUpload={onDocumentUpload}
-          onDocumentDelete={onDocumentDelete}
         />
       ) : (
         <AcademicInfoForm

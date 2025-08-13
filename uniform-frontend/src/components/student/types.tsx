@@ -1,5 +1,3 @@
-// uniform-frontend/src/components/student/types.tsx
-
 export interface Institution {
   institutionId: string;
   institutionName: string;
@@ -19,49 +17,68 @@ export interface UserData {
   address: string;
   role: string;
   dob: string;
-  examPath: string;
-  medium: string;
+  examPath: 'NATIONAL' | 'MADRASHA' | '';
+  medium: 'Bangla' | 'English' | 'Arabic' | '';
+  // SSC Details
+  sscRoll?: string;
+  sscRegistration?: string;
+  sscGpa?: string;
+  sscYear?: string;
+  sscBoard?: string;
+  // HSC Details
+  hscRoll?: string;
+  hscRegistration?: string;
+  hscGpa?: string;
+  hscYear?: string;
+  hscBoard?: string;
+  // Dakhil Details
+  dakhilRoll?: string;
+  dakhilRegistration?: string;
+  dakhilGpa?: string;
+  dakhilYear?: string;
+  dakhilBoard?: string;
+  // Alim Details
+  alimRoll?: string;
+  alimRegistration?: string;
+  alimGpa?: string;
+  alimYear?: string;
+  alimBoard?: string;
 }
 
 export interface AcademicInfo {
   id?: string;
   userId: string;
-  curriculum: 'national' | 'british';
+  curriculumType: 'national' | 'madrasha';
+  // National Curriculum Fields
   ssc?: {
     gpa: number;
     board: string;
     passingYear: number;
-    roll?: string;
-    registration?: string;
+    roll: string;
+    registration: string;
   };
   hsc?: {
     gpa: number;
     board: string;
     passingYear: number;
-    roll?: string;
-    registration?: string;
+    roll: string;
+    registration: string;
   };
-  oLevel?: {
-    subjects: { name: string; grade: string }[];
+  // Madrasha Curriculum Fields
+  dakhil?: {
+    gpa: number;
     board: string;
     passingYear: number;
-    candidateNumber?: string;
+    roll: string;
+    registration: string;
   };
-  aLevel?: {
-    subjects: { name: string; grade: string }[];
+  alim?: {
+    gpa: number;
     board: string;
     passingYear: number;
-    candidateNumber?: string;
+    roll: string;
+    registration: string;
   };
-}
-
-export interface Document {
-  id: string;
-  userId: string;
-  name: string;
-  type: 'profile' | 'ssc' | 'hsc' | 'oLevel' | 'aLevel' | 'other';
-  url: string;
-  uploadedAt: string;
 }
 
 export interface Application {

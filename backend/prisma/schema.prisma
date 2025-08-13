@@ -12,20 +12,44 @@ model Student {
   fullName String   @db.VarChar(190)
   email     String   @unique
   phone     String?  @db.VarChar(15)
-  password  String   @db.VarChar(255) // Ensure this field exists
+  password  String   @db.VarChar(255)
   address   String?  @db.VarChar(300)
-  role      String   @default("STUDENT") // Ensure role exists
+  role      String   @default("STUDENT")
   dob       DateTime
   profile   String?
-    createdAt DateTime @default(now())
+  // New fields from frontend
+  examPath    String?   // NATIONAL or MADRASHA
+  medium      String?   // Bangla, English, Arabic
+  // SSC Details
+  sscRoll        String? @db.VarChar(50)
+  sscRegistration String? @db.VarChar(50)
+  sscGpa         Float?
+  sscYear        Int?
+  sscBoard       String? @db.VarChar(50)
+  // HSC Details
+  hscRoll        String? @db.VarChar(50)
+  hscRegistration String? @db.VarChar(50)
+  hscGpa         Float?
+  hscYear        Int?
+  hscBoard       String? @db.VarChar(50)
+  // Dakhil Details
+  dakhilRoll     String? @db.VarChar(50)
+  dakhilRegistration String? @db.VarChar(50)
+  dakhilGpa      Float?
+  dakhilYear     Int?
+  dakhilBoard    String? @db.VarChar(50)
+  // Alim Details
+  alimRoll       String? @db.VarChar(50)
+  alimRegistration String? @db.VarChar(50)
+  alimGpa        Float?
+  alimYear       Int?
+  alimBoard      String? @db.VarChar(50)
+  
+  createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-
   forms              Form[]
   AppliedInstitution AppliedInstitution[]
-
-
 }
-
 
 model Form {
   formId    String @id @default(uuid())
@@ -37,7 +61,6 @@ model Form {
   hscGPA    Float
   sscGPA    Float
   student Student @relation(fields: [studentId], references: [studentId])
-
 }
 
 model Systemadmin {
@@ -56,7 +79,6 @@ model Admin {
   role      String   @default("INSTITUTION_ADMIN")
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-
   institutionId String?
   institution   Institution? @relation(fields: [institutionId], references: [institutionId])
 }
@@ -66,27 +88,19 @@ model Institution {
   name               String
   requirementsHscGPA Float
   requirementsSscGPA Float
-
-  institutionCategoryInstitutionCategoryId String?               @db.VarChar(255) // Foreign key to InstitutionCategory
-
+  institutionCategoryInstitutionCategoryId String?               @db.VarChar(255)
   institutionForms                         InstitutionForm[]
   AppliedInstitution                       AppliedInstitution[]
-
-  admins                                   Admin[] // Relation to Admin
-
+  admins                                   Admin[]
   InstitutionCategory                      InstitutionCategory? @relation(fields: [institutionCategoryInstitutionCategoryId], references: [institutionCategoryId])
-
 }
 
 model InstitutionCategory {
   institutionCategoryId String @id @default(uuid())
   name                  String
   description           String
-
   institutions Institution[]
 }
-
-
 
 model InstitutionForm {
   institutionFormId String  @id @default(uuid())
@@ -94,20 +108,13 @@ model InstitutionForm {
   fieldName         String
   fieldType         String // e.g., "text", "number", "file"
   isRequired        Boolean @default(true)
-
-    institution Institution @relation(fields: [institutionId], references: [institutionId])
-
-
+  institution Institution @relation(fields: [institutionId], references: [institutionId])
 }
 
 model AppliedInstitution {
   id            String @id @default(uuid())
   studentId     String
   institutionId String
-
   student     Student     @relation(fields: [studentId], references: [studentId])
   institution Institution @relation(fields: [institutionId], references: [institutionId])
 }
-
-
-
