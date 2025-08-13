@@ -1,17 +1,10 @@
-// uniform-frontend/src/routes/student/dashboard.tsx
 import ProtectedRoutes from '@/utils/ProtectedRoutes';
 import { ROLES } from '@/utils/role';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/context/useAuth';
 import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
-import {
-  getInstitutions,
-  getAcademicInfo,
-  getApplications,
-  getUserProfile,
-  updateUserProfile
-} from '@/api';
+import { useEffect, useState, useCallback } from 'react';
+import { getInstitutions, getAcademicInfo, getApplications, getUserProfile, updateUserProfile } from '@/api';
 import type { Application, Institution, UserData, AcademicInfo } from '@/components/student/types';
 import Header from '@/components/student/Header';
 import DashboardStats from '@/components/student/DashboardStats';
@@ -50,6 +43,15 @@ function RouteComponent() {
   });
   const [activeSection, setActiveSection] = useState('dashboard');
   const institutions = Route.useLoaderData() as Institution[];
+
+  // Memoize handleLogout to prevent unnecessary re-renders
+  const handleLogout = useCallback(() => {
+    logout();
+    toast.success("Logged Out", {
+      description: "You have been successfully logged out."
+    });
+    navigate({ to: '/login' });
+  }, [logout, navigate]);
 
   // Get user data from API
   useEffect(() => {
@@ -110,18 +112,10 @@ function RouteComponent() {
     };
 
     fetchUserData();
-  }, [user, logout, navigate]);
-
-  const handleLogout = () => {
-    logout();
-    toast.success("Logged Out", {
-      description: "You have been successfully logged out."
-    });
-    navigate({ to: '/login' });
-  };
+  }, [user, handleLogout]); // Added handleLogout to dependencies
 
   // Handle profile update
-  const handleProfileUpdate = async (updatedData: Partial<UserData>) => {
+  const handleProfileUpdate = useCallback(async (updatedData: Partial<UserData>) => {
     if (!userData) return;
 
     try {
@@ -152,12 +146,7 @@ function RouteComponent() {
         description: "An error occurred while updating your profile."
       });
     }
-  };
-
-  // Handle academic info update
-  const handleAcademicInfoUpdate = (updatedInfo: AcademicInfo) => {
-    setAcademicInfo(updatedInfo);
-  };
+  }, [userData]);
 
   // Show loading state
   if (loading) {
@@ -203,10 +192,12 @@ function RouteComponent() {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
       />
+
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {activeSection === 'dashboard' && (
           <>
             <DashboardStats stats={dashboardStats} />
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
                 <ProfileInfo
@@ -215,6 +206,7 @@ function RouteComponent() {
                   onUpdate={handleProfileUpdate}
                 />
               </div>
+
               <div className="lg:col-span-2">
                 {dataLoading.applications ? (
                   <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
@@ -236,15 +228,15 @@ function RouteComponent() {
             </div>
           </>
         )}
+
         {activeSection === 'universities' && (
           <UniversitiesSection institutions={institutions} />
         )}
+
         {activeSection === 'academic-info' && (
           <AcademicInfoPage
             academicInfo={academicInfo}
             loading={dataLoading.academicInfo}
-            userId={userData.userId}
-            onAcademicInfoUpdate={handleAcademicInfoUpdate}
           />
         )}
       </main>

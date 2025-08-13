@@ -1,3 +1,4 @@
+// uniform-frontend/src/components/student/AcademicDetails.tsx
 import type { AcademicInfo } from './types';
 
 interface AcademicDetailsProps {

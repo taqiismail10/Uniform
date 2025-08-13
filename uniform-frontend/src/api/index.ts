@@ -1,3 +1,4 @@
+// uniform-frontend/src/api/index.ts
 import axios from "axios";
 import type { User } from "@/context/AuthContext";
 import type { Institution, AcademicInfo, Application, UserData } from "@/components/student/types";
@@ -224,6 +225,7 @@ export const getUserProfile = async (): Promise<User | null> => {
         alimYear: backendProfile.alimYear?.toString(),
         alimBoard: backendProfile.alimBoard,
       };
+      console.log("Frontend User Profile:", frontendUser);
       return frontendUser;
     }
     return null;
@@ -386,8 +388,8 @@ export const getInstitutions = async (): Promise<Institution[]> => {
 // Get Academic Info by User ID - Deprecated in favor of getAcademicDetails
 export const getAcademicInfo = async (userId: string): Promise<AcademicInfo | null> => {
   try {
-    const response = await api.get<AcademicInfo[]>(`/academicInfo?userId=${userId}`);
-    return response.data[0] || null;
+    const response = await api.get(`/academicInfo?userId=${userId}`);
+    return response.data.academicDetails || null;
   } catch (error) {
     console.error("Get Academic Info Failed:", error);
     return null;

@@ -48,37 +48,29 @@ export interface UserData {
 export interface AcademicInfo {
   id?: string;
   userId: string;
-  curriculumType: 'national' | 'madrasha';
+  examPath: 'NATIONAL' | 'MADRASHA';
   // National Curriculum Fields
-  ssc?: {
-    gpa: number;
-    board: string;
-    passingYear: number;
-    roll: string;
-    registration: string;
-  };
-  hsc?: {
-    gpa: number;
-    board: string;
-    passingYear: number;
-    roll: string;
-    registration: string;
-  };
+  sscRoll: string;
+  sscRegistration: string;
+  sscGpa: number;
+  sscYear: number;
+  sscBoard: string;
+  hscRoll: string;
+  hscRegistration: string;
+  hscGpa: number;
+  hscYear: number;
+  hscBoard: string;
   // Madrasha Curriculum Fields
-  dakhil?: {
-    gpa: number;
-    board: string;
-    passingYear: number;
-    roll: string;
-    registration: string;
-  };
-  alim?: {
-    gpa: number;
-    board: string;
-    passingYear: number;
-    roll: string;
-    registration: string;
-  };
+  dakhilRoll: string;
+  dakhilRegistration: string;
+  dakhilGpa: number;
+  dakhilYear: number;
+  dakhilBoard: string;
+  alimRoll: string;
+  alimRegistration: string;
+  alimGpa: number;
+  alimYear: number;
+  alimBoard: string;
 }
 
 export interface Application {

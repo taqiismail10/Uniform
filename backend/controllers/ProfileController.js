@@ -276,7 +276,12 @@ class ProfileController {
 	// New method to get academic details specifically
 	static async getAcademicDetails(req, res) {
 		try {
-			const { studentId } = req.user;
+			const studentId = req.user.studentId;
+			const { examPath } = await prisma.student.findUnique({
+				where: { studentId },
+				select: { examPath: true },
+			});
+
 			const student = await prisma.student.findUnique({
 				where: { studentId },
 				select: {
@@ -284,7 +289,7 @@ class ProfileController {
 					examPath: true,
 					medium: true,
 					// Academic details based on examPath
-					...(req.user.examPath === "NATIONAL" && {
+					...(examPath === "NATIONAL" && {
 						sscRoll: true,
 						sscRegistration: true,
 						sscGpa: true,
@@ -296,7 +301,7 @@ class ProfileController {
 						hscYear: true,
 						hscBoard: true,
 					}),
-					...(req.user.examPath === "MADRASHA" && {
+					...(examPath === "MADRASHA" && {
 						dakhilRoll: true,
 						dakhilRegistration: true,
 						dakhilGpa: true,
