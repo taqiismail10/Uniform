@@ -10,16 +10,8 @@ class authController {
 	static async register(req, res) {
 		try {
 			const body = req.body;
-			console.log(
-				"Registration data from AuthController.js body: \n",
-				body
-			);
 			const validator = vine.compile(registerSchema);
 			const payload = await validator.validate(body);
-			console.log(
-				"Registration data from AuthController.js payload: \n",
-				payload
-			);
 
 			const findUser = await prisma.student.findUnique({
 				where: {
@@ -68,22 +60,11 @@ class authController {
 			const validator = vine.compile(loginSchema);
 			const payload = await validator.validate(body);
 
-			// * Find user with email
-			console.log(
-				"Login payload from controllers/AuthController.js: ",
-				payload
-			);
-
 			const findUser = await prisma.student.findUnique({
 				where: {
 					email: payload.email,
 				},
 			});
-
-			console.log(
-				"Checking Prisma Query Result for User in backend/controllers/AuthController.js: ",
-				findUser
-			);
 
 			if (findUser) {
 				if (!bcrypt.compareSync(payload.password, findUser.password)) {
