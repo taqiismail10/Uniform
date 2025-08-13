@@ -1,3 +1,5 @@
+// backend/controllers/adminAuthController.js
+
 import vine, { errors } from "@vinejs/vine";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
