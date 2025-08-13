@@ -85,10 +85,21 @@ model Admin {
 
 model Institution {
   institutionId      String @id @default(uuid())
-  name               String
-  requirementsHscGPA Float
-  requirementsSscGPA Float
-  institutionCategoryInstitutionCategoryId String?               @db.VarChar(255)
+  name               String @unique
+
+  description        String? @db.Text
+  address            String? @db.VarChar(500)
+  phone              String? @db.VarChar(20)
+  email              String?
+  website            String?
+  establishedYear    Int?
+  logoUrl            String? // Institution logo
+
+  requirementsHscGPA Float?
+  requirementsSscGPA Float?
+
+  institutionCategoryInstitutionCategoryId String?               @db.VarChar(255) // Foreign key to InstitutionCategory
+
   institutionForms                         InstitutionForm[]
   AppliedInstitution                       AppliedInstitution[]
   admins                                   Admin[]
@@ -98,7 +109,8 @@ model Institution {
 model InstitutionCategory {
   institutionCategoryId String @id @default(uuid())
   name                  String
-  description           String
+  description           String?
+
   institutions Institution[]
 }
 

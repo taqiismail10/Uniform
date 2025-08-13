@@ -77,15 +77,85 @@ POST http://localhost:5000/api/system/auth/login
 }
 ```
 
-### Admin Creation
+### Institution and Institution Category Created
 
-POST http://localhost:5000/api/system/admins
+POST http://localhost:5000/api/system/institutions
 
 ```json
 {
-  "email": "admincu@example.com",
+  "name": "University of Dhaka",
+  "categoryName": "public university"
+}
+```
+
+```json
+{
+  "status": 201,
+  "message": "Institution added successfully!",
+  "institution": {
+    "institutionId": "9ede37aa-ed91-4b5a-a6e6-34eb01706806",
+    "name": "University of Dhaka",
+    "description": null,
+    "address": null,
+    "phone": null,
+    "email": null,
+    "website": null,
+    "establishedYear": null,
+    "logoUrl": null,
+    "requirementsHscGPA": null,
+    "requirementsSscGPA": null,
+    "institutionCategoryInstitutionCategoryId": "683b4ff2-17e2-48bf-88f1-33bfe5c934e6"
+  }
+}
+```
+
+### Institution Deletion
+
+DELETE http://localhost:5000/api/system/institutions/9ede37aa-ed91-4b5a-a6e6-34eb01706806
+
+```json
+{ "status": 200, "message": "Institution deleted successfully!" }
+```
+
+### Admin Creation and Assigned to Institution
+
+POST http://localhost:5000/api/system/admins/create-and-assign
+
+```json
+{
+  "email": "admin@example.com",
   "password": "admin",
-  "institutionId": "2f2f2470-de67-4f0f-90a3-033c994111eb"
+  "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0"
+}
+```
+
+```json
+{
+  "status": 200,
+  "message": "Institution admin created successfully",
+  "admin": {
+    "adminId": "dd3b19cf-e066-4b7a-a7f7-29ed636245b3",
+    "email": "admin@example.com",
+    "password": "$2b$10$22czEW1tczaD4yX5sgazpeHiz7C5MvkZ1jUHskXT.MuBLhppyG2Fm",
+    "role": "INSTITUTION_ADMIN",
+    "createdAt": "2025-08-10T21:28:38.047Z",
+    "updatedAt": "2025-08-10T21:28:38.047Z",
+    "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
+    "institution": {
+      "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
+      "name": "University of Chittagong",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "requirementsHscGPA": null,
+      "requirementsSscGPA": null,
+      "institutionCategoryInstitutionCategoryId": null
+    }
+  }
 }
 ```
 
@@ -122,6 +192,26 @@ PUT http://localhost:5000/api/admin/update-password
 
 ```json
 { "status": 200, "message": "Password updated successfully" }
+```
+
+### Unassign Admin From Institution
+
+PATCH http://localhost:5000/api/system/admins/dd3b19cf-e066-4b7a-a7f7-29ed636245b3/unassign-institution
+
+```json
+{
+  "status": 200,
+  "message": "Admin unassigned from institution successfully.",
+  "admin": {
+    "adminId": "dd3b19cf-e066-4b7a-a7f7-29ed636245b3",
+    "email": "admin@example.com",
+    "password": "$2b$10$22czEW1tczaD4yX5sgazpeHiz7C5MvkZ1jUHskXT.MuBLhppyG2Fm",
+    "role": "INSTITUTION_ADMIN",
+    "createdAt": "2025-08-10T21:28:38.047Z",
+    "updatedAt": "2025-08-10T21:42:13.140Z",
+    "institutionId": null
+  }
+}
 ```
 
 ### Student Profile
