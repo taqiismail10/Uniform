@@ -7,9 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Stream {
+  SCIENCE
+  ARTS
+  COMMERCE
+}
+
 model Student {
   studentId String   @id @default(uuid())
-  fullName String   @db.VarChar(190)
+  fullName  String   @db.VarChar(190)
   email     String   @unique
   phone     String?  @db.VarChar(15)
   password  String   @db.VarChar(255) // Ensure this field exists
@@ -20,31 +26,28 @@ model Student {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  forms              Form[]
-  AppliedInstitution AppliedInstitution[]
-
-
+  forms        Form[]
+  AppliedUnit  AppliedUnit[]
+  applications Application[]
 }
 
-
 model Form {
-  formId    String @id @default(uuid())
-  studentId String @unique
+  formId    String  @id @default(uuid())
+  studentId String  @unique
   board     String
-  reg       Int    @unique
-  hscRoll   Int    @unique
-  sscRoll   Int    @unique
+  reg       Int     @unique
+  hscRoll   Int     @unique
+  sscRoll   Int     @unique
   hscGPA    Float
   sscGPA    Float
-  student Student @relation(fields: [studentId], references: [studentId])
-
+  student   Student @relation(fields: [studentId], references: [studentId])
 }
 
 model Systemadmin {
-  systemAdminId String @id @default(uuid())
-  email         String @unique
-  password      String @db.VarChar(255)
-  role          String @default("SYSTEM_ADMIN")
+  systemAdminId String   @id @default(uuid())
+  email         String   @unique
+  password      String   @db.VarChar(255)
+  role          String   @default("SYSTEM_ADMIN")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
 }
@@ -62,40 +65,72 @@ model Admin {
 }
 
 model Institution {
-  institutionId      String @id @default(uuid())
-  name               String @unique
+  institutionId String @id @default(uuid())
+  name          String @unique
 
-  description        String? @db.Text
-  address            String? @db.VarChar(500)
-  phone              String? @db.VarChar(20)
-  email              String?
-  website            String?
-  establishedYear    Int?
-  logoUrl            String? // Institution logo
+  description     String?  @db.Text
+  address         String?  @db.VarChar(500)
+  phone           String?  @db.VarChar(20)
+  email           String?
+  website         String?
+  establishedYear Int?
+  logoUrl         String? // Institution logo
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
 
-  requirementsHscGPA Float?
-  requirementsSscGPA Float?
+  units        Unit[]
+  admins       Admin[] // Relation to Admin
+  applications Application[]
 
-  institutionCategoryInstitutionCategoryId String?               @db.VarChar(255) // Foreign key to InstitutionCategory
+  institutionCategoryInstitutionCategoryId String? @db.VarChar(255) // Foreign key to InstitutionCategory
 
-  institutionForms                         InstitutionForm[]
-  AppliedInstitution                       AppliedInstitution[]
+  institutionForms InstitutionForm[]
 
-  admins                                   Admin[] // Relation to Admin
+  InstitutionCategory InstitutionCategory? @relation(fields: [institutionCategoryInstitutionCategoryId], references: [institutionCategoryId])
+}
 
-  InstitutionCategory                      InstitutionCategory? @relation(fields: [institutionCategoryInstitutionCategoryId], references: [institutionCategoryId])
+model Unit {
+  unitId        String   @id @default(uuid())
+  name          String
+  description   String?
+  institutionId String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
+  requirements UnitRequirement[]
+  institution  Institution       @relation(fields: [institutionId], references: [institutionId], onDelete: Cascade)
+  applications Application[]
+
+  AppliedUnit AppliedUnit[]
+
+  // Ensure unit names are unique within each institution
+  @@unique([name, institutionId])
+}
+
+model UnitRequirement {
+  id        String   @id @default(uuid())
+  unitId    String
+  sscStream Stream
+  hscStream Stream
+  minSscGPA Float?
+  minHscGPA Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  unit Unit @relation(fields: [unitId], references: [unitId], onDelete: Cascade)
+
+  // Ensure each unit has unique stream combination requirements
+  @@unique([unitId, sscStream, hscStream])
 }
 
 model InstitutionCategory {
-  institutionCategoryId String @id @default(uuid())
+  institutionCategoryId String  @id @default(uuid())
   name                  String
   description           String?
 
   institutions Institution[]
 }
-
-
 
 model InstitutionForm {
   institutionFormId String  @id @default(uuid())
@@ -104,19 +139,35 @@ model InstitutionForm {
   fieldType         String // e.g., "text", "number", "file"
   isRequired        Boolean @default(true)
 
-    institution Institution @relation(fields: [institutionId], references: [institutionId])
-
-
-}
-
-model AppliedInstitution {
-  id            String @id @default(uuid())
-  studentId     String
-  institutionId String
-
-  student     Student     @relation(fields: [studentId], references: [studentId])
   institution Institution @relation(fields: [institutionId], references: [institutionId])
 }
 
+model AppliedUnit {
+  id        String @id @default(uuid())
+  studentId String
+  unitId    String
 
+  student Student @relation(fields: [studentId], references: [studentId])
+  unit    Unit    @relation(fields: [unitId], references: [unitId])
+}
 
+model Application {
+  id            String    @id @default(uuid())
+  studentId     String
+  unitId        String
+  institutionId String
+  appliedAt     DateTime  @default(now())
+  reviewedAt    DateTime?
+  notes         String?   @db.Text
+
+  student     Student     @relation(fields: [studentId], references: [studentId])
+  unit        Unit        @relation(fields: [unitId], references: [unitId])
+  institution Institution @relation(fields: [institutionId], references: [institutionId])
+
+  // Ensure a student can't apply to the same unit multiple times
+  @@unique([studentId, unitId])
+  // Index for better query performance
+  @@index([studentId])
+  @@index([unitId])
+  @@index([institutionId])
+}
