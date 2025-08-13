@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "../ui/button"
 
 interface HeroSectionProps {
@@ -24,7 +24,11 @@ const Hero = (props: HeroSectionProps) => {
               </>
               :
               <>
-                <Button>Start Applying</Button>
+                <Button>
+                  <Link to="/registration">
+                    Start Applying
+                  </Link>
+                </Button>
                 <Button variant={"outline"}>Explore Features</Button>
               </>
           }

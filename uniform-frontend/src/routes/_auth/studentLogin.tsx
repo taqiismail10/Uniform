@@ -1,13 +1,16 @@
+// uniform-frontend/src/routes/_auth/studentLogin.tsx
 import { userLogin } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/context/useAuth'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { GraduationCap, Eye, EyeOff, Loader2, Check } from 'lucide-react'
+import { GraduationCap, Eye, EyeOff, Loader2, Check, Calendar, AlertCircle } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Toaster } from 'sonner'
+import studentImage from '@/assets/student_using_laptop.svg'
+import axios from 'axios'
 
 export const Route = createFileRoute('/_auth/studentLogin')({
   component: RouteComponent,
@@ -20,12 +23,14 @@ function RouteComponent() {
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const { login: authLogin } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Basic validation
+    setError('')
+
     if (!email || !password) {
       toast.error("Validation Error", {
         description: "Please enter both email and password."
@@ -36,32 +41,73 @@ function RouteComponent() {
     setIsLoading(true);
 
     try {
-      const user = await userLogin(email, password);
+      const user = await userLogin(email, password, "STUDENT");
       if (user) {
+        // Store user data in localStorage/sessionStorage based on remember me
+        if (rememberMe) {
+          localStorage.setItem('user', JSON.stringify(user));
+        } else {
+          sessionStorage.setItem('user', JSON.stringify(user));
+        }
+        // Update auth context
         authLogin(user);
         toast.success("Login Successful", {
-          description: "You have been successfully logged in. Redirecting to dashboard..."
+          description: `Welcome back, ${user.userName}! Redirecting to dashboard...`
         });
+        // Navigate to dashboard
         navigate({ to: '/student/dashboard' });
       } else {
+        setError("Invalid email or password. Please try again.");
         toast.error("Login Failed", {
           description: "Invalid credentials. Please check your email and password."
         });
       }
     } catch (error) {
       console.error("Login error:", error);
+      // Handle different error scenarios
+      let errorMessage = "An error occurred during login. Please try again later.";
+      if (axios.isAxiosError(error)) {
+        // Handle axios specific errors
+        if (error.response) {
+          // Server responded with error status
+          const status = error.response.status;
+          const responseData = error.response.data;
+          if (status === 400) {
+            if (responseData.message === "Invalid Credentials") {
+              errorMessage = "Invalid email or password.";
+            } else if (responseData.message === "User not found") {
+              errorMessage = "No account found with this email address.";
+            } else if (responseData.errors) {
+              // Handle validation errors
+              const validationErrors = responseData.errors;
+              const firstError = Object.values(validationErrors)[0];
+              errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+            }
+          } else if (status === 401) {
+            errorMessage = "Invalid email or password.";
+          } else if (status === 500) {
+            errorMessage = "Server error. Please try again later.";
+          }
+        } else if (error.request) {
+          // Request was made but no response received
+          errorMessage = "Network error. Please check your internet connection.";
+        }
+      } else if (error instanceof Error) {
+        // Handle generic JavaScript errors
+        errorMessage = error.message;
+      }
+      setError(errorMessage);
       toast.error("Login Failed", {
-        description: "An error occurred during login. Please try again later."
+        description: errorMessage
       });
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
       <Toaster position="top-right" richColors />
-
       <div className="flex min-h-screen w-full bg-gray-100">
         <div className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-white shadow-lg">
           {/* Left side - Image and Info */}
@@ -80,21 +126,30 @@ function RouteComponent() {
               </Link>
               <img
                 className="w-full h-auto"
-                src="/src/assets/student_using_laptop.svg"
+                src={studentImage}
                 alt="Student using UniForm"
               />
               <div className="mt-8 text-center">
+                <div className="inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg">
+                  <Calendar className="h-5 w-5 text-blue-500 mr-2" />
+                  <span className="text-sm font-medium text-blue-700">Admission Deadline: June 30, 2025</span>
+                </div>
               </div>
             </div>
           </div>
-
           {/* Right side - Login Form */}
           <div className="w-full md:w-1/2 lg:w-2/5 p-8 md:p-12 flex flex-col justify-center">
             <div className="mb-10">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Login to UniForm</h1>
               <p className="text-gray-600">Access your university admission portal</p>
             </div>
-
+            {/* Error message display */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2" />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700 font-medium">
@@ -111,15 +166,14 @@ function RouteComponent() {
                   disabled={isLoading}
                 />
               </div>
-
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label htmlFor="password" className="text-gray-700 font-medium">
                     Password
                   </Label>
-                  <a href="#" className="text-sm text-gray-700 hover:text-gray-900 transition">
+                  <Link to="/forgot-password" className="text-sm text-gray-700 hover:text-gray-900 transition">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <div className="relative">
                   <Input
@@ -142,7 +196,6 @@ function RouteComponent() {
                   </button>
                 </div>
               </div>
-
               <div className="flex items-center">
                 <div className="relative flex items-center">
                   <input
@@ -168,7 +221,6 @@ function RouteComponent() {
                   Remember me
                 </label>
               </div>
-
               <Button
                 type="submit"
                 className="w-full py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition duration-300 flex items-center justify-center gap-2"
@@ -187,14 +239,12 @@ function RouteComponent() {
                 )}
               </Button>
             </form>
-
             <p className="mt-8 text-center text-sm text-gray-600">
               Don't have an account?{' '}
               <Link to="/registration" className="font-medium text-gray-900 hover:text-gray-700 transition">
                 Sign up
               </Link>
             </p>
-
             <div className="mt-6 pt-6 border-t border-gray-200">
               <p className="text-xs text-center text-gray-500">
                 UniForm - A Web Engineering Lab Project for Bangladesh University Admissions
