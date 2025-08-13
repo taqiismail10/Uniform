@@ -16,11 +16,13 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    // Get access token from localStorage
+
     const accessToken = localStorage.getItem('accessToken');
+
     if (accessToken) {
       config.headers.Authorization = accessToken;
     }
+
     return config;
   },
   (error) => {
@@ -71,39 +73,13 @@ export const registerUser = async (userData: {
   alimBoard?: string;
 }): Promise<User | null> => {
   try {
-    // Format the phone number to ensure it's in the correct format
-    const formatPhoneNumber = (phone: string): string => {
-      // Remove all non-digit characters
-      const cleaned = phone.replace(/\D/g, '');
-
-      // If the cleaned string starts with '880', then we add a '+' at the beginning
-      if (cleaned.startsWith('880')) {
-        return `+${cleaned}`;
-      }
-
-      // If it starts with '0', then we replace the leading '0' with '+880'
-      if (cleaned.startsWith('0')) {
-        return `+880${cleaned.substring(1)}`;
-      }
-
-      // If it starts with '1' (assuming it's a local number without country code and without leading 0)
-      if (cleaned.startsWith('1')) {
-        return `+880${cleaned}`;
-      }
-
-      // If none of the above, return the original phone (or throw an error, but we'll just return as is)
-      return phone;
-    };
-
-    const formattedPhone = formatPhoneNumber(userData.phone);
-
     // Transform frontend data to match backend schema
     const backendData = {
-      fullName: userData.userName, // Backend expects 'fullName'
+      fullName: userData.userName,
       email: userData.email,
-      phone: formattedPhone, // Use formatted phone number
+      phone: userData.phone,
       password: userData.password,
-      password_confirmation: userData.password, // Backend requires confirmation
+      password_confirmation: userData.password,
       address: userData.address,
       role: userData.role,
       dob: new Date(userData.dob).toISOString(), // Convert to ISO string format
@@ -137,9 +113,11 @@ export const registerUser = async (userData: {
     };
 
     const response = await api.post('/auth/register', backendData);
+
     if (response.data.status === 200) {
       // Transform backend response to frontend User format
       const backendUser = response.data.user;
+
       const frontendUser: User = {
         userId: backendUser.studentId,
         userName: backendUser.fullName,
@@ -178,11 +156,12 @@ export const registerUser = async (userData: {
     return null;
   } catch (error) {
     console.error("Registration Failed:", error);
-    throw error; // Re-throw to let calling component handle specific errors
+    throw error;
   }
 };
 
-// Login User - Updated to handle the new response format
+
+// Student Login
 export const userLogin = async (
   email: string,
   password: string,
@@ -206,7 +185,7 @@ export const userLogin = async (
   }
 };
 
-// Get User Profile - Updated to include academic details
+// Get Student Profile - Updated to include academic details
 export const getUserProfile = async (): Promise<User | null> => {
   try {
     const response = await api.get('/profile');

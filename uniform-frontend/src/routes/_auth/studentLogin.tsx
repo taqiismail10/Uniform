@@ -28,18 +28,19 @@ function RouteComponent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Reset error state
+
     setError('')
-    // Basic validation
+
     if (!email || !password) {
       toast.error("Validation Error", {
         description: "Please enter both email and password."
       });
       return;
     }
+
     setIsLoading(true);
+
     try {
-      // Call the updated userLogin API function
       const user = await userLogin(email, password, "STUDENT");
       if (user) {
         // Store user data in localStorage/sessionStorage based on remember me

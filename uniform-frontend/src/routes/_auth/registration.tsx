@@ -3,35 +3,66 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { GraduationCap, Eye, EyeOff, Calendar } from 'lucide-react'
+import { GraduationCap, Eye, EyeOff, Calendar, AlertCircle } from 'lucide-react'
 import { useState } from 'react'
-// import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/useAuth'
 import { toast } from 'sonner'
 import { registerUser } from '@/api'
 import axios from 'axios'
 
-// Phone number formatting function
 function formatPhoneNumber(phone: string): string {
   // Remove all non-digit characters
   const cleaned = phone.replace(/\D/g, '');
-
   // If the cleaned string starts with '880', then we add a '+' at the beginning
   if (cleaned.startsWith('880')) {
     return `+${cleaned}`;
   }
-
   // If it starts with '0', then we replace the leading '0' with '+880'
   if (cleaned.startsWith('0')) {
     return `+880${cleaned.substring(1)}`;
   }
-
   // If it starts with '1' (assuming it's a local number without country code and without leading 0)
   if (cleaned.startsWith('1')) {
     return `+880${cleaned}`;
   }
-
   // If none of the above, return the original phone (or throw an error, but we'll just return as is)
   return phone;
+}
+
+// Validation function for Bangladeshi phone number
+function validateBangladeshiPhoneNumber(phone: string): boolean {
+  // Remove all non-digit characters
+  const cleaned = phone.replace(/\D/g, '');
+
+  // Check if the cleaned number starts with 880 and has 13 digits in total
+  if (cleaned.startsWith('880') && cleaned.length === 13) {
+    return true;
+  }
+
+  // Check if the cleaned number starts with 0 and has 11 digits in total
+  if (cleaned.startsWith('0') && cleaned.length === 11) {
+    return true;
+  }
+
+  // Check if the cleaned number starts with 1 and has 10 digits in total (assuming it's a local number without country code and without leading 0)
+  if (cleaned.startsWith('1') && cleaned.length === 10) {
+    return true;
+  }
+
+  return false;
+}
+
+// Validation function for GPA
+function validateGPA(gpa: string): boolean {
+  const gpaValue = parseFloat(gpa);
+  return !isNaN(gpaValue) && gpaValue >= 0 && gpaValue <= 5;
+}
+
+// Validation function for year
+function validateYear(year: string): boolean {
+  const yearValue = parseInt(year);
+  const currentYear = new Date().getFullYear();
+  return !isNaN(yearValue) && yearValue >= 1990 && yearValue <= currentYear;
 }
 
 export const Route = createFileRoute('/_auth/registration')({
@@ -40,10 +71,12 @@ export const Route = createFileRoute('/_auth/registration')({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  // const { login } = useAuth();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [formData, setFormData] = useState({
     userName: '',
     email: '',
@@ -80,11 +113,117 @@ function RouteComponent() {
     alimBoard: '',
   })
 
+  // Validate a single field
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'userName':
+        return value.trim() ? '' : 'Full name is required';
+      case 'email':
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Please enter a valid email address';
+      case 'phone':
+        return validateBangladeshiPhoneNumber(value) ? '' : 'Please enter a valid Bangladeshi phone number (e.g., +8801712345678 or 01712345678)';
+      case 'password':
+        return value.length >= 6 ? '' : 'Password must be at least 6 characters';
+      case 'confirmPassword':
+        return value === formData.password ? '' : 'Passwords do not match';
+      case 'address':
+        return value.trim() ? '' : 'Address is required';
+      case 'dob':
+        return value ? '' : 'Date of birth is required';
+      case 'medium':
+        return value ? '' : 'Please select a medium';
+      case 'examPath':
+        return value ? '' : 'Please select an exam path';
+      case 'sscRoll':
+        return formData.examPath === 'NATIONAL' && !value.trim() ? 'SSC roll number is required' : '';
+      case 'sscRegistration':
+        return formData.examPath === 'NATIONAL' && !value.trim() ? 'SSC registration number is required' : '';
+      case 'sscGpa':
+        return formData.examPath === 'NATIONAL' && !validateGPA(value) ? 'Please enter a valid SSC GPA (0-5)' : '';
+      case 'sscYear':
+        return formData.examPath === 'NATIONAL' && !validateYear(value) ? 'Please enter a valid SSC year' : '';
+      case 'sscBoard':
+        return formData.examPath === 'NATIONAL' && !value ? 'Please select SSC board' : '';
+      case 'hscRoll':
+        return formData.examPath === 'NATIONAL' && !value.trim() ? 'HSC roll number is required' : '';
+      case 'hscRegistration':
+        return formData.examPath === 'NATIONAL' && !value.trim() ? 'HSC registration number is required' : '';
+      case 'hscGpa':
+        return formData.examPath === 'NATIONAL' && !validateGPA(value) ? 'Please enter a valid HSC GPA (0-5)' : '';
+      case 'hscYear':
+        return formData.examPath === 'NATIONAL' && !validateYear(value) ? 'Please enter a valid HSC year' : '';
+      case 'hscBoard':
+        return formData.examPath === 'NATIONAL' && !value ? 'Please select HSC board' : '';
+      case 'dakhilRoll':
+        return formData.examPath === 'MADRASHA' && !value.trim() ? 'Dakhil roll number is required' : '';
+      case 'dakhilRegistration':
+        return formData.examPath === 'MADRASHA' && !value.trim() ? 'Dakhil registration number is required' : '';
+      case 'dakhilGpa':
+        return formData.examPath === 'MADRASHA' && !validateGPA(value) ? 'Please enter a valid Dakhil GPA (0-5)' : '';
+      case 'dakhilYear':
+        return formData.examPath === 'MADRASHA' && !validateYear(value) ? 'Please enter a valid Dakhil year' : '';
+      case 'dakhilBoard':
+        return formData.examPath === 'MADRASHA' && !value ? 'Please select Dakhil board' : '';
+      case 'alimRoll':
+        return formData.examPath === 'MADRASHA' && !value.trim() ? 'Alim roll number is required' : '';
+      case 'alimRegistration':
+        return formData.examPath === 'MADRASHA' && !value.trim() ? 'Alim registration number is required' : '';
+      case 'alimGpa':
+        return formData.examPath === 'MADRASHA' && !validateGPA(value) ? 'Please enter a valid Alim GPA (0-5)' : '';
+      case 'alimYear':
+        return formData.examPath === 'MADRASHA' && !validateYear(value) ? 'Please enter a valid Alim year' : '';
+      case 'alimBoard':
+        return formData.examPath === 'MADRASHA' && !value ? 'Please select Alim board' : '';
+      default:
+        return '';
+    }
+  }
+
+  // Validate all fields
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    // Validate all form fields
+    Object.keys(formData).forEach(key => {
+      const error = validateField(key, formData[key as keyof typeof formData]);
+      if (error) {
+        newErrors[key] = error;
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }))
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setTouched(prev => ({
+      ...prev,
+      [name]: true
+    }))
+
+    const error = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
     }))
   }
 
@@ -93,46 +232,36 @@ function RouteComponent() {
       ...prev,
       [name]: value
     }))
+
+    // Clear error when user selects an option
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Password validation
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Password Mismatch", {
-        description: "Passwords do not match. Please try again."
-      });
-      return;
-    }
+    // Mark all fields as touched
+    const allTouched: Record<string, boolean> = {};
+    Object.keys(formData).forEach(key => {
+      allTouched[key] = true;
+    });
+    setTouched(allTouched);
 
-    // Validate required fields based on exam path
-    if (!formData.examPath) {
+    // Validate form
+    if (!validateForm()) {
       toast.error("Validation Error", {
-        description: "Please select an exam path."
+        description: "Please fix the errors in the form."
       });
       return;
-    }
-
-    if (formData.examPath === 'NATIONAL') {
-      if (!formData.sscRoll || !formData.sscRegistration || !formData.sscGpa || !formData.sscYear || !formData.sscBoard ||
-        !formData.hscRoll || !formData.hscRegistration || !formData.hscGpa || !formData.hscYear || !formData.hscBoard) {
-        toast.error("Validation Error", {
-          description: "Please fill all SSC and HSC details."
-        });
-        return;
-      }
-    } else if (formData.examPath === 'MADRASHA') {
-      if (!formData.dakhilRoll || !formData.dakhilRegistration || !formData.dakhilGpa || !formData.dakhilYear || !formData.dakhilBoard ||
-        !formData.alimRoll || !formData.alimRegistration || !formData.alimGpa || !formData.alimYear || !formData.alimBoard) {
-        toast.error("Validation Error", {
-          description: "Please fill all Dakhil and Alim details."
-        });
-        return;
-      }
     }
 
     setIsLoading(true);
+
     try {
       // Format the phone number
       const formattedPhone = formatPhoneNumber(formData.phone);
@@ -177,14 +306,15 @@ function RouteComponent() {
 
       // Call the register API
       const newUser = await registerUser(userData);
+
       if (newUser) {
         // Log the user in
-        // login(newUser);
+        login(newUser);
         toast.success("Registration Successful", {
           description: "Your account has been created successfully."
         });
         // Navigate to dashboard
-        navigate({ to: '/login' });
+        navigate({ to: '/student/dashboard' });
       } else {
         toast.error("Registration Failed", {
           description: "There was a problem creating your account. Please try again."
@@ -267,12 +397,19 @@ function RouteComponent() {
                 id="userName"
                 name="userName"
                 placeholder="Enter your full name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                className={`w-full px-4 py-3 border ${errors.userName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                 value={formData.userName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 required
                 disabled={isLoading}
               />
+              {errors.userName && touched.userName && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.userName}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -284,12 +421,19 @@ function RouteComponent() {
                 id="email"
                 name="email"
                 placeholder="username@domain.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                className={`w-full px-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 required
                 disabled={isLoading}
               />
+              {errors.email && touched.email && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -301,12 +445,19 @@ function RouteComponent() {
                 id="phone"
                 name="phone"
                 placeholder="+8801712345678"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                className={`w-full px-4 py-3 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                 value={formData.phone}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 required
                 disabled={isLoading}
               />
+              {errors.phone && touched.phone && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.phone}
+                </p>
+              )}
               <p className="text-sm text-gray-500">Enter a valid Bangladeshi phone number (e.g., +8801712345678)</p>
             </div>
 
@@ -319,12 +470,19 @@ function RouteComponent() {
                 id="address"
                 name="address"
                 placeholder="Enter your address"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                className={`w-full px-4 py-3 border ${errors.address ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                 value={formData.address}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 required
                 disabled={isLoading}
               />
+              {errors.address && touched.address && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.address}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -336,22 +494,33 @@ function RouteComponent() {
                   type="date"
                   id="dob"
                   name="dob"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                  className={`w-full px-4 py-3 border ${errors.dob ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                   value={formData.dob}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   required
                   disabled={isLoading}
                 />
                 <Calendar className="absolute right-3 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
+              {errors.dob && touched.dob && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.dob}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="examPath" className="text-gray-700 font-medium">
                 Exam Path
               </Label>
-              <Select value={formData.examPath} onValueChange={(value) => handleSelectChange('examPath', value)} disabled={isLoading}>
-                <SelectTrigger className="w-full">
+              <Select
+                value={formData.examPath}
+                onValueChange={(value) => handleSelectChange('examPath', value)}
+                disabled={isLoading}
+              >
+                <SelectTrigger className={`w-full ${errors.examPath ? 'border-red-500' : 'border-gray-300'}`}>
                   <SelectValue placeholder="Select exam path" />
                 </SelectTrigger>
                 <SelectContent>
@@ -359,14 +528,24 @@ function RouteComponent() {
                   <SelectItem value="MADRASHA">Madrasha Curriculum (Dakhil/Alim)</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.examPath && touched.examPath && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.examPath}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="medium" className="text-gray-700 font-medium">
                 Medium
               </Label>
-              <Select value={formData.medium} onValueChange={(value) => handleSelectChange('medium', value)} disabled={isLoading}>
-                <SelectTrigger className="w-full">
+              <Select
+                value={formData.medium}
+                onValueChange={(value) => handleSelectChange('medium', value)}
+                disabled={isLoading}
+              >
+                <SelectTrigger className={`w-full ${errors.medium ? 'border-red-500' : 'border-gray-300'}`}>
                   <SelectValue placeholder="Select medium" />
                 </SelectTrigger>
                 <SelectContent>
@@ -375,6 +554,12 @@ function RouteComponent() {
                   <SelectItem value="Arabic">Arabic</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.medium && touched.medium && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.medium}
+                </p>
+              )}
             </div>
 
             {/* Conditional Academic Details Section */}
@@ -393,13 +578,21 @@ function RouteComponent() {
                         id="sscRoll"
                         name="sscRoll"
                         placeholder="SSC Roll Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.sscRoll ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.sscRoll}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.sscRoll && touched.sscRoll && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.sscRoll}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="sscRegistration" className="text-gray-700 font-medium">
                         Registration Number
@@ -409,13 +602,21 @@ function RouteComponent() {
                         id="sscRegistration"
                         name="sscRegistration"
                         placeholder="SSC Registration Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.sscRegistration ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.sscRegistration}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.sscRegistration && touched.sscRegistration && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.sscRegistration}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="sscGpa" className="text-gray-700 font-medium">
                         GPA
@@ -428,13 +629,21 @@ function RouteComponent() {
                         step="0.01"
                         min="0"
                         max="5"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.sscGpa ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.sscGpa}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.sscGpa && touched.sscGpa && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.sscGpa}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="sscYear" className="text-gray-700 font-medium">
                         Passing Year
@@ -446,19 +655,31 @@ function RouteComponent() {
                         placeholder="SSC Passing Year"
                         min="1990"
                         max={new Date().getFullYear()}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.sscYear ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.sscYear}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.sscYear && touched.sscYear && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.sscYear}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="sscBoard" className="text-gray-700 font-medium">
                         Board
                       </Label>
-                      <Select value={formData.sscBoard} onValueChange={(value) => handleSelectChange('sscBoard', value)} disabled={isLoading}>
-                        <SelectTrigger className="w-full">
+                      <Select
+                        value={formData.sscBoard}
+                        onValueChange={(value) => handleSelectChange('sscBoard', value)}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger className={`w-full ${errors.sscBoard ? 'border-red-500' : 'border-gray-300'}`}>
                           <SelectValue placeholder="Select SSC Board" />
                         </SelectTrigger>
                         <SelectContent>
@@ -474,6 +695,12 @@ function RouteComponent() {
                           <SelectItem value="Technical">Technical</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.sscBoard && touched.sscBoard && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.sscBoard}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -491,13 +718,21 @@ function RouteComponent() {
                         id="hscRoll"
                         name="hscRoll"
                         placeholder="HSC Roll Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.hscRoll ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.hscRoll}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.hscRoll && touched.hscRoll && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.hscRoll}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="hscRegistration" className="text-gray-700 font-medium">
                         Registration Number
@@ -507,13 +742,21 @@ function RouteComponent() {
                         id="hscRegistration"
                         name="hscRegistration"
                         placeholder="HSC Registration Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.hscRegistration ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.hscRegistration}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.hscRegistration && touched.hscRegistration && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.hscRegistration}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="hscGpa" className="text-gray-700 font-medium">
                         GPA
@@ -526,13 +769,21 @@ function RouteComponent() {
                         step="0.01"
                         min="0"
                         max="5"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.hscGpa ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.hscGpa}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.hscGpa && touched.hscGpa && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.hscGpa}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="hscYear" className="text-gray-700 font-medium">
                         Passing Year
@@ -544,19 +795,31 @@ function RouteComponent() {
                         placeholder="HSC Passing Year"
                         min="1990"
                         max={new Date().getFullYear()}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.hscYear ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.hscYear}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.hscYear && touched.hscYear && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.hscYear}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="hscBoard" className="text-gray-700 font-medium">
                         Board
                       </Label>
-                      <Select value={formData.hscBoard} onValueChange={(value) => handleSelectChange('hscBoard', value)} disabled={isLoading}>
-                        <SelectTrigger className="w-full">
+                      <Select
+                        value={formData.hscBoard}
+                        onValueChange={(value) => handleSelectChange('hscBoard', value)}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger className={`w-full ${errors.hscBoard ? 'border-red-500' : 'border-gray-300'}`}>
                           <SelectValue placeholder="Select HSC Board" />
                         </SelectTrigger>
                         <SelectContent>
@@ -572,6 +835,12 @@ function RouteComponent() {
                           <SelectItem value="Technical">Technical</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.hscBoard && touched.hscBoard && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.hscBoard}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -593,13 +862,21 @@ function RouteComponent() {
                         id="dakhilRoll"
                         name="dakhilRoll"
                         placeholder="Dakhil Roll Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.dakhilRoll ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.dakhilRoll}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.dakhilRoll && touched.dakhilRoll && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.dakhilRoll}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="dakhilRegistration" className="text-gray-700 font-medium">
                         Registration Number
@@ -609,13 +886,21 @@ function RouteComponent() {
                         id="dakhilRegistration"
                         name="dakhilRegistration"
                         placeholder="Dakhil Registration Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.dakhilRegistration ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.dakhilRegistration}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.dakhilRegistration && touched.dakhilRegistration && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.dakhilRegistration}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="dakhilGpa" className="text-gray-700 font-medium">
                         GPA
@@ -628,13 +913,21 @@ function RouteComponent() {
                         step="0.01"
                         min="0"
                         max="5"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.dakhilGpa ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.dakhilGpa}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.dakhilGpa && touched.dakhilGpa && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.dakhilGpa}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="dakhilYear" className="text-gray-700 font-medium">
                         Passing Year
@@ -646,19 +939,31 @@ function RouteComponent() {
                         placeholder="Dakhil Passing Year"
                         min="1990"
                         max={new Date().getFullYear()}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.dakhilYear ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.dakhilYear}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.dakhilYear && touched.dakhilYear && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.dakhilYear}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="dakhilBoard" className="text-gray-700 font-medium">
                         Board
                       </Label>
-                      <Select value={formData.dakhilBoard} onValueChange={(value) => handleSelectChange('dakhilBoard', value)} disabled={isLoading}>
-                        <SelectTrigger className="w-full">
+                      <Select
+                        value={formData.dakhilBoard}
+                        onValueChange={(value) => handleSelectChange('dakhilBoard', value)}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger className={`w-full ${errors.dakhilBoard ? 'border-red-500' : 'border-gray-300'}`}>
                           <SelectValue placeholder="Select Dakhil Board" />
                         </SelectTrigger>
                         <SelectContent>
@@ -673,6 +978,12 @@ function RouteComponent() {
                           <SelectItem value="Madrasha">Madrasha</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.dakhilBoard && touched.dakhilBoard && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.dakhilBoard}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -690,13 +1001,21 @@ function RouteComponent() {
                         id="alimRoll"
                         name="alimRoll"
                         placeholder="Alim Roll Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.alimRoll ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.alimRoll}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.alimRoll && touched.alimRoll && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.alimRoll}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="alimRegistration" className="text-gray-700 font-medium">
                         Registration Number
@@ -706,13 +1025,21 @@ function RouteComponent() {
                         id="alimRegistration"
                         name="alimRegistration"
                         placeholder="Alim Registration Number"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.alimRegistration ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.alimRegistration}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.alimRegistration && touched.alimRegistration && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.alimRegistration}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="alimGpa" className="text-gray-700 font-medium">
                         GPA
@@ -725,13 +1052,21 @@ function RouteComponent() {
                         step="0.01"
                         min="0"
                         max="5"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.alimGpa ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.alimGpa}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.alimGpa && touched.alimGpa && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.alimGpa}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="alimYear" className="text-gray-700 font-medium">
                         Passing Year
@@ -743,19 +1078,31 @@ function RouteComponent() {
                         placeholder="Alim Passing Year"
                         min="1990"
                         max={new Date().getFullYear()}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                        className={`w-full px-4 py-3 border ${errors.alimYear ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                         value={formData.alimYear}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         disabled={isLoading}
                       />
+                      {errors.alimYear && touched.alimYear && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.alimYear}
+                        </p>
+                      )}
                     </div>
+
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="alimBoard" className="text-gray-700 font-medium">
                         Board
                       </Label>
-                      <Select value={formData.alimBoard} onValueChange={(value) => handleSelectChange('alimBoard', value)} disabled={isLoading}>
-                        <SelectTrigger className="w-full">
+                      <Select
+                        value={formData.alimBoard}
+                        onValueChange={(value) => handleSelectChange('alimBoard', value)}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger className={`w-full ${errors.alimBoard ? 'border-red-500' : 'border-gray-300'}`}>
                           <SelectValue placeholder="Select Alim Board" />
                         </SelectTrigger>
                         <SelectContent>
@@ -770,6 +1117,12 @@ function RouteComponent() {
                           <SelectItem value="Madrasha">Madrasha</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.alimBoard && touched.alimBoard && (
+                        <p className="text-red-500 text-sm flex items-center mt-1">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.alimBoard}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -786,9 +1139,10 @@ function RouteComponent() {
                   id="password"
                   name="password"
                   placeholder="Create a password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                  className={`w-full px-4 py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                   value={formData.password}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   required
                   disabled={isLoading}
                 />
@@ -801,6 +1155,12 @@ function RouteComponent() {
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
+              {errors.password && touched.password && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.password}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -813,9 +1173,10 @@ function RouteComponent() {
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Confirm your password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
+                  className={`w-full px-4 py-3 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition`}
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   required
                   disabled={isLoading}
                 />
@@ -828,6 +1189,12 @@ function RouteComponent() {
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
+              {errors.confirmPassword && touched.confirmPassword && (
+                <p className="text-red-500 text-sm flex items-center mt-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {errors.confirmPassword}
+                </p>
+              )}
             </div>
 
             <div className="flex items-start">
