@@ -225,7 +225,6 @@ export const getUserProfile = async (): Promise<User | null> => {
         alimYear: backendProfile.alimYear?.toString(),
         alimBoard: backendProfile.alimBoard,
       };
-      console.log("Frontend User Profile:", frontendUser);
       return frontendUser;
     }
     return null;
@@ -284,95 +283,108 @@ export const getAcademicDetails = async (): Promise<User | null> => {
 };
 
 // Update User Profile - Updated to handle more than just profile image
+// Define the interface separately
+export interface ProfileData {
+  profileImage?: File;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  dob?: string;
+  examPath?: string;
+  medium?: string;
+
+  // Academic details for NATIONAL
+  sscRoll?: string;
+  sscRegistration?: string;
+  sscGpa?: string;
+  sscYear?: string;
+  sscBoard?: string;
+  hscRoll?: string;
+  hscRegistration?: string;
+  hscGpa?: string;
+  hscYear?: string;
+  hscBoard?: string;
+
+  // Academic details for MADRASHA
+  dakhilRoll?: string;
+  dakhilRegistration?: string;
+  dakhilGpa?: string;
+  dakhilYear?: string;
+  dakhilBoard?: string;
+  alimRoll?: string;
+  alimRegistration?: string;
+  alimGpa?: string;
+  alimYear?: string;
+  alimBoard?: string;
+}
+
 export const updateUserProfile = async (
   userId: string,
-  profileData: {
-    profileImage?: File;
-    fullName?: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    dob?: string;
-    examPath?: string;
-    medium?: string;
-    // Academic details
-    sscRoll?: string;
-    sscRegistration?: string;
-    sscGpa?: string;
-    sscYear?: string;
-    sscBoard?: string;
-    hscRoll?: string;
-    hscRegistration?: string;
-    hscGpa?: string;
-    hscYear?: string;
-    hscBoard?: string;
-    dakhilRoll?: string;
-    dakhilRegistration?: string;
-    dakhilGpa?: string;
-    dakhilYear?: string;
-    dakhilBoard?: string;
-    alimRoll?: string;
-    alimRegistration?: string;
-    alimGpa?: string;
-    alimYear?: string;
-    alimBoard?: string;
-  }
+  profileData: ProfileData
 ): Promise<boolean> => {
   try {
     const formData = new FormData();
 
-    // Add profile image if provided
+    // Add profile image
     if (profileData.profileImage) {
       formData.append('profile', profileData.profileImage);
     }
 
-    // Add other fields
-    if (profileData.fullName) formData.append('fullName', profileData.fullName);
-    if (profileData.email) formData.append('email', profileData.email);
-    if (profileData.phone) formData.append('phone', profileData.phone);
-    if (profileData.address) formData.append('address', profileData.address);
-    if (profileData.dob) formData.append('dob', profileData.dob);
-    if (profileData.examPath) formData.append('examPath', profileData.examPath);
-    if (profileData.medium) formData.append('medium', profileData.medium);
+    // Append non-academic fields
+    const basicFields: (keyof ProfileData)[] = [
+      'fullName', 'email', 'phone', 'address', 'dob', 'examPath', 'medium'
+    ];
 
-    // Add academic details based on examPath
+    basicFields.forEach((field) => {
+      if (profileData[field] !== undefined && profileData[field] !== null) {
+        formData.append(field, String(profileData[field]));
+      }
+    });
+
+    // Append academic details based on examPath
     if (profileData.examPath === 'NATIONAL') {
-      if (profileData.sscRoll) formData.append('sscRoll', profileData.sscRoll);
-      if (profileData.sscRegistration) formData.append('sscRegistration', profileData.sscRegistration);
-      if (profileData.sscGpa) formData.append('sscGpa', profileData.sscGpa);
-      if (profileData.sscYear) formData.append('sscYear', profileData.sscYear);
-      if (profileData.sscBoard) formData.append('sscBoard', profileData.sscBoard);
-      if (profileData.hscRoll) formData.append('hscRoll', profileData.hscRoll);
-      if (profileData.hscRegistration) formData.append('hscRegistration', profileData.hscRegistration);
-      if (profileData.hscGpa) formData.append('hscGpa', profileData.hscGpa);
-      if (profileData.hscYear) formData.append('hscYear', profileData.hscYear);
-      if (profileData.hscBoard) formData.append('hscBoard', profileData.hscBoard);
+      const nationalFields: (keyof ProfileData)[] = [
+        'sscRoll', 'sscRegistration', 'sscGpa', 'sscYear', 'sscBoard',
+        'hscRoll', 'hscRegistration', 'hscGpa', 'hscYear', 'hscBoard'
+      ];
+      nationalFields.forEach((field) => {
+        if (profileData[field] !== undefined && profileData[field] !== null) {
+          formData.append(field, String(profileData[field]));
+        }
+      });
     }
 
     if (profileData.examPath === 'MADRASHA') {
-      if (profileData.dakhilRoll) formData.append('dakhilRoll', profileData.dakhilRoll);
-      if (profileData.dakhilRegistration) formData.append('dakhilRegistration', profileData.dakhilRegistration);
-      if (profileData.dakhilGpa) formData.append('dakhilGpa', profileData.dakhilGpa);
-      if (profileData.dakhilYear) formData.append('dakhilYear', profileData.dakhilYear);
-      if (profileData.dakhilBoard) formData.append('dakhilBoard', profileData.dakhilBoard);
-      if (profileData.alimRoll) formData.append('alimRoll', profileData.alimRoll);
-      if (profileData.alimRegistration) formData.append('alimRegistration', profileData.alimRegistration);
-      if (profileData.alimGpa) formData.append('alimGpa', profileData.alimGpa);
-      if (profileData.alimYear) formData.append('alimYear', profileData.alimYear);
-      if (profileData.alimBoard) formData.append('alimBoard', profileData.alimBoard);
+      const madrashaFields: (keyof ProfileData)[] = [
+        'dakhilRoll', 'dakhilRegistration', 'dakhilGpa', 'dakhilYear', 'dakhilBoard',
+        'alimRoll', 'alimRegistration', 'alimGpa', 'alimYear', 'alimBoard'
+      ];
+      madrashaFields.forEach((field) => {
+        if (profileData[field] !== undefined && profileData[field] !== null) {
+          formData.append(field, String(profileData[field]));
+        }
+      });
     }
+
+    // Debug log
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}:`, value);
+    // }
 
     const response = await api.put(`/profile/${userId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
+
     return response.data.status === 200;
   } catch (error) {
     console.error("Update User Profile Failed:", error);
     return false;
   }
 };
+
 
 // Get Institutions
 export const getInstitutions = async (): Promise<Institution[]> => {
