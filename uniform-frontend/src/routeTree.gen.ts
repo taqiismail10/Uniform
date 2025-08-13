@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
@@ -42,6 +43,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CookiesRoute = CookiesRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/cookies'
+    | '/forgot-password'
     | '/help'
     | '/privacy'
     | '/terms'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/cookies'
+    | '/forgot-password'
     | '/help'
     | '/privacy'
     | '/terms'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/cookies'
+    | '/forgot-password'
     | '/help'
     | '/privacy'
     | '/terms'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cookies': {
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,

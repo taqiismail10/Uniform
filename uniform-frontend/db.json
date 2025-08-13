@@ -4,40 +4,91 @@
       "userId": "user-id-1",
       "userName": "Monir Sarkar",
       "email": "monir123@example.com",
-      "phone": "+8801234567890",
+      "phone": "+8801712345678",
       "password": "Monir123",
-      "address": "123 Main Street",
+      "address": "House 12, Road 5, Dhanmondi, Dhaka",
       "role": "STUDENT",
       "dob": "2000-01-01T00:00:00.000Z",
       "examPath": "NATIONAL",
-      "medium": "Bangla"
+      "medium": "Bangla",
+      "sscRoll": "123456",
+      "sscRegistration": "1234567",
+      "sscGpa": "4.8",
+      "sscYear": "2018",
+      "sscBoard": "Dhaka",
+      "hscRoll": "789012",
+      "hscRegistration": "7890123",
+      "hscGpa": "4.5",
+      "hscYear": "2020",
+      "hscBoard": "Dhaka"
     },
     {
       "userId": "user-id-2",
       "userName": "Anika Ahmed",
       "email": "anikahmed@example.com",
-      "phone": "+8809876543210",
+      "phone": "+8801812345678",
       "password": "Anika123",
-      "address": "456 Elm Street",
+      "address": "Shalbagan, Boalia, Rajshahi",
       "role": "STUDENT",
       "dob": "2001-02-02T00:00:00.000Z",
-      "examPath": "BIRTISH",
-      "medium": "English"
+      "examPath": "NATIONAL",
+      "medium": "English",
+      "sscRoll": "234567",
+      "sscRegistration": "2345678",
+      "sscGpa": "5.0",
+      "sscYear": "2019",
+      "sscBoard": "Rajshahi",
+      "hscRoll": "890123",
+      "hscRegistration": "8901234",
+      "hscGpa": "4.7",
+      "hscYear": "2021",
+      "hscBoard": "Rajshahi"
     },
     {
       "userId": "user-id-3",
       "userName": "Rahim Khan",
       "email": "rahimkhan@example.com",
-      "phone": "+8805555555555",
+      "phone": "+8801912345678",
       "password": "Rahim123",
-      "address": "789 Oak Street",
+      "address": "Agrabad, Double Mooring, Chattogram",
       "role": "STUDENT",
       "dob": "2002-03-03T00:00:00.000Z",
       "examPath": "NATIONAL",
-      "medium": "Bangla"
+      "medium": "Bangla",
+      "sscRoll": "345678",
+      "sscRegistration": "3456789",
+      "sscGpa": "4.9",
+      "sscYear": "2020",
+      "sscBoard": "Chittagong",
+      "hscRoll": "901234",
+      "hscRegistration": "9012345",
+      "hscGpa": "4.8",
+      "hscYear": "2022",
+      "hscBoard": "Chittagong"
+    },
+    {
+      "userId": "user-id-4",
+      "userName": "Fatema Begum",
+      "email": "fatema@example.com",
+      "phone": "+8801711223344",
+      "password": "Fatema123",
+      "address": "Kakrail, Ramna, Dhaka",
+      "role": "STUDENT",
+      "dob": "2001-05-15T00:00:00.000Z",
+      "examPath": "NATIONAL",
+      "medium": "Arabic",
+      "dakhilRoll": "111111",
+      "dakhilRegistration": "1111111",
+      "dakhilGpa": "4.7",
+      "dakhilYear": "2019",
+      "dakhilBoard": "Madrasha",
+      "alimRoll": "222222",
+      "alimRegistration": "2222222",
+      "alimGpa": "4.5",
+      "alimYear": "2021",
+      "alimBoard": "Madrasha"
     }
   ],
-
   "institutions": [
     {
       "institutionId": "institution-id-1",
@@ -78,7 +129,7 @@
     {
       "institutionId": "institution-id-5",
       "institutionName": "Khulna University of Engineering and Technology",
-      "type": "ENIGNEERING UNIVERSITY",
+      "type": "ENGINEERING_UNIVERSITY",
       "description": "Top engineering university in Khulna",
       "website": "https://www.kuet.ac.bd",
       "location": "Khulna, Bangladesh",
@@ -87,12 +138,140 @@
     {
       "institutionId": "institution-id-6",
       "institutionName": "Chittagong University of Engineering and Technology",
-      "type": "ENIGNEERING UNIVERSITY",
+      "type": "ENGINEERING_UNIVERSITY",
       "description": "Leading engineering university in Chittagong",
       "website": "https://www.cuet.ac.bd",
       "location": "Chittagong, Bangladesh",
       "establishedIn": "2003-01-01T00:00:00.000Z"
+    },
+    {
+      "institutionId": "institution-id-7",
+      "institutionName": "Islamic University",
+      "type": "UNIVERSITY",
+      "description": "Premier university for Islamic studies in Bangladesh",
+      "website": "https://www.iu.ac.bd",
+      "location": "Kushtia, Bangladesh",
+      "establishedIn": "1979-01-01T00:00:00.000Z"
+    }
+  ],
+  "academicInfo": [
+    {
+      "id": "academic-info-1",
+      "userId": "user-id-1",
+      "curriculumType": "national",
+      "ssc": {
+        "gpa": 4.8,
+        "board": "Dhaka",
+        "passingYear": 2018,
+        "roll": "123456",
+        "registration": "1234567"
+      },
+      "hsc": {
+        "gpa": 4.5,
+        "board": "Dhaka",
+        "passingYear": 2020,
+        "roll": "789012",
+        "registration": "7890123"
+      }
+    },
+    {
+      "id": "academic-info-2",
+      "userId": "user-id-2",
+      "curriculumType": "national",
+      "ssc": {
+        "gpa": 5.0,
+        "board": "Rajshahi",
+        "passingYear": 2019,
+        "roll": "234567",
+        "registration": "2345678"
+      },
+      "hsc": {
+        "gpa": 4.7,
+        "board": "Rajshahi",
+        "passingYear": 2021,
+        "roll": "890123",
+        "registration": "8901234"
+      }
+    },
+    {
+      "id": "academic-info-3",
+      "userId": "user-id-3",
+      "curriculumType": "national",
+      "ssc": {
+        "gpa": 4.9,
+        "board": "Chittagong",
+        "passingYear": 2020,
+        "roll": "345678",
+        "registration": "3456789"
+      },
+      "hsc": {
+        "gpa": 4.8,
+        "board": "Chittagong",
+        "passingYear": 2022,
+        "roll": "901234",
+        "registration": "9012345"
+      }
+    },
+    {
+      "id": "academic-info-4",
+      "userId": "user-id-4",
+      "curriculumType": "madrasha",
+      "dakhil": {
+        "gpa": 4.7,
+        "board": "Madrasha",
+        "passingYear": 2019,
+        "roll": "111111",
+        "registration": "1111111"
+      },
+      "alim": {
+        "gpa": 4.5,
+        "board": "Madrasha",
+        "passingYear": 2021,
+        "roll": "222222",
+        "registration": "2222222"
+      }
+    }
+  ],
+  "applications": [
+    {
+      "id": "app-1",
+      "userId": "user-id-1",
+      "university": "University of Dhaka",
+      "unit": "Science Unit",
+      "appliedDate": "2023-05-15T00:00:00.000Z",
+      "status": "Approved"
+    },
+    {
+      "id": "app-2",
+      "userId": "user-id-1",
+      "university": "Bangladesh University of Engineering and Technology",
+      "unit": "Engineering Unit",
+      "appliedDate": "2023-05-18T00:00:00.000Z",
+      "status": "Under Review"
+    },
+    {
+      "id": "app-3",
+      "userId": "user-id-2",
+      "university": "North South University",
+      "unit": "Business Studies",
+      "appliedDate": "2023-05-20T00:00:00.000Z",
+      "status": "Under Review"
+    },
+    {
+      "id": "app-4",
+      "userId": "user-id-3",
+      "university": "Rajshahi University",
+      "unit": "Arts Unit",
+      "appliedDate": "2023-05-22T00:00:00.000Z",
+      "status": "Pending"
+    },
+    {
+      "id": "app-5",
+      "userId": "user-id-4",
+      "university": "Islamic University",
+      "unit": "Theology and Islamic Studies",
+      "appliedDate": "2023-05-25T00:00:00.000Z",
+      "status": "Approved"
     }
   ]
-
 }
