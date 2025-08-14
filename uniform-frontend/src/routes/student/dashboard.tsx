@@ -232,6 +232,7 @@ function RouteComponent() {
         {/* {activeSection === 'universities' && (
           <UniversitiesSection institutions={institutions} />
         )} */}
+        )} */}
 
         {activeSection === 'academic-info' && (
           <AcademicInfoPage
