@@ -66,7 +66,7 @@ class ProfileController {
 
 	static async update(req, res) {
 		try {
-			const { studentId } = req.params;
+			const studentId = req.params.id;
 			const authUser = req.user;
 
 			// Authorization check

@@ -193,13 +193,13 @@ function RouteComponent() {
         setActiveSection={setActiveSection}
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
         {activeSection === 'dashboard' && (
           <>
             <DashboardStats stats={dashboardStats} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-1">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              <div className="lg:col-span-2">
                 <ProfileInfo
                   userData={userData}
                   onLogout={handleLogout}
@@ -207,7 +207,7 @@ function RouteComponent() {
                 />
               </div>
 
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-3">
                 {dataLoading.applications ? (
                   <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
                     <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
