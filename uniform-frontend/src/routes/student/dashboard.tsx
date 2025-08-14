@@ -5,12 +5,12 @@ import { useAuth } from '@/context/useAuth';
 import { toast } from 'sonner';
 import { useEffect, useState, useCallback } from 'react';
 import { getInstitutions, getAcademicInfo, getApplications, getUserProfile, updateUserProfile } from '@/api';
-import type { Application, Institution, UserData, AcademicInfo } from '@/components/student/types';
+import type { Application, UserData, AcademicInfo } from '@/components/student/types';
 import Header from '@/components/student/Header';
 import DashboardStats from '@/components/student/DashboardStats';
 import ApplicationStatus from '@/components/student/ApplicationStatus';
 import QuickActions from '@/components/student/QuickActions';
-import UniversitiesSection from '@/components/student/UniversitiesSection';
+// import UniversitiesSection from '@/components/student/UniversitiesSection';
 import ProfileInfo from '@/components/student/ProfileInfo';
 import AcademicInfoPage from '@/components/student/AcademicInfoPage';
 
@@ -42,7 +42,7 @@ function RouteComponent() {
     applications: true
   });
   const [activeSection, setActiveSection] = useState('dashboard');
-  const institutions = Route.useLoaderData() as Institution[];
+  // const institutions = Route.useLoaderData() as Institution[];
 
   // Memoize handleLogout to prevent unnecessary re-renders
   const handleLogout = useCallback(() => {
@@ -229,7 +229,7 @@ function RouteComponent() {
           </>
         )}
 
-{/*         {activeSection === 'universities' && (
+        {/* {activeSection === 'universities' && (
           <UniversitiesSection institutions={institutions} />
         )} */}
 
