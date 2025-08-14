@@ -4,7 +4,7 @@ import type { User } from "@/context/AuthContext";
 import type { Institution, AcademicInfo, Application, UserData } from "@/components/student/types";
 
 // Update the API URL to match your backend
-const API_URL = BACKEND_URL;
+const API_URL = process.env.BACKEND_URL;
 
 // Create axios instance with default config
 const api = axios.create({
