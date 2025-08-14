@@ -229,9 +229,9 @@ function RouteComponent() {
           </>
         )}
 
-        {activeSection === 'universities' && (
+{/*         {activeSection === 'universities' && (
           <UniversitiesSection institutions={institutions} />
-        )}
+        )} */}
 
         {activeSection === 'academic-info' && (
           <AcademicInfoPage
