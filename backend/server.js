@@ -10,14 +10,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors({
-  origin: [
-		"https://uniform-49v3-tims-projects-0430bf98.vercel.app/",
-		"https://uniform-49v3-git-main-tims-projects-0430bf98.vercel.app/",
-	  	"http://localhost:5173"             // local dev (optional)
-  ],
-  credentials: true
-}));
+app.use(cors());
 app.use(fileUpload());
 
 app.get("/", (req, res) => {
