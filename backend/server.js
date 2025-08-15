@@ -8,7 +8,16 @@ import fileUpload from "express-fileupload";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173", // local dev
+    "https://uniform-49v3-git-main-tims-projects-0430bf98.vercel.app/" // production frontend
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload());
