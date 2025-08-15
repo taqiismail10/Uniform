@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     "http://localhost:5173", // local dev
-    "https://uniform-49v3-git-main-tims-projects-0430bf98.vercel.app" // production frontend
+    "https://uniform-49v3-tims-projects-0430bf98.vercel.app/" // production frontend
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
