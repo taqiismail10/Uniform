@@ -8,9 +8,9 @@ import fileUpload from "express-fileupload";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
 app.use(fileUpload());
 
 app.get("/", (req, res) => {
