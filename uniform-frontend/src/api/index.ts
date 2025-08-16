@@ -1,24 +1,29 @@
 // uniform-frontend/src/api/index.ts
 import axios from "axios";
-import type { User } from "@/context/AuthContext";
-import type { Institution, AcademicInfo, Application, UserData } from "@/components/student/types";
 
-// Update the API URL to use the environment variable from Vite
-const API_URL = import.meta.env.VITE_API_URL;
+import type {
+  AcademicInfo,
+  Application,
+  Institution,
+  UserData,
+} from "@/components/student/types";
+import type { User } from "@/context/AuthContext";
+// export type { Institution };
+// Update the API URL to match your backend
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem("accessToken");
 
     if (accessToken) {
       config.headers.Authorization = accessToken;
@@ -35,7 +40,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -87,7 +92,7 @@ export const registerUser = async (userData: {
       examPath: userData.examPath,
       medium: userData.medium,
       // Include academic details based on examPath
-      ...(userData.examPath === 'NATIONAL' && {
+      ...(userData.examPath === "NATIONAL" && {
         sscRoll: userData.sscRoll,
         sscRegistration: userData.sscRegistration,
         sscGpa: userData.sscGpa ? parseFloat(userData.sscGpa) : undefined,
@@ -99,11 +104,15 @@ export const registerUser = async (userData: {
         hscYear: userData.hscYear ? parseInt(userData.hscYear) : undefined,
         hscBoard: userData.hscBoard,
       }),
-      ...(userData.examPath === 'MADRASHA' && {
+      ...(userData.examPath === "MADRASHA" && {
         dakhilRoll: userData.dakhilRoll,
         dakhilRegistration: userData.dakhilRegistration,
-        dakhilGpa: userData.dakhilGpa ? parseFloat(userData.dakhilGpa) : undefined,
-        dakhilYear: userData.dakhilYear ? parseInt(userData.dakhilYear) : undefined,
+        dakhilGpa: userData.dakhilGpa
+          ? parseFloat(userData.dakhilGpa)
+          : undefined,
+        dakhilYear: userData.dakhilYear
+          ? parseInt(userData.dakhilYear)
+          : undefined,
         dakhilBoard: userData.dakhilBoard,
         alimRoll: userData.alimRoll,
         alimRegistration: userData.alimRegistration,
@@ -113,7 +122,7 @@ export const registerUser = async (userData: {
       }),
     };
 
-    const response = await api.post('/auth/register', backendData);
+    const response = await api.post("/auth/register", backendData);
 
     if (response.data.status === 200) {
       // Transform backend response to frontend User format
@@ -123,13 +132,13 @@ export const registerUser = async (userData: {
         userId: backendUser.studentId,
         userName: backendUser.fullName,
         email: backendUser.email,
-        phone: backendUser.phone || '',
-        password: '', // Don't store password
-        address: backendUser.address || '',
+        phone: backendUser.phone || "",
+        password: "", // Don't store password
+        address: backendUser.address || "",
         role: backendUser.role,
-        dob: backendUser.dob || '',
-        examPath: backendUser.examPath || '',
-        medium: backendUser.medium || '',
+        dob: backendUser.dob || "",
+        examPath: backendUser.examPath || "",
+        medium: backendUser.medium || "",
         // Academic details
         sscRoll: backendUser.sscRoll,
         sscRegistration: backendUser.sscRegistration,
@@ -161,7 +170,6 @@ export const registerUser = async (userData: {
   }
 };
 
-
 // Student Login
 export const userLogin = async (
   email: string,
@@ -169,13 +177,13 @@ export const userLogin = async (
   role: string = "STUDENT"
 ): Promise<User | null> => {
   try {
-    const response = await api.post('/auth/login', {
+    const response = await api.post("/auth/login", {
       email,
       password,
-      role
+      role,
     });
     if (response.data.status === 200) {
-      localStorage.setItem('accessToken', response.data.access_token);
+      localStorage.setItem("accessToken", response.data.access_token);
       const userProfile = await getUserProfile();
       return userProfile;
     }
@@ -189,20 +197,20 @@ export const userLogin = async (
 // Get Student Profile - Updated to include academic details
 export const getUserProfile = async (): Promise<User | null> => {
   try {
-    const response = await api.get('/profile');
+    const response = await api.get("/profile");
     if (response.data.status === 200) {
       const backendProfile = response.data.profile;
       const frontendUser: User = {
         userId: backendProfile.studentId,
         userName: backendProfile.fullName,
         email: backendProfile.email,
-        phone: backendProfile.phone || '',
-        password: '', // Don't store password
-        address: backendProfile.address || '',
+        phone: backendProfile.phone || "",
+        password: "", // Don't store password
+        address: backendProfile.address || "",
         role: backendProfile.role,
-        dob: backendProfile.dob || '',
-        examPath: backendProfile.examPath || '',
-        medium: backendProfile.medium || '',
+        dob: backendProfile.dob || "",
+        examPath: backendProfile.examPath || "",
+        medium: backendProfile.medium || "",
         // Academic details
         sscRoll: backendProfile.sscRoll,
         sscRegistration: backendProfile.sscRegistration,
@@ -237,20 +245,20 @@ export const getUserProfile = async (): Promise<User | null> => {
 // Get Academic Details - New function
 export const getAcademicDetails = async (): Promise<User | null> => {
   try {
-    const response = await api.get('/profile/academic');
+    const response = await api.get("/profile/academic");
     if (response.data.status === 200) {
       const academicDetails = response.data.academicDetails;
       const frontendUser: User = {
         userId: academicDetails.studentId,
-        userName: '',
-        email: '',
-        phone: '',
-        password: '',
-        address: '',
-        role: '',
-        dob: '',
-        examPath: academicDetails.examPath || '',
-        medium: academicDetails.medium || '',
+        userName: "",
+        email: "",
+        phone: "",
+        password: "",
+        address: "",
+        role: "",
+        dob: "",
+        examPath: academicDetails.examPath || "",
+        medium: academicDetails.medium || "",
         // Academic details
         sscRoll: academicDetails.sscRoll,
         sscRegistration: academicDetails.sscRegistration,
@@ -328,53 +336,61 @@ export const updateUserProfile = async (
 
     // Add profile image
     if (profileData.profileImage) {
-      formData.append('profile', profileData.profileImage);
+      formData.append("profile", profileData.profileImage);
     }
 
-    // Append non-academic fields
-    const basicFields: (keyof ProfileData)[] = [
-      'fullName', 'email', 'phone', 'address', 'dob', 'examPath', 'medium'
-    ];
+    // Add other fields
+    if (profileData.fullName) formData.append("fullName", profileData.fullName);
+    if (profileData.email) formData.append("email", profileData.email);
+    if (profileData.phone) formData.append("phone", profileData.phone);
+    if (profileData.address) formData.append("address", profileData.address);
+    if (profileData.dob) formData.append("dob", profileData.dob);
+    if (profileData.examPath) formData.append("examPath", profileData.examPath);
+    if (profileData.medium) formData.append("medium", profileData.medium);
 
-    basicFields.forEach((field) => {
-      if (profileData[field] !== undefined && profileData[field] !== null) {
-        formData.append(field, String(profileData[field]));
-      }
-    });
-
-    // Append academic details based on examPath
-    if (profileData.examPath === 'NATIONAL') {
-      const nationalFields: (keyof ProfileData)[] = [
-        'sscRoll', 'sscRegistration', 'sscGpa', 'sscYear', 'sscBoard',
-        'hscRoll', 'hscRegistration', 'hscGpa', 'hscYear', 'hscBoard'
-      ];
-      nationalFields.forEach((field) => {
-        if (profileData[field] !== undefined && profileData[field] !== null) {
-          formData.append(field, String(profileData[field]));
-        }
-      });
+    // Add academic details based on examPath
+    if (profileData.examPath === "NATIONAL") {
+      if (profileData.sscRoll) formData.append("sscRoll", profileData.sscRoll);
+      if (profileData.sscRegistration)
+        formData.append("sscRegistration", profileData.sscRegistration);
+      if (profileData.sscGpa) formData.append("sscGpa", profileData.sscGpa);
+      if (profileData.sscYear) formData.append("sscYear", profileData.sscYear);
+      if (profileData.sscBoard)
+        formData.append("sscBoard", profileData.sscBoard);
+      if (profileData.hscRoll) formData.append("hscRoll", profileData.hscRoll);
+      if (profileData.hscRegistration)
+        formData.append("hscRegistration", profileData.hscRegistration);
+      if (profileData.hscGpa) formData.append("hscGpa", profileData.hscGpa);
+      if (profileData.hscYear) formData.append("hscYear", profileData.hscYear);
+      if (profileData.hscBoard)
+        formData.append("hscBoard", profileData.hscBoard);
     }
 
-    if (profileData.examPath === 'MADRASHA') {
-      const madrashaFields: (keyof ProfileData)[] = [
-        'dakhilRoll', 'dakhilRegistration', 'dakhilGpa', 'dakhilYear', 'dakhilBoard',
-        'alimRoll', 'alimRegistration', 'alimGpa', 'alimYear', 'alimBoard'
-      ];
-      madrashaFields.forEach((field) => {
-        if (profileData[field] !== undefined && profileData[field] !== null) {
-          formData.append(field, String(profileData[field]));
-        }
-      });
+    if (profileData.examPath === "MADRASHA") {
+      if (profileData.dakhilRoll)
+        formData.append("dakhilRoll", profileData.dakhilRoll);
+      if (profileData.dakhilRegistration)
+        formData.append("dakhilRegistration", profileData.dakhilRegistration);
+      if (profileData.dakhilGpa)
+        formData.append("dakhilGpa", profileData.dakhilGpa);
+      if (profileData.dakhilYear)
+        formData.append("dakhilYear", profileData.dakhilYear);
+      if (profileData.dakhilBoard)
+        formData.append("dakhilBoard", profileData.dakhilBoard);
+      if (profileData.alimRoll)
+        formData.append("alimRoll", profileData.alimRoll);
+      if (profileData.alimRegistration)
+        formData.append("alimRegistration", profileData.alimRegistration);
+      if (profileData.alimGpa) formData.append("alimGpa", profileData.alimGpa);
+      if (profileData.alimYear)
+        formData.append("alimYear", profileData.alimYear);
+      if (profileData.alimBoard)
+        formData.append("alimBoard", profileData.alimBoard);
     }
-
-    // Debug log
-    // for (const [key, value] of formData.entries()) {
-    //   console.log(`${key}:`, value);
-    // }
 
     const response = await api.put(`/profile/${userId}`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
 
@@ -385,11 +401,10 @@ export const updateUserProfile = async (
   }
 };
 
-
 // Get Institutions
 export const getInstitutions = async (): Promise<Institution[]> => {
   try {
-    const response = await api.get<Institution[]>('/institutions');
+    const response = await api.get<Institution[]>("/institutions");
     return response.data;
   } catch (error) {
     console.error("Get Institutions Failed:", error);
@@ -398,7 +413,9 @@ export const getInstitutions = async (): Promise<Institution[]> => {
 };
 
 // Get Academic Info by User ID - Deprecated in favor of getAcademicDetails
-export const getAcademicInfo = async (userId: string): Promise<AcademicInfo | null> => {
+export const getAcademicInfo = async (
+  userId: string
+): Promise<AcademicInfo | null> => {
   try {
     const response = await api.get(`/academicInfo?userId=${userId}`);
     return response.data.academicDetails || null;
@@ -409,14 +426,16 @@ export const getAcademicInfo = async (userId: string): Promise<AcademicInfo | nu
 };
 
 // Create or Update Academic Info - Deprecated in favor of updateUserProfile
-export const saveAcademicInfo = async (academicInfo: AcademicInfo): Promise<AcademicInfo | null> => {
+export const saveAcademicInfo = async (
+  academicInfo: AcademicInfo
+): Promise<AcademicInfo | null> => {
   try {
     const { id, ...data } = academicInfo;
     if (id) {
       const response = await api.put<AcademicInfo>(`/academicInfo/${id}`, data);
       return response.data;
     } else {
-      const response = await api.post<AcademicInfo>('/academicInfo', data);
+      const response = await api.post<AcademicInfo>("/academicInfo", data);
       return response.data;
     }
   } catch (error) {
@@ -426,9 +445,13 @@ export const saveAcademicInfo = async (academicInfo: AcademicInfo): Promise<Acad
 };
 
 // Get Applications by User ID
-export const getApplications = async (userId: string): Promise<Application[]> => {
+export const getApplications = async (
+  userId: string
+): Promise<Application[]> => {
   try {
-    const response = await api.get<Application[]>(`/applications?userId=${userId}`);
+    const response = await api.get<Application[]>(
+      `/applications?userId=${userId}`
+    );
     return response.data;
   } catch (error) {
     console.error("Get Applications Failed:", error);
@@ -437,9 +460,11 @@ export const getApplications = async (userId: string): Promise<Application[]> =>
 };
 
 // Submit Application
-export const submitApplication = async (application: Omit<Application, 'id'>): Promise<Application | null> => {
+export const submitApplication = async (
+  application: Omit<Application, "id">
+): Promise<Application | null> => {
   try {
-    const response = await api.post<Application>('/applications', application);
+    const response = await api.post<Application>("/applications", application);
     return response.data;
   } catch (error) {
     console.error("Submit Application Failed:", error);
@@ -450,10 +475,13 @@ export const submitApplication = async (application: Omit<Application, 'id'>): P
 // Update Application Status
 export const updateApplicationStatus = async (
   applicationId: string,
-  status: Application['status']
+  status: Application["status"]
 ): Promise<Application | null> => {
   try {
-    const response = await api.patch<Application>(`/applications/${applicationId}`, { status });
+    const response = await api.patch<Application>(
+      `/applications/${applicationId}`,
+      { status }
+    );
     return response.data;
   } catch (error) {
     console.error("Update Application Status Failed:", error);
@@ -462,9 +490,13 @@ export const updateApplicationStatus = async (
 };
 
 // Get Institution by ID
-export const getInstitutionById = async (institutionId: string): Promise<Institution | null> => {
+export const getInstitutionById = async (
+  institutionId: string
+): Promise<Institution | null> => {
   try {
-    const response = await api.get<Institution>(`/institutions/${institutionId}`);
+    const response = await api.get<Institution>(
+      `/institutions/${institutionId}`
+    );
     return response.data;
   } catch (error) {
     console.error("Get Institution Failed:", error);
@@ -483,4 +515,4 @@ export const getUserById = async (userId: string): Promise<UserData | null> => {
   }
 };
 
-export type { Institution, AcademicInfo, Application, UserData };
+export type { AcademicInfo, Application, Institution, UserData };

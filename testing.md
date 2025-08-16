@@ -171,7 +171,7 @@ POST http://localhost:5000/api/admin/auth/login
 }
 ```
 
-```json
+```json  
 {
   "status": 200,
   "message": "User logged in successfully",
