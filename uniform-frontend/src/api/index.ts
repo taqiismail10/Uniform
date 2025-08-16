@@ -516,3 +516,5 @@ export const getUserById = async (userId: string): Promise<UserData | null> => {
   }
 };
 
+
+export type { Institution, AcademicInfo, Application, UserData };
