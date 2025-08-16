@@ -18,19 +18,9 @@ router.put(
 
 // Institution Management
 // Get admin's institution details
-router.get(
-  "/institutions",
-  adminMiddleware,
-  institutionController.fetchInstitutions
-);
+// router.get(  "/institutions",  adminMiddleware, institutionController.fetchInstitutions);
 // Update institution information
-router.put(
-  "/institution",
-  adminMiddleware,
-  institutionController.updateInstitution
-);
-
-
+// router.put(  "/institution",  adminMiddleware,institutionController.updateInstitution);
 
 // router.put(
 //   "/institutions/:institutionId",
