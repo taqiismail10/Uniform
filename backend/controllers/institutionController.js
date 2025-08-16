@@ -1,4 +1,4 @@
-// backend/controllers/institutionController.js
+ // backend/controllers/institutionController.js
 
 import { errors } from "@vinejs/vine";
 import prisma from "../DB/db.config.js";
