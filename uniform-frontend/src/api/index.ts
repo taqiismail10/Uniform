@@ -8,9 +8,9 @@ import type {
   UserData,
 } from "@/components/student/types";
 import type { User } from "@/context/AuthContext";
-export type { Institution };
+// export type { Institution };
 // Update the API URL to match your backend
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -401,7 +401,6 @@ export const updateUserProfile = async (
   }
 };
 
-
 // Get Institutions
 export const getInstitutions = async (): Promise<Institution[]> => {
   try {
@@ -516,5 +515,4 @@ export const getUserById = async (userId: string): Promise<UserData | null> => {
   }
 };
 
-
-export type { Institution, AcademicInfo, Application, UserData };
+export type { AcademicInfo, Application, Institution, UserData };
