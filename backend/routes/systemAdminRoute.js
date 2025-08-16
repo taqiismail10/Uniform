@@ -36,4 +36,10 @@ router.patch(
   systemAdminAuthController.unassignInstitutionAdmin
 );
 
+router.get(
+  "/institutions",
+  systemAdminMiddleware,
+  systemAdminAuthController.fetchInstitutions
+);
+
 export default router;
