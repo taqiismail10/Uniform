@@ -124,6 +124,11 @@ model Unit {
   description   String?
   institutionId String
   isActive      Boolean  @default(true)
+
+  applicationDeadline     DateTime? // When applications close
+  maxApplications        Int?      // Maximum number of applications allowed
+  autoCloseAfterDeadline Boolean   @default(true) // Auto close after deadline
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
 
