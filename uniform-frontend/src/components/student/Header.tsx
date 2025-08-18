@@ -1,3 +1,4 @@
+// uniform-frontend/src/components/student/Header.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
@@ -10,7 +11,8 @@ import {
   ChevronDown,
   LogOut,
   Menu,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { UserData } from '@/components/student/types';
@@ -54,7 +56,6 @@ export default function Header({ userData, activeSection, setActiveSection }: He
       ) {
         setMobileMenuOpen(false);
       }
-
       // User menu
       if (
         userMenuOpen &&
@@ -66,7 +67,6 @@ export default function Header({ userData, activeSection, setActiveSection }: He
         setUserMenuOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -83,7 +83,6 @@ export default function Header({ userData, activeSection, setActiveSection }: He
             </div>
             <h1 className="ml-3 text-xl sm:text-2xl font-bold text-gray-900">Student Dashboard</h1>
           </div>
-
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-6">
             <nav className="flex space-x-4">
@@ -108,8 +107,8 @@ export default function Header({ userData, activeSection, setActiveSection }: He
               >
                 Academic Info
               </Button>
+              {/* Settings link removed from desktop navbar */}
             </nav>
-
             {/* User menu */}
             <div className="relative">
               <Button
@@ -124,7 +123,6 @@ export default function Header({ userData, activeSection, setActiveSection }: He
                 </div>
                 <ChevronDown className="h-4 w-4" />
               </Button>
-
               {/* User dropdown menu */}
               {userMenuOpen && (
                 <div
@@ -173,6 +171,18 @@ export default function Header({ userData, activeSection, setActiveSection }: He
                         <BookOpen className="mr-3 h-5 w-5" />
                         Academic Info
                       </Button>
+                      {/* Settings dropdown option */}
+                      <Button
+                        variant="link"
+                        onClick={() => {
+                          setActiveSection('settings');
+                          setUserMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-start px-4 py-3 text-base font-medium ${activeSection === 'settings' ? 'text-black' : 'text-gray-600'}`}
+                      >
+                        <Settings className="mr-3 h-5 w-5" />
+                        Settings
+                      </Button>
                     </div>
                     <div className="border-t border-gray-100 my-1"></div>
                     <button
@@ -190,7 +200,6 @@ export default function Header({ userData, activeSection, setActiveSection }: He
               )}
             </div>
           </div>
-
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button
@@ -203,7 +212,6 @@ export default function Header({ userData, activeSection, setActiveSection }: He
           </div>
         </div>
       </div>
-
       {/* Mobile menu */}
       <div
         id="mobile-menu"
@@ -262,6 +270,18 @@ export default function Header({ userData, activeSection, setActiveSection }: He
               <BookOpen className="mr-3 h-5 w-5" />
               Academic Info
             </Button>
+            {/* Settings mobile menu option */}
+            <Button
+              variant="link"
+              onClick={() => {
+                setActiveSection('settings');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center justify-start px-4 py-3 text-base font-medium ${activeSection === 'settings' ? 'text-black' : 'text-gray-600'}`}
+            >
+              <Settings className="mr-3 h-5 w-5" />
+              Settings
+            </Button>
           </div>
           <div className="pt-4 border-t border-gray-200">
             <button
@@ -274,7 +294,6 @@ export default function Header({ userData, activeSection, setActiveSection }: He
           </div>
         </div>
       </div>
-
       {/* Overlay when mobile menu is open */}
       {mobileMenuOpen && (
         <div

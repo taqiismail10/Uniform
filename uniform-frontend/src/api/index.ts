@@ -388,6 +388,12 @@ export const updateUserProfile = async (
         formData.append("alimBoard", profileData.alimBoard);
     }
 
+    // Debug log
+    console.log("FormData:\n");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
     const response = await api.put(`/profile/${userId}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",

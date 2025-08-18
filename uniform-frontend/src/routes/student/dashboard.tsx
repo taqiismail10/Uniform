@@ -1,3 +1,4 @@
+// uniform-frontend/src/routes/student/dashboard.tsx
 import ProtectedRoutes from '@/utils/ProtectedRoutes';
 import { ROLES } from '@/utils/role';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
@@ -13,6 +14,7 @@ import QuickActions from '@/components/student/QuickActions';
 // import UniversitiesSection from '@/components/student/UniversitiesSection';
 import ProfileInfo from '@/components/student/ProfileInfo';
 import AcademicInfoPage from '@/components/student/AcademicInfoPage';
+import StudentSettings from '@/components/student/StudentSettings'; // Import the Settings component
 
 export const Route = createFileRoute('/student/dashboard')({
   component: () => (
@@ -60,13 +62,11 @@ function RouteComponent() {
         setLoading(false);
         return;
       }
-
       try {
         // Get user profile from API
         const userProfile = await getUserProfile();
         if (userProfile) {
           setUserData(userProfile);
-
           // Fetch academic info
           try {
             const academicData = await getAcademicInfo(userProfile.userId);
@@ -81,7 +81,6 @@ function RouteComponent() {
           } finally {
             setDataLoading(prev => ({ ...prev, academicInfo: false }));
           }
-
           // Fetch applications
           try {
             const applicationsData = await getApplications(userProfile.userId);
@@ -110,14 +109,12 @@ function RouteComponent() {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, [user, handleLogout]); // Added handleLogout to dependencies
 
   // Handle profile update
   const handleProfileUpdate = useCallback(async (updatedData: Partial<UserData>) => {
     if (!userData) return;
-
     try {
       const success = await updateUserProfile(userData.userId, updatedData);
       if (success) {
@@ -192,12 +189,10 @@ function RouteComponent() {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
       />
-
       <main className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
         {activeSection === 'dashboard' && (
           <>
             <DashboardStats stats={dashboardStats} />
-
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
               <div className="lg:col-span-2">
                 <ProfileInfo
@@ -206,7 +201,6 @@ function RouteComponent() {
                   onUpdate={handleProfileUpdate}
                 />
               </div>
-
               <div className="lg:col-span-3">
                 {dataLoading.applications ? (
                   <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
@@ -228,15 +222,20 @@ function RouteComponent() {
             </div>
           </>
         )}
-
         {/* {activeSection === 'universities' && (
           <UniversitiesSection institutions={institutions} />
         )} */}
-
         {activeSection === 'academic-info' && (
           <AcademicInfoPage
             academicInfo={academicInfo}
             loading={dataLoading.academicInfo}
+          />
+        )}
+        {/* Add Settings section */}
+        {activeSection === 'settings' && (
+          <StudentSettings
+            userData={userData}
+            onLogout={handleLogout}
           />
         )}
       </main>
