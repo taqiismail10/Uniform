@@ -49,7 +49,7 @@ export default function AccountSettingsTab({ userData }: AccountSettingsTabProps
       const success = await updateEmail(userData.userId, newEmail);
       if (success) {
         toast.success("Verification Email Sent", {
-          description: `We've sent a verification link to ${newEmail}. Please check your inbox and verify your new email.`
+          description: `We've sent a verification link to ${newEmail}. Please check your inbox and verify your new email.\n Refresh the page to see the changes.`
         });
         setNewEmail('');
         setConfirmEmail('');

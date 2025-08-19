@@ -5,7 +5,14 @@ import jwt from "jsonwebtoken";
 import prisma from "../DB/db.config.js";
 import { loginSchema, registerSchema } from "../validations/AuthValidation.js";
 
+// Add email update validation schema
+const updateEmailSchema = vine.object({
+	userId: vine.string(),
+	newEmail: vine.string().email(),
+});
+
 class authController {
+	// User registration method
 	static async register(req, res) {
 		try {
 			const body = req.body;
@@ -47,6 +54,7 @@ class authController {
 		}
 	}
 
+	// User Login Method
 	static async login(req, res) {
 		try {
 			const body = req.body;
@@ -92,51 +100,44 @@ class authController {
 		}
 	}
 
-	// New method for account deletion
+	// Account Deletion Method
 	static async deleteAccount(req, res) {
 		try {
 			const { password } = req.body;
 			// Get user information from the JWT token (set by auth middleware)
 			const studentId = req.user.studentId;
-
 			if (!password) {
 				return res.status(400).json({
 					status: 400,
 					message: "Password is required to delete account",
 				});
 			}
-
 			// Find the user in the database
 			const user = await prisma.student.findUnique({
 				where: {
 					studentId: studentId,
 				},
 			});
-
 			if (!user) {
 				return res.status(404).json({
 					status: 404,
 					message: "User not found",
 				});
 			}
-
 			// Compare provided password with stored hash
 			const isPasswordValid = bcrypt.compareSync(password, user.password);
-
 			if (!isPasswordValid) {
 				return res.status(401).json({
 					status: 401,
 					message: "Invalid password",
 				});
 			}
-
 			// Delete the user account
 			await prisma.student.delete({
 				where: {
 					studentId: studentId,
 				},
 			});
-
 			// Return success response
 			return res.status(200).json({
 				status: 200,
@@ -149,6 +150,87 @@ class authController {
 				message: "Failed to delete account",
 				error: error.message,
 			});
+		}
+	}
+
+	// Email Update Method
+	static async updateEmail(req, res) {
+		try {
+			const { userId, newEmail } = req.body;
+			const authenticatedStudentId = req.user.studentId;
+
+			// Validate input
+			const validator = vine.compile(updateEmailSchema);
+			const payload = await validator.validate({ userId, newEmail });
+
+			// Check if the authenticated user matches the requested userId
+			if (userId !== authenticatedStudentId) {
+				return res.status(403).json({
+					status: 403,
+					message: "Unauthorized: You can only update your own email",
+				});
+			}
+
+			// Find the current user
+			const currentUser = await prisma.student.findUnique({
+				where: {
+					studentId: userId,
+				},
+			});
+
+			if (!currentUser) {
+				return res.status(404).json({
+					status: 404,
+					message: "User not found",
+				});
+			}
+
+			// Check if new email is same as current
+			if (currentUser.email === newEmail) {
+				return res.status(400).json({
+					status: 400,
+					message: "New email is the same as current email",
+				});
+			}
+
+			// Check if email is already in use by another user
+			const existingUser = await prisma.student.findUnique({
+				where: {
+					email: newEmail,
+				},
+			});
+
+			if (existingUser) {
+				return res.status(400).json({
+					status: 400,
+					message: "Email address is already in use",
+				});
+			}
+
+			// Update the user's email
+			await prisma.student.update({
+				where: {
+					studentId: userId,
+				},
+				data: {
+					email: newEmail,
+				},
+			});
+
+			return res.status(200).json({
+				status: 200,
+				message: "Email updated successfully",
+			});
+		} catch (error) {
+			if (error instanceof errors.E_VALIDATION_ERROR) {
+				return res.status(400).json({ errors: error.messages });
+			} else {
+				console.error("Update Email Error:", error);
+				return res.status(500).json({
+					status: 500,
+					message: "Failed to update email address",
+				});
+			}
 		}
 	}
 }
