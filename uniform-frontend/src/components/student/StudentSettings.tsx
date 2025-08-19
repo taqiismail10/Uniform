@@ -142,7 +142,7 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
       </div>
 
       <Tabs defaultValue="account" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full h-fit grid-cols-2 sm:grid-cols-4 mb-2 gap-2">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             <span>Account</span>
@@ -213,37 +213,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>
-                Update your personal details and profile information.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="first-name">First Name</Label>
-                    <Input
-                      id="first-name"
-                      type="text"
-                      defaultValue={userData.userName.split(' ')[0]}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last-name">Last Name</Label>
-                    <Input
-                      id="last-name"
-                      type="text"
-                      defaultValue={userData.userName.split(' ')[1] || ''}
-                    />
-                  </div>
-                </div>
-                <Button>Save Changes</Button>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
