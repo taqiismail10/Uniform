@@ -20,7 +20,7 @@ const adminMiddleware = async (req, res, next) => {
       });
     }
 
-    console.log("Decoded user:", user);
+    // console.log("Decoded user:", user);
     // Check if the user has the "ADMIN" role
     if (user.role !== "INSTITUTION_ADMIN") {
       return res.status(403).json({

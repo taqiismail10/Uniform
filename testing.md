@@ -4,7 +4,7 @@
 
 ### Student Reg
 
-#### Input
+`Input`
 
 POST http://localhost:5000/api/auth/register
 
@@ -23,7 +23,7 @@ POST http://localhost:5000/api/auth/register
 }
 ```
 
-#### Output
+`Output`
 
 ```json
 {
@@ -109,6 +109,27 @@ POST http://localhost:5000/api/system/institutions
 }
 ```
 
+### Institution List
+
+GET http://localhost:5000/api/system/institutions
+
+```json
+{
+  "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
+  "name": "University of Chittagong",
+  "description": null,
+  "address": null,
+  "phone": null,
+  "email": null,
+  "website": null,
+  "establishedYear": null,
+  "logoUrl": null,
+  "requirementsHscGPA": null,
+  "requirementsSscGPA": null,
+  "institutionCategoryInstitutionCategoryId": null
+}
+```
+
 ### Institution Deletion
 
 DELETE http://localhost:5000/api/system/institutions/9ede37aa-ed91-4b5a-a6e6-34eb01706806
@@ -165,13 +186,13 @@ POST http://localhost:5000/api/admin/auth/login
 
 ```json
 {
-  "email": "admincu@example.com",
+  "email": "admin@example.com",
   "password": "admin",
   "role": "INSTITUTION_ADMIN"
 }
 ```
 
-```json  
+```json
 {
   "status": 200,
   "message": "User logged in successfully",
@@ -192,6 +213,410 @@ PUT http://localhost:5000/api/admin/update-password
 
 ```json
 { "status": 200, "message": "Password updated successfully" }
+```
+
+### Unit Creation
+
+POST http://localhost:5000/api/admin/units
+`Single Stream -> Input`
+
+```json
+{
+  "name": "A",
+  "description": "Engineering Department",
+  "isActive": true,
+  "applicationDeadline": "2025-12-31 23:59:59",
+  "maxApplications": 100,
+  "requirements": [
+    {
+      "sscStream": "SCIENCE",
+      "hscStream": "SCIENCE",
+      "minSscGPA": 4.0,
+      "minHscGPA": 4.5
+    }
+  ]
+}
+```
+
+`Output`
+
+```json
+{
+  "status": 201,
+  "data": {
+    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+    "name": "Engineering",
+    "description": "Engineering Department",
+    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+    "isActive": true,
+    "applicationDeadline": "2025-12-31T23:59:59.000Z",
+    "maxApplications": 100,
+    "autoCloseAfterDeadline": true,
+    "createdAt": "2025-08-17T14:22:59.178Z",
+    "updatedAt": "2025-08-17T14:22:59.178Z",
+    "requirements": [
+      {
+        "id": "ec6feb0d-6836-414a-b78f-5383a7d5c41e",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "SCIENCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4,
+        "minHscGPA": 4.5,
+        "createdAt": "2025-08-17T14:22:59.179Z",
+        "updatedAt": "2025-08-17T14:22:59.179Z"
+      }
+    ],
+    "institution": {
+      "name": "University of Dhaka",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
+    }
+  }
+}
+```
+
+`Multiple Stream -> Input`
+
+```json
+{
+  "name": "Engineering Faculty",
+  "description": "Multi-disciplinary engineering program",
+  "isActive": true,
+  "applicationDeadline": "2025-12-31",
+  "maxApplications": 300,
+  "requirements": [
+    {
+      "sscStream": "SCIENCE",
+      "hscStream": "SCIENCE",
+      "minSscGPA": 4.0,
+      "minHscGPA": 4.5
+    },
+    {
+      "sscStream": "SCIENCE",
+      "hscStream": "COMMERCE",
+      "minSscGPA": 4.5,
+      "minHscGPA": 4.0
+    },
+    {
+      "sscStream": "SCIENCE",
+      "hscStream": "ARTS",
+      "minSscGPA": 4.2,
+      "minHscGPA": 4.3
+    }
+  ]
+}
+```
+
+`Output`
+
+```json
+{
+  "status": 201,
+  "data": {
+    "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
+    "name": "Engineering Faculty",
+    "description": "Multi-disciplinary engineering program",
+    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+    "isActive": true,
+    "applicationDeadline": "2025-12-31T00:00:00.000Z",
+    "maxApplications": 300,
+    "autoCloseAfterDeadline": true,
+    "createdAt": "2025-08-17T14:37:00.016Z",
+    "updatedAt": "2025-08-17T14:37:00.016Z",
+    "requirements": [
+      {
+        "id": "3bf7c7e3-bb4a-40f3-b44b-10354e85f870",
+        "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
+        "sscStream": "SCIENCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4,
+        "minHscGPA": 4.5,
+        "createdAt": "2025-08-17T14:37:00.017Z",
+        "updatedAt": "2025-08-17T14:37:00.017Z"
+      },
+      {
+        "id": "0b78dfc9-4801-4b03-a739-734769cad139",
+        "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
+        "sscStream": "COMMERCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4.5,
+        "minHscGPA": 4,
+        "createdAt": "2025-08-17T14:37:00.017Z",
+        "updatedAt": "2025-08-17T14:37:00.017Z"
+      },
+      {
+        "id": "5204fc96-f7e2-462a-913d-ae8cb5e3f661",
+        "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
+        "sscStream": "ARTS",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4.2,
+        "minHscGPA": 4.3,
+        "createdAt": "2025-08-17T14:37:00.017Z",
+        "updatedAt": "2025-08-17T14:37:00.017Z"
+      }
+    ],
+    "institution": {
+      "name": "University of Dhaka",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
+    }
+  }
+}
+```
+
+### Updating Unit
+
+PUT http://localhost:5000/api/admin/units/f9777252-b9ca-4b32-9817-379c2386790f
+
+`Output`
+
+```json
+{
+  "status": 200,
+  "message": "Unit updated successfully",
+  "data": {
+    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+    "name": "Updated Engineering Department",
+    "description": "Engineering with multiple stream options",
+    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+    "isActive": true,
+    "applicationDeadline": "2025-12-31T23:59:59.000Z",
+    "maxApplications": 100,
+    "autoCloseAfterDeadline": true,
+    "createdAt": "2025-08-17T14:22:59.178Z",
+    "updatedAt": "2025-08-17T15:36:42.050Z",
+    "requirements": [
+      {
+        "id": "999b8cb3-a650-416d-813f-7570af68580b",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "SCIENCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4,
+        "minHscGPA": 4.5,
+        "createdAt": "2025-08-17T15:36:42.054Z",
+        "updatedAt": "2025-08-17T15:36:42.054Z"
+      },
+      {
+        "id": "13332f15-1479-4b6c-a93f-91a175cc8736",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "COMMERCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4.2,
+        "minHscGPA": 4,
+        "createdAt": "2025-08-17T15:36:42.054Z",
+        "updatedAt": "2025-08-17T15:36:42.054Z"
+      }
+    ],
+    "institution": {
+      "name": "University of Dhaka",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
+    },
+    "_count": { "applications": 0 }
+  }
+}
+```
+
+### Adding Extra Stream to Unit
+
+POST http://localhost:5000/api/admin/units/f9777252-b9ca-4b32-9817-379c2386790f/requirements
+
+`Input`
+
+```json
+{
+  "requirements": [
+    {
+      "sscStream": "ARTS",
+      "hscStream": "COMMERCE",
+      "minSscGPA": 3.5,
+      "minHscGPA": 3.8
+    },
+    {
+      "sscStream": "ARTS",
+      "hscStream": "ARTS",
+      "minSscGPA": 3.0,
+      "minHscGPA": 3.5
+    }
+  ]
+}
+```
+
+```json
+{
+  "status": 201,
+  "message": "2 requirement(s) added successfully",
+  "data": {
+    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+    "name": "Updated Engineering Department",
+    "description": "Engineering with multiple stream options",
+    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+    "isActive": true,
+    "applicationDeadline": "2025-12-31T23:59:59.000Z",
+    "maxApplications": 100,
+    "autoCloseAfterDeadline": true,
+    "createdAt": "2025-08-17T14:22:59.178Z",
+    "updatedAt": "2025-08-17T15:36:42.050Z",
+    "requirements": [
+      {
+        "id": "999b8cb3-a650-416d-813f-7570af68580b",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "SCIENCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4,
+        "minHscGPA": 4.5,
+        "createdAt": "2025-08-17T15:36:42.054Z",
+        "updatedAt": "2025-08-17T15:36:42.054Z"
+      },
+      {
+        "id": "13332f15-1479-4b6c-a93f-91a175cc8736",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "COMMERCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4.2,
+        "minHscGPA": 4,
+        "createdAt": "2025-08-17T15:36:42.054Z",
+        "updatedAt": "2025-08-17T15:36:42.054Z"
+      },
+      {
+        "id": "348eb4ed-437c-4f27-be6e-67398b253467",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "ARTS",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4,
+        "minHscGPA": 4.2,
+        "createdAt": "2025-08-17T16:07:49.498Z",
+        "updatedAt": "2025-08-17T16:07:49.498Z"
+      },
+      {
+        "id": "c71c8bea-ce52-4968-8e56-dfb6ddfeb731",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "ARTS",
+        "hscStream": "COMMERCE",
+        "minSscGPA": 3.5,
+        "minHscGPA": 3.8,
+        "createdAt": "2025-08-17T16:09:11.013Z",
+        "updatedAt": "2025-08-17T16:09:11.013Z"
+      },
+      {
+        "id": "88e0dff0-7743-4298-b59c-16994a78feed",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "ARTS",
+        "hscStream": "ARTS",
+        "minSscGPA": 3,
+        "minHscGPA": 3.5,
+        "createdAt": "2025-08-17T16:09:11.013Z",
+        "updatedAt": "2025-08-17T16:09:11.013Z"
+      }
+    ],
+    "institution": {
+      "name": "University of Dhaka",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
+    },
+    "_count": { "applications": 0 }
+  }
+}
+```
+
+### Delete Requirements from Units
+
+DELETE http://localhost:5000/api/admin/units/f9777252-b9ca-4b32-9817-379c2386790f/requirements/c71c8bea-ce52-4968-8e56-dfb6ddfeb731
+
+```json
+{
+  "status": 200,
+  "message": "Requirement removed successfully",
+  "data": {
+    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+    "name": "Updated Engineering Department",
+    "description": "Engineering with multiple stream options",
+    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+    "isActive": true,
+    "applicationDeadline": "2025-12-31T23:59:59.000Z",
+    "maxApplications": 100,
+    "autoCloseAfterDeadline": true,
+    "createdAt": "2025-08-17T14:22:59.178Z",
+    "updatedAt": "2025-08-17T15:36:42.050Z",
+    "requirements": [
+      {
+        "id": "999b8cb3-a650-416d-813f-7570af68580b",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "SCIENCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4,
+        "minHscGPA": 4.5,
+        "createdAt": "2025-08-17T15:36:42.054Z",
+        "updatedAt": "2025-08-17T15:36:42.054Z"
+      },
+      {
+        "id": "13332f15-1479-4b6c-a93f-91a175cc8736",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "COMMERCE",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4.2,
+        "minHscGPA": 4,
+        "createdAt": "2025-08-17T15:36:42.054Z",
+        "updatedAt": "2025-08-17T15:36:42.054Z"
+      },
+      {
+        "id": "348eb4ed-437c-4f27-be6e-67398b253467",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "ARTS",
+        "hscStream": "SCIENCE",
+        "minSscGPA": 4,
+        "minHscGPA": 4.2,
+        "createdAt": "2025-08-17T16:07:49.498Z",
+        "updatedAt": "2025-08-17T16:07:49.498Z"
+      },
+      {
+        "id": "88e0dff0-7743-4298-b59c-16994a78feed",
+        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+        "sscStream": "ARTS",
+        "hscStream": "ARTS",
+        "minSscGPA": 3,
+        "minHscGPA": 3.5,
+        "createdAt": "2025-08-17T16:09:11.013Z",
+        "updatedAt": "2025-08-17T16:09:11.013Z"
+      }
+    ],
+    "institution": {
+      "name": "University of Dhaka",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
+    },
+    "_count": { "applications": 0 }
+  }
+}
+```
+
+GET http://localhost:5000/api/admin/units
+
+```json
+{
+  "status": 200,
+  "data": [
+    {
+      "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
+      "name": "Engineering Faculty",
+      "description": "Multi-disciplinary engineering program",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+      "isActive": true,
+      "applicationDeadline": "2025-12-31T00:00:00.000Z",
+      "maxApplications": 300,
+      "autoCloseAfterDeadline": true,
+      "createdAt": "2025-08-17T14:37:00.016Z",
+      "updatedAt": "2025-08-17T14:37:00.016Z"
+    },
+    {
+      "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+      "name": "Updated Engineering Department",
+      "description": "Engineering with multiple stream options",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+      "isActive": true,
+      "applicationDeadline": "2025-12-31T23:59:59.000Z",
+      "maxApplications": 100,
+      "autoCloseAfterDeadline": true,
+      "createdAt": "2025-08-17T14:22:59.178Z",
+      "updatedAt": "2025-08-17T15:36:42.050Z"
+    }
+  ]
+}
 ```
 
 ### Unassign Admin From Institution

@@ -1,25 +1,10 @@
- // backend/controllers/institutionController.js
+// backend/controllers/institutionController.js
 
 import { errors } from "@vinejs/vine";
 import prisma from "../DB/db.config.js";
 
 class institutionController {
-  static async fetchInstitutions(req, res) {
-    try {
-      const institutions = await prisma.institution.findMany();
-      // institutionService.getAllInstitutions();
-      return res.status(200).json({ status: 200, institutions });
-    } catch (error) {
-      if (error instanceof errors.E_VALIDATION_ERROR) {
-        // console.log(error.messages)
-        return res.status(400).json({ errors: error.messages });
-      } else {
-        return res
-          .status(500)
-          .json({ status: 500, message: "Something went wrong" });
-      }
-    }
-  }
+
 
   static async getInstitutionFormRequirements(req, res) {
     try {
@@ -45,20 +30,20 @@ class institutionController {
       }
     }
   }
-  static async updateInstitution(req, res) {
-    const { id } = req.params; // institutionId from URL
-    // Extract updatable fields from request body
-    const {
-      name,
-      description,
-      address,
-      phone,
-      email,
-      website,
-      establishedYear,
-    } = req.body;
 
+  static async updateInstitution(req, res) {
     try {
+      const { id } = req.params; // institutionId from URL
+      // Extract updatable fields from request body
+      const {
+        name,
+        description,
+        address,
+        phone,
+        email,
+        website,
+        establishedYear,
+      } = req.body;
       // Update the institution record
       const updated = await prisma.institution.update({
         where: { institutionId: id },
