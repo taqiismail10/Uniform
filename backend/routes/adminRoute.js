@@ -3,8 +3,9 @@
 import { Router } from "express";
 import adminAuthController from "../controllers/adminAuthController.js";
 // import institutionController from "../controllers/institutionController.js";
+import institutionController from "../controllers/institutionController.js";
+import unitController from "../controllers/unitController.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
-
 const router = Router();
 
 // Admin Authentication Routes
@@ -15,6 +16,29 @@ router.put(
   adminMiddleware,
   adminAuthController.updatePassword
 );
+
+router.put(
+  "/update-institution",
+  adminMiddleware,
+  institutionController.updateInstitution
+);
+
+router.post("/units", adminMiddleware, unitController.createUnit); // Create units
+router.put("/units/:unitId", adminMiddleware, unitController.updateUnit);
+
+// Add these routes to your adminRoute.js
+router.post(
+  "/units/:unitId/requirements",
+  adminMiddleware,
+  unitController.addUnitRequirements
+);
+router.delete(
+  "/units/:unitId/requirements/:requirementId",
+  adminMiddleware,
+  unitController.removeUnitRequirement
+);
+
+router.get("/units", adminMiddleware, unitController.listUnits);
 
 // Institution Management
 // Get admin's institution details
