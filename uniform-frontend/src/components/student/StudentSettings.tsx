@@ -1,8 +1,9 @@
 // uniform-frontend/src/components/student/StudentSettings.tsx
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { useAuth } from '@/context/useAuth';
+import { deleteAccount } from '@/api'; // Import the deleteAccount API function
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,8 @@ import {
   User,
   Bell,
   AlertTriangle,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import type { UserData } from '@/components/student/types';
 
@@ -33,7 +36,8 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
-  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
   const [notificationPreferences, setNotificationPreferences] = useState({
     email: true,
     sms: false,
@@ -43,23 +47,19 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
   // Handle email update
   const handleEmailUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (newEmail !== confirmEmail) {
       toast.error("Email Mismatch", {
         description: "The email addresses you entered do not match."
       });
       return;
     }
-
     setIsUpdatingEmail(true);
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-
       toast.success("Verification Email Sent", {
         description: `We've sent a verification link to ${newEmail}. Please check your inbox.`
       });
-
       setNewEmail('');
       setConfirmEmail('');
     } catch (error) {
@@ -78,7 +78,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-
       toast.success("Reset Email Sent", {
         description: `We've sent a password reset link to ${userData.email}. Please check your inbox.`
       });
@@ -94,31 +93,42 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
 
   // Handle account deletion
   const handleDeleteAccount = async () => {
-    if (deleteConfirmation !== userData.email) {
-      toast.error("Confirmation Failed", {
-        description: "The email you entered does not match your account email."
+    if (!deletePassword) {
+      toast.error("Password Required", {
+        description: "Please enter your password to delete your account."
       });
       return;
     }
 
     setIsDeletingAccount(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the actual API function
+      const success = await deleteAccount(deletePassword);
 
-      toast.success("Account Deleted", {
-        description: "Your account has been permanently deleted."
-      });
-
-      logout();
-      navigate({ to: '/login' });
-    } catch (error) {
+      if (success) {
+        toast.success("Account Deleted", {
+          description: "Your account has been permanently deleted."
+        });
+        logout();
+        navigate({ to: '/login' });
+      } else {
+        toast.error("Deletion Failed", {
+          description: "Could not delete your account. Please check your password and try again."
+        });
+      }
+    } catch (error: unknown) {
       console.error(error);
+      let errorMessage = "Could not delete your account. Please try again.";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        errorMessage = err.response?.data?.message || errorMessage;
+      }
       toast.error("Deletion Failed", {
-        description: "Could not delete your account. Please try again."
+        description: errorMessage
       });
     } finally {
       setIsDeletingAccount(false);
+      setDeletePassword('');
     }
   };
 
@@ -128,7 +138,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
       ...prev,
       [type]: !prev[type]
     }));
-
     toast.success("Preferences Updated", {
       description: `Notification preferences have been saved.`
     });
@@ -140,7 +149,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
         <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
         <p className="text-gray-600 mt-2">Manage your account settings and preferences</p>
       </div>
-
       <Tabs defaultValue="account" className="w-full">
         <TabsList className="grid w-full h-fit grid-cols-2 sm:grid-cols-4 mb-2 gap-2">
           <TabsTrigger value="account" className="flex items-center gap-2">
@@ -160,7 +168,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
             <span>Danger Zone</span>
           </TabsTrigger>
         </TabsList>
-
         <TabsContent value="account" className="space-y-6">
           <Card>
             <CardHeader>
@@ -212,9 +219,7 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
               </form>
             </CardContent>
           </Card>
-
         </TabsContent>
-
         <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
@@ -241,7 +246,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle>Two-Factor Authentication</CardTitle>
@@ -262,7 +266,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="notifications" className="space-y-6">
           <Card>
             <CardHeader>
@@ -288,7 +291,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
                   {notificationPreferences.email ? 'Enabled' : 'Disabled'}
                 </Button>
               </div>
-
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-5 w-5 bg-gray-300 rounded-full flex items-center justify-center">
@@ -307,7 +309,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
                   {notificationPreferences.sms ? 'Enabled' : 'Disabled'}
                 </Button>
               </div>
-
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Bell className="h-5 w-5 text-gray-500" />
@@ -327,7 +328,6 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="danger" className="space-y-6">
           <Card className="border-red-200">
             <CardHeader className="text-red-600">
@@ -353,27 +353,13 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="delete-confirmation">
-                  Type <span className="font-semibold">{userData.email}</span> to confirm
-                </Label>
-                <Input
-                  id="delete-confirmation"
-                  type="email"
-                  value={deleteConfirmation}
-                  onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  placeholder="Enter your email address"
-                />
-              </div>
-
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
                     variant="destructive"
-                    disabled={deleteConfirmation !== userData.email || isDeletingAccount}
                     className="mt-2"
                   >
-                    {isDeletingAccount ? 'Deleting Account...' : 'Delete Account'}
+                    Delete Account
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
@@ -399,14 +385,42 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
                       </ul>
                     </div>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="delete-password">Enter your password to confirm</Label>
+                    <div className="relative">
+                      <Input
+                        id="delete-password"
+                        type={showDeletePassword ? "text" : "password"}
+                        value={deletePassword}
+                        onChange={(e) => setDeletePassword(e.target.value)}
+                        placeholder="Enter your password"
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2"
+                        onClick={() => setShowDeletePassword(!showDeletePassword)}
+                      >
+                        {showDeletePassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setDeleteConfirmation('')}>
+                    <Button variant="outline" onClick={() => setDeletePassword('')}>
                       Cancel
                     </Button>
                     <Button
                       variant="destructive"
                       onClick={handleDeleteAccount}
-                      disabled={isDeletingAccount}
+                      disabled={!deletePassword || isDeletingAccount}
                     >
                       {isDeletingAccount ? 'Deleting...' : 'Delete Account'}
                     </Button>
@@ -417,6 +431,7 @@ export default function StudentSettings({ userData }: StudentSettingsProps) {
           </Card>
         </TabsContent>
       </Tabs>
+      <Toaster />
     </div>
   );
 }

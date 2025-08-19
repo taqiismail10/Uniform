@@ -8,6 +8,11 @@ const router = Router();
 // Auth routes
 router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
+router.delete(
+	"/auth/delete-account",
+	authMiddleware,
+	authController.deleteAccount
+);
 
 // Profile routes
 router.get("/profile", authMiddleware, profileController.index); // Private route

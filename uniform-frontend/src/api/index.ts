@@ -242,6 +242,22 @@ export const getUserProfile = async (): Promise<User | null> => {
   }
 };
 
+
+// Delete account with password confirmation
+export const deleteAccount = async (password: string): Promise<boolean> => {
+  try {
+    const response = await api.delete("/auth/delete-account", {
+      data: { password }
+    });
+    console.log("Delete Account Response:-----\n", response.data);
+    return response.data.status === 200;
+  } catch (error) {
+    console.error("Delete Account Failed:", error);
+    return false;
+  }
+};
+
+
 // Get Academic Details - New function
 export const getAcademicDetails = async (): Promise<User | null> => {
   try {
