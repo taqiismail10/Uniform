@@ -11,6 +11,14 @@ const updateEmailSchema = vine.object({
 	newEmail: vine.string().email(),
 });
 
+// Add password change validation schema
+const changePasswordSchema = vine.object({
+	userId: vine.string(),
+	currentPassword: vine.string(),
+	newPassword: vine.string().minLength(8),
+	password_confirmation: vine.string(),
+});
+
 class authController {
 	// User registration method
 	static async register(req, res) {
@@ -53,7 +61,6 @@ class authController {
 			}
 		}
 	}
-
 	// User Login Method
 	static async login(req, res) {
 		try {
@@ -99,7 +106,6 @@ class authController {
 			}
 		}
 	}
-
 	// Account Deletion Method
 	static async deleteAccount(req, res) {
 		try {
@@ -152,17 +158,14 @@ class authController {
 			});
 		}
 	}
-
 	// Email Update Method
 	static async updateEmail(req, res) {
 		try {
 			const { userId, newEmail } = req.body;
 			const authenticatedStudentId = req.user.studentId;
-
 			// Validate input
 			const validator = vine.compile(updateEmailSchema);
 			const payload = await validator.validate({ userId, newEmail });
-
 			// Check if the authenticated user matches the requested userId
 			if (userId !== authenticatedStudentId) {
 				return res.status(403).json({
@@ -170,21 +173,18 @@ class authController {
 					message: "Unauthorized: You can only update your own email",
 				});
 			}
-
 			// Find the current user
 			const currentUser = await prisma.student.findUnique({
 				where: {
 					studentId: userId,
 				},
 			});
-
 			if (!currentUser) {
 				return res.status(404).json({
 					status: 404,
 					message: "User not found",
 				});
 			}
-
 			// Check if new email is same as current
 			if (currentUser.email === newEmail) {
 				return res.status(400).json({
@@ -192,21 +192,18 @@ class authController {
 					message: "New email is the same as current email",
 				});
 			}
-
 			// Check if email is already in use by another user
 			const existingUser = await prisma.student.findUnique({
 				where: {
 					email: newEmail,
 				},
 			});
-
 			if (existingUser) {
 				return res.status(400).json({
 					status: 400,
 					message: "Email address is already in use",
 				});
 			}
-
 			// Update the user's email
 			await prisma.student.update({
 				where: {
@@ -216,7 +213,6 @@ class authController {
 					email: newEmail,
 				},
 			});
-
 			return res.status(200).json({
 				status: 200,
 				message: "Email updated successfully",
@@ -229,6 +225,109 @@ class authController {
 				return res.status(500).json({
 					status: 500,
 					message: "Failed to update email address",
+				});
+			}
+		}
+	}
+
+	// Password Change Method
+	static async changePassword(req, res) {
+		try {
+			const {
+				userId,
+				currentPassword,
+				newPassword,
+				password_confirmation,
+			} = req.body;
+			const authenticatedStudentId = req.user.studentId;
+
+			// Validate input
+			const validator = vine.compile(changePasswordSchema);
+			const payload = await validator.validate({
+				userId,
+				currentPassword,
+				newPassword,
+				password_confirmation,
+			});
+
+			// Check if the authenticated user matches the requested userId
+			if (userId !== authenticatedStudentId) {
+				return res.status(403).json({
+					status: 403,
+					message:
+						"Unauthorized: You can only change your own password",
+				});
+			}
+
+			// Find the current user
+			const user = await prisma.student.findUnique({
+				where: {
+					studentId: userId,
+				},
+			});
+
+			if (!user) {
+				return res.status(404).json({
+					status: 404,
+					message: "User not found",
+				});
+			}
+
+			// Verify current password
+			const isPasswordValid = bcrypt.compareSync(
+				currentPassword,
+				user.password
+			);
+			if (!isPasswordValid) {
+				return res.status(401).json({
+					status: 401,
+					message: "Current password is incorrect",
+				});
+			}
+
+			// Check if new password matches confirmation
+			if (newPassword !== password_confirmation) {
+				return res.status(400).json({
+					status: 400,
+					message: "New password and confirmation do not match",
+				});
+			}
+
+			// Check if new password is same as current password
+			if (bcrypt.compareSync(newPassword, user.password)) {
+				return res.status(400).json({
+					status: 400,
+					message:
+						"New password must be different from current password",
+				});
+			}
+
+			// Hash the new password
+			const salt = bcrypt.genSaltSync(10);
+			const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+			// Update the user's password
+			await prisma.student.update({
+				where: {
+					studentId: userId,
+				},
+				data: {
+					password: hashedPassword,
+				},
+			});
+
+			return res.status(200).json({
+				status: 200,
+				message: "Password updated successfully",
+			});
+		} catch (error) {
+			if (error instanceof errors.E_VALIDATION_ERROR) {
+				return res.status(400).json({ errors: error.messages });
+			} else {
+				console.error("Change Password Error:", error);
+				return res.status(500).json({
+					status: 500,
+					message: "Failed to change password",
 				});
 			}
 		}

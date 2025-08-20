@@ -6,6 +6,7 @@ export {
   userLogin,
   deleteAccount,
   updateEmail,
+  changePassword,
 } from "./auth";
 
 // Profile functions

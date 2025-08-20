@@ -14,6 +14,11 @@ router.delete(
 	authMiddleware,
 	authController.deleteAccount
 );
+router.post(
+	"/auth/change-password",
+	authMiddleware,
+	authController.changePassword
+);
 
 // Profile routes
 router.get("/profile", authMiddleware, profileController.index); // Private route

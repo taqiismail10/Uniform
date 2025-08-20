@@ -175,3 +175,23 @@ export const updateEmail = async (userId: string, newEmail: string): Promise<boo
     return false;
   }
 };
+
+// Change user password
+export const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<boolean> => {
+  try {
+    const response = await api.post("/auth/change-password", {
+      userId,
+      currentPassword,
+      newPassword,
+      password_confirmation: newPassword
+    });
+    return response.data.status === 200;
+  } catch (error) {
+    console.error("Change Password Failed:", error);
+    throw error;
+  }
+};

@@ -22,6 +22,7 @@ import { Route as InstitutionIndexRouteImport } from './routes/institution/index
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as StudentDashboardRouteImport } from './routes/student/dashboard'
 import { Route as InstitutionDashboardRouteImport } from './routes/institution/dashboard'
+import { Route as AdminHelloRouteImport } from './routes/admin/hello'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorized'
 import { Route as AuthStudentLoginRouteImport } from './routes/_auth/studentLogin'
@@ -95,6 +96,11 @@ const InstitutionDashboardRoute = InstitutionDashboardRouteImport.update({
   path: '/institution/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminHelloRoute = AdminHelloRouteImport.update({
+  id: '/admin/hello',
+  path: '/admin/hello',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/hello': typeof AdminHelloRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin': typeof AdminIndexRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/hello': typeof AdminHelloRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin': typeof AdminIndexRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/_auth/studentLogin': typeof AuthStudentLoginRoute
   '/_auth/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/hello': typeof AdminHelloRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin/': typeof AdminIndexRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/studentLogin'
     | '/unauthorized'
     | '/admin/dashboard'
+    | '/admin/hello'
     | '/institution/dashboard'
     | '/student/dashboard'
     | '/admin'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/studentLogin'
     | '/unauthorized'
     | '/admin/dashboard'
+    | '/admin/hello'
     | '/institution/dashboard'
     | '/student/dashboard'
     | '/admin'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/_auth/studentLogin'
     | '/_auth/unauthorized'
     | '/admin/dashboard'
+    | '/admin/hello'
     | '/institution/dashboard'
     | '/student/dashboard'
     | '/admin/'
@@ -283,6 +295,7 @@ export interface RootRouteChildren {
   AuthStudentLoginRoute: typeof AuthStudentLoginRoute
   AuthUnauthorizedRoute: typeof AuthUnauthorizedRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminHelloRoute: typeof AdminHelloRoute
   InstitutionDashboardRoute: typeof InstitutionDashboardRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -383,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstitutionDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/hello': {
+      id: '/admin/hello'
+      path: '/admin/hello'
+      fullPath: '/admin/hello'
+      preLoaderRoute: typeof AdminHelloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
@@ -451,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthStudentLoginRoute: AuthStudentLoginRoute,
   AuthUnauthorizedRoute: AuthUnauthorizedRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminHelloRoute: AdminHelloRoute,
   InstitutionDashboardRoute: InstitutionDashboardRoute,
   StudentDashboardRoute: StudentDashboardRoute,
   AdminIndexRoute: AdminIndexRoute,
