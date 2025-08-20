@@ -102,7 +102,7 @@ class ProfileController {
 					profile?.size,
 					profile?.mimetype
 				);
-
+				console.log("Message ------- : \n", message);
 				if (message !== null) {
 					return res.status(400).json({
 						status: 400,

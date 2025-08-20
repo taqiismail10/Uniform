@@ -1,3 +1,4 @@
+// uniform-frontend/src/components/student/ProfileInfo.tsx
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,13 +24,11 @@ import { Edit, Camera, Save, X, User, Mail, Phone, Calendar, MapPin, BookOpen, G
 import { toast, Toaster } from 'sonner';
 import type { UserData } from '@/components/student/types';
 import { updateUserProfile } from '@/api';
-
 interface ProfileInfoProps {
   userData: UserData;
   onLogout: () => void;
   onUpdate?: (updatedData: Partial<UserData>) => Promise<void>;
 }
-
 // Helper function to format date
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -38,7 +37,6 @@ const formatDate = (dateString: string) => {
     day: 'numeric'
   });
 };
-
 export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -46,18 +44,15 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
   const handleEditClick = () => {
     setIsEditing(true);
   };
-
   const handleCancelClick = () => {
     setIsEditing(false);
     setFormData({ ...userData });
     setProfileImage(null);
     setErrors({});
   };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -72,7 +67,6 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
       }));
     }
   };
-
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -86,7 +80,6 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
       }));
     }
   };
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -97,17 +90,11 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
       reader.readAsDataURL(file);
     }
   };
-
   // Validate form data
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!formData.userName.trim()) {
       newErrors.userName = 'Full name is required';
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
     }
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
@@ -127,7 +114,6 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSaveClick = async () => {
     if (!validateForm()) {
       return;
@@ -137,7 +123,6 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
       const updateResponse = await updateUserProfile(userData.userId, {
         profileImage: profileImage ? new File([profileImage], 'profile.jpg') : undefined,
         fullName: formData.userName,
-        email: formData.email,
         phone: formData.phone,
         address: formData.address,
         dob: formData.dob,
@@ -166,11 +151,9 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
       setIsLoading(false);
     }
   };
-
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -325,23 +308,7 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
                   <p className="text-red-500 text-xs mt-1">{errors.userName}</p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Email Address
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                  className={errors.email ? "border-red-500" : ""}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                )}
-              </div>
+              {/* Email field removed from edit form */}
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
                   Phone Number

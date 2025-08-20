@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "../ui/button"
+import student_using_laptop from "@/assets/student_using_laptop.svg"
 
 interface HeroSectionProps {
   loginStatus: boolean;
@@ -36,7 +37,7 @@ const Hero = (props: HeroSectionProps) => {
       </div>
       <div className="hidden md:w-[65%] md:flex items-center justify-center mt-2 md:mt-0">
         <img
-          src="/src/assets/student_using_laptop.svg"
+          src={student_using_laptop}
           alt="student using laptop"
           className="w-full max-w-lg"
         />
