@@ -5,8 +5,6 @@ import prisma from "../DB/db.config.js";
 import { adminLoginSchema } from "../validations/AuthValidation.js";
 import { institutionSystemSchema } from "../validations/institutionValidation.js";
 
-import Utility from "../utils/utils.js";
-
 function toTitleCase(str) {
   return str
     .toLowerCase()
@@ -258,6 +256,42 @@ class systemAdminAuthController {
           .status(500)
           .json({ status: 500, message: "Something went wrong" });
       }
+    }
+  }
+
+  static async index(req, res) {
+    try {
+      const { systemAdminId } = req.admin; // Coming from systemAdminMiddleware
+
+      const profile = await prisma.systemadmin.findUnique({
+        where: { systemAdminId: systemAdminId },
+        select: {
+          systemAdminId: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!profile) {
+        return res.status(404).json({
+          status: 404,
+          message: "System admin profile not found.",
+        });
+      }
+
+      return res.status(200).json({
+        status: 200,
+        profile,
+        admin: req.admin, // Include the authenticated admin data
+      });
+    } catch (error) {
+      console.error("Error fetching system admin profile:", error);
+      return res.status(500).json({
+        status: 500,
+        message: "Something went wrong.",
+      });
     }
   }
 
