@@ -77,6 +77,32 @@ POST http://localhost:5000/api/system/auth/login
 }
 ```
 
+### System Admin Profile
+
+GET http://localhost:5000/api/system/admins/profile
+
+`Output`
+
+```json
+{
+  "status": 200,
+  "profile": {
+    "systemAdminId": "d74b820b-c96c-4234-bbd4-cecea7c3b778",
+    "email": "taqiismail10@uniform.com",
+    "role": "SYSTEM_ADMIN",
+    "createdAt": "2025-08-07T20:48:45.009Z",
+    "updatedAt": "2025-08-07T20:48:45.009Z"
+  },
+  "admin": {
+    "systemAdminId": "d74b820b-c96c-4234-bbd4-cecea7c3b778",
+    "email": "taqiismail10@uniform.com",
+    "role": "SYSTEM_ADMIN",
+    "iat": 1755800697,
+    "exp": 1787336697
+  }
+}
+```
+
 ### Institution and Institution Category Created
 
 POST http://localhost:5000/api/system/institutions

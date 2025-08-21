@@ -17,6 +17,12 @@ router.post(
   systemAdminAuthController.createAndAssignInstitutionAdmin
 );
 
+router.get(
+  "/admins/profile",
+  systemAdminMiddleware, // Only SYSTEM_ADMIN can access
+  systemAdminAuthController.index
+);
+
 // Institution routes
 router.post(
   "/institutions",
