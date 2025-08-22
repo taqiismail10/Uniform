@@ -57,9 +57,42 @@ POST http://localhost:5000/api/auth/login
 }
 ```
 
+### Student Profile
+
+GET http://localhost:5000/api/profile
+
+```json
+  "status": 200,
+  "profile": {
+    "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
+    "fullName": "Aong Cho",
+    "email": "aongcho880@example.com",
+    "phone": "+1234567123",
+    "password": "$2b$10$6LLzDM41opQXygS.ujA17e.0iPFAurTJ3rDna.MKpxsh32KjmO0KO",
+    "address": "123 Main Street",
+    "role": "STUDENT",
+    "dob": "2000-01-01T00:00:00.000Z",
+    "profile": null,
+    "createdAt": "2025-08-07T06:06:17.419Z",
+    "updatedAt": "2025-08-07T06:06:17.419Z"
+  },
+```
+
+```json
+  "user": {
+    "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
+    "email": "aongcho880@example.com",
+    "iat": 1754579660,
+    "exp": 1786115660
+  }
+```
+
+## 2. System Admin Authentication
+
 ### System Admin Login
 
 POST http://localhost:5000/api/system/auth/login
+`Input`
 
 ```json
 {
@@ -68,6 +101,8 @@ POST http://localhost:5000/api/system/auth/login
   "role": "SYSTEM_ADMIN"
 }
 ```
+
+`Output`
 
 ```json
 {
@@ -107,6 +142,8 @@ GET http://localhost:5000/api/system/admins/profile
 
 POST http://localhost:5000/api/system/institutions
 
+`Output`
+
 ```json
 {
   "name": "University of Dhaka",
@@ -137,6 +174,8 @@ POST http://localhost:5000/api/system/institutions
 
 ### Institution List
 
+#### Without Pagination
+
 GET http://localhost:5000/api/system/institutions
 
 ```json
@@ -156,6 +195,220 @@ GET http://localhost:5000/api/system/institutions
 }
 ```
 
+#### With Pagination
+
+GET http://localhost:5000/api/system/institutions?page=1&limit=3
+
+```json
+{
+  "status": 200,
+  "institutions": [
+    {
+      "institutionId": "16555078-d8f3-4388-a86a-be068a5de984",
+      "name": "University of Comilla",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:06:17.020Z",
+      "updatedAt": "2025-08-16T16:06:17.020Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    },
+    {
+      "institutionId": "66ddda15-4567-479e-a1b0-77f84f9534ab",
+      "name": "University of Khulna",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:06:07.244Z",
+      "updatedAt": "2025-08-16T16:06:07.244Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    },
+    {
+      "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
+      "name": "University of Chittagong",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-14T01:52:08.535Z",
+      "updatedAt": "2025-08-14T01:52:08.535Z",
+      "institutionCategoryInstitutionCategoryId": null
+    }
+  ],
+  "metadata": { "totalPages": 2, "currentPage": 1, "currentLimit": 3 }
+}
+```
+
+GET http://localhost:5000/api/system/institutions?page=2&limit=3
+
+```json
+{
+  "status": 200,
+  "institutions": [
+    {
+      "institutionId": "beda0826-bddc-4c94-ad95-aa75e5e77fae",
+      "name": "University of Rajshahi",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:05:54.865Z",
+      "updatedAt": "2025-08-16T16:05:54.865Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    },
+    {
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+      "name": "University of Dhaka",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:05:44.966Z",
+      "updatedAt": "2025-08-16T16:05:44.966Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    },
+    {
+      "institutionId": "f9b18667-9e89-4e81-9c45-8cfa010a27da",
+      "name": "University of Barishal",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:06:32.071Z",
+      "updatedAt": "2025-08-16T16:06:32.071Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    }
+  ],
+  "metadata": { "totalPages": 2, "currentPage": 2, "currentLimit": 3 }
+}
+```
+
+GET http://localhost:5000/api/system/institutions?page=1&limit=5
+
+```json
+{
+  "status": 200,
+  "institutions": [
+    {
+      "institutionId": "16555078-d8f3-4388-a86a-be068a5de984",
+      "name": "University of Comilla",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:06:17.020Z",
+      "updatedAt": "2025-08-16T16:06:17.020Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    },
+    {
+      "institutionId": "66ddda15-4567-479e-a1b0-77f84f9534ab",
+      "name": "University of Khulna",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:06:07.244Z",
+      "updatedAt": "2025-08-16T16:06:07.244Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    },
+    {
+      "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
+      "name": "University of Chittagong",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-14T01:52:08.535Z",
+      "updatedAt": "2025-08-14T01:52:08.535Z",
+      "institutionCategoryInstitutionCategoryId": null
+    },
+    {
+      "institutionId": "beda0826-bddc-4c94-ad95-aa75e5e77fae",
+      "name": "University of Rajshahi",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:05:54.865Z",
+      "updatedAt": "2025-08-16T16:05:54.865Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    },
+    {
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+      "name": "University of Dhaka",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:05:44.966Z",
+      "updatedAt": "2025-08-16T16:05:44.966Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    }
+  ],
+  "metadata": { "totalPages": 2, "currentPage": 1, "currentLimit": 5 }
+}
+```
+
+GET http://localhost:5000/api/system/institutions?page=2&limit=5
+
+```json
+{
+  "status": 200,
+  "institutions": [
+    {
+      "institutionId": "f9b18667-9e89-4e81-9c45-8cfa010a27da",
+      "name": "University of Barishal",
+      "description": null,
+      "address": null,
+      "phone": null,
+      "email": null,
+      "website": null,
+      "establishedYear": null,
+      "logoUrl": null,
+      "createdAt": "2025-08-16T16:06:32.071Z",
+      "updatedAt": "2025-08-16T16:06:32.071Z",
+      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
+    }
+  ],
+  "metadata": { "totalPages": 2, "currentPage": 2, "currentLimit": 5 }
+}
+```
+
 ### Institution Deletion
 
 DELETE http://localhost:5000/api/system/institutions/9ede37aa-ed91-4b5a-a6e6-34eb01706806
@@ -163,6 +416,8 @@ DELETE http://localhost:5000/api/system/institutions/9ede37aa-ed91-4b5a-a6e6-34e
 ```json
 { "status": 200, "message": "Institution deleted successfully!" }
 ```
+
+## 3. Admin Authentication
 
 ### Admin Creation and Assigned to Institution
 
@@ -611,6 +866,10 @@ DELETE http://localhost:5000/api/admin/units/f9777252-b9ca-4b32-9817-379c2386790
 }
 ```
 
+### Unit List
+
+#### Without Pagination
+
 GET http://localhost:5000/api/admin/units
 
 ```json
@@ -645,6 +904,76 @@ GET http://localhost:5000/api/admin/units
 }
 ```
 
+#### With Pagination
+
+GET http://localhost:5000/api/admin/units?page=1&limit=1
+
+```json
+{
+  "status": 200,
+  "data": [
+    {
+      "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
+      "name": "Engineering Faculty",
+      "description": "Multi-disciplinary engineering program",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+      "isActive": true,
+      "applicationDeadline": "2025-12-31T00:00:00.000Z",
+      "maxApplications": 300,
+      "autoCloseAfterDeadline": true,
+      "createdAt": "2025-08-17T14:37:00.016Z",
+      "updatedAt": "2025-08-17T14:37:00.016Z"
+    }
+  ],
+  "metadata": {
+    "totalPages": 2,
+    "currentPage": 1,
+    "currentLimit": 1,
+    "totalUnits": 2
+  }
+}
+```
+
+GET http://localhost:5000/api/admin/units?page=1&limit=2
+
+```json
+{
+  "status": 200,
+  "data": [
+    {
+      "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
+      "name": "Engineering Faculty",
+      "description": "Multi-disciplinary engineering program",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+      "isActive": true,
+      "applicationDeadline": "2025-12-31T00:00:00.000Z",
+      "maxApplications": 300,
+      "autoCloseAfterDeadline": true,
+      "createdAt": "2025-08-17T14:37:00.016Z",
+      "updatedAt": "2025-08-17T14:37:00.016Z"
+    },
+    {
+      "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
+      "name": "Updated Engineering Department",
+      "description": "Engineering with multiple stream options",
+      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
+      "isActive": true,
+      "applicationDeadline": "2025-12-31T23:59:59.000Z",
+      "maxApplications": 100,
+      "autoCloseAfterDeadline": true,
+      "createdAt": "2025-08-17T14:22:59.178Z",
+      "updatedAt": "2025-08-17T15:36:42.050Z"
+    }
+  ],
+  "metadata": {
+    "totalPages": 1,
+    "currentPage": 1,
+    "currentLimit": 2,
+    "totalUnits": 2
+  }
+}
+```
+
 ### Unassign Admin From Institution
 
 PATCH http://localhost:5000/api/system/admins/dd3b19cf-e066-4b7a-a7f7-29ed636245b3/unassign-institution
@@ -663,34 +992,4 @@ PATCH http://localhost:5000/api/system/admins/dd3b19cf-e066-4b7a-a7f7-29ed636245
     "institutionId": null
   }
 }
-```
-
-### Student Profile
-
-GET http://localhost:5000/api/profile
-
-```json
-  "status": 200,
-  "profile": {
-    "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
-    "fullName": "Aong Cho",
-    "email": "aongcho880@example.com",
-    "phone": "+1234567123",
-    "password": "$2b$10$6LLzDM41opQXygS.ujA17e.0iPFAurTJ3rDna.MKpxsh32KjmO0KO",
-    "address": "123 Main Street",
-    "role": "STUDENT",
-    "dob": "2000-01-01T00:00:00.000Z",
-    "profile": null,
-    "createdAt": "2025-08-07T06:06:17.419Z",
-    "updatedAt": "2025-08-07T06:06:17.419Z"
-  },
-```
-
-```json
-  "user": {
-    "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
-    "email": "aongcho880@example.com",
-    "iat": 1754579660,
-    "exp": 1786115660
-  }
 ```

@@ -500,16 +500,58 @@ class unitController {
   }
 
   static async listUnits(req, res) {
-    const { adminId } = req.admin;
-    const admin = await prisma.admin.findUnique({ where: { adminId } });
-    if (!admin || !admin.institutionId) {
-      return res.status(403).json({ status: 403, message: "Not authorized" });
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 1;
+
+      if (page <= 0) {
+        page = 1;
+      }
+
+      if (limit <= 0 || limit > 100) {
+        limit = 5;
+      }
+
+      const skip = (page - 1) * limit;
+
+      const { adminId } = req.admin;
+      const admin = await prisma.admin.findUnique({ where: { adminId } });
+      if (!admin || !admin.institutionId) {
+        return res.status(403).json({ status: 403, message: "Not authorized" });
+      }
+      // Find all units for this institution
+      const units = await prisma.unit.findMany({
+        where: { institutionId: admin.institutionId },
+        take: limit,
+        skip: skip,
+      });
+
+      const totalUnits = await prisma.unit.count({
+        where: { institutionId: admin.institutionId },
+      });
+
+      const totalPages = Math.ceil(totalUnits / limit);
+
+      return res.json({
+        status: 200,
+        data: units,
+        metadata: {
+          totalPages,
+          currentPage: page,
+          currentLimit: limit,
+          totalUnits,
+        },
+      });
+    } catch (error) {
+      if (error instanceof errors.E_VALIDATION_ERROR) {
+        // console.log(error.messages)
+        return res.status(400).json({ errors: error.messages });
+      } else {
+        return res
+          .status(500)
+          .json({ status: 500, message: "Something went wrong" });
+      }
     }
-    // Find all units for this institution
-    const units = await prisma.unit.findMany({
-      where: { institutionId: admin.institutionId },
-    });
-    return res.json({ status: 200, data: units });
   }
 
   // static async updateUnit(req, res) {
