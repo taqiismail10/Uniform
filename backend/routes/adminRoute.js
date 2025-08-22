@@ -5,6 +5,7 @@ import adminAuthController from "../controllers/adminAuthController.js";
 // import institutionController from "../controllers/institutionController.js";
 import institutionController from "../controllers/institutionController.js";
 import unitController from "../controllers/unitController.js";
+import redisCache from "../DB/redis.config.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
 const router = Router();
 
@@ -38,7 +39,12 @@ router.delete(
   unitController.removeUnitRequirement
 );
 
-router.get("/units", adminMiddleware, unitController.listUnits);
+router.get(
+  "/units",
+  redisCache.route(),
+  adminMiddleware,
+  unitController.listUnits
+);
 
 // Institution Management
 // Get admin's institution details
