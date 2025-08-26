@@ -303,11 +303,15 @@ class systemAdminAuthController {
 	}
 
 	static async fetchInstitutions(req, res) {
-		try {
-			const institutions = await prisma.institution.findMany();
-			// institutionService.getAllInstitutions();
-			return res.status(200).json({ status: 200, institutions });
-		} catch (error) {
+                try {
+                        const institutions = await prisma.institution.findMany({
+                                include: {
+                                        InstitutionCategory: true,
+                                },
+                        });
+                        // institutionService.getAllInstitutions();
+                        return res.status(200).json({ status: 200, institutions });
+                } catch (error) {
 			if (error instanceof errors.E_VALIDATION_ERROR) {
 				// console.log(error.messages)
 				return res.status(400).json({ errors: error.messages });
