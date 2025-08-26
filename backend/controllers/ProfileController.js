@@ -5,49 +5,61 @@ import { generateRandomNum, imageValidator } from "../utils/helper.js";
 class ProfileController {
 	static async index(req, res) {
 		try {
-			const { studentId } = req.user;
-			const profile = await prisma.student.findUnique({
-				where: { studentId: studentId },
-				select: {
-					studentId: true,
-					fullName: true,
-					email: true,
-					phone: true,
-					address: true,
-					role: true,
-					dob: true,
-					examPath: true, // Added
-					medium: true, // Added
-					profile: true,
-					// Academic details based on examPath
-					...(req.user.examPath === "NATIONAL" && {
-						sscRoll: true,
-						sscRegistration: true,
-						sscGpa: true,
-						sscYear: true,
-						sscBoard: true,
-						hscRoll: true,
-						hscRegistration: true,
-						hscGpa: true,
-						hscYear: true,
-						hscBoard: true,
-					}),
-					...(req.user.examPath === "MADRASHA" && {
-						dakhilRoll: true,
-						dakhilRegistration: true,
-						dakhilGpa: true,
-						dakhilYear: true,
-						dakhilBoard: true,
-						alimRoll: true,
-						alimRegistration: true,
-						alimGpa: true,
-						alimYear: true,
-						alimBoard: true,
-					}),
-					createdAt: true,
-					updatedAt: true,
-				},
-			});
+                        const { studentId } = req.user;
+
+                        // req.user only contains data from the JWT token which
+                        // does not include the student's exam path. Retrieve the
+                        // exam path from the database first so we can select the
+                        // correct academic fields for the profile response.
+                        const studentExamPath = await prisma.student.findUnique({
+                                where: { studentId },
+                                select: { examPath: true },
+                        });
+
+                        const examPath = studentExamPath?.examPath;
+
+                        const profile = await prisma.student.findUnique({
+                                where: { studentId: studentId },
+                                select: {
+                                        studentId: true,
+                                        fullName: true,
+                                        email: true,
+                                        phone: true,
+                                        address: true,
+                                        role: true,
+                                        dob: true,
+                                        examPath: true, // Added
+                                        medium: true, // Added
+                                        profile: true,
+                                        // Academic details based on examPath
+                                        ...(examPath === "NATIONAL" && {
+                                                sscRoll: true,
+                                                sscRegistration: true,
+                                                sscGpa: true,
+                                                sscYear: true,
+                                                sscBoard: true,
+                                                hscRoll: true,
+                                                hscRegistration: true,
+                                                hscGpa: true,
+                                                hscYear: true,
+                                                hscBoard: true,
+                                        }),
+                                        ...(examPath === "MADRASHA" && {
+                                                dakhilRoll: true,
+                                                dakhilRegistration: true,
+                                                dakhilGpa: true,
+                                                dakhilYear: true,
+                                                dakhilBoard: true,
+                                                alimRoll: true,
+                                                alimRegistration: true,
+                                                alimGpa: true,
+                                                alimYear: true,
+                                                alimBoard: true,
+                                        }),
+                                        createdAt: true,
+                                        updatedAt: true,
+                                },
+                        });
 
 			if (!profile) {
 				return res.status(404).json({ message: "Profile not found." });
