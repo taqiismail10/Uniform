@@ -304,7 +304,12 @@ class systemAdminAuthController {
 
 	static async fetchInstitutions(req, res) {
 		try {
-			const institutions = await prisma.institution.findMany();
+			// Include related InstitutionCategory so frontend can show category name
+			const institutions = await prisma.institution.findMany({
+				include: {
+					InstitutionCategory: true,
+				},
+			});
 			// institutionService.getAllInstitutions();
 			return res.status(200).json({ status: 200, institutions });
 		} catch (error) {
