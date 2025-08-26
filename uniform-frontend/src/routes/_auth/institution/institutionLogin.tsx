@@ -2,14 +2,14 @@ import { userLogin } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/student/useAuth'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Building, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Toaster } from 'sonner'
 
-export const Route = createFileRoute('/_auth/institutionLogin')({
+export const Route = createFileRoute('/_auth/institution/institutionLogin')({
   component: RouteComponent,
 })
 

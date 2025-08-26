@@ -1,6 +1,6 @@
 
 export const ROLES = {
-  ADMIN: 'ADMIN',
+  ADMIN: 'SYSTEM_ADMIN',
   UNIVERSITY: 'UNIVERSITY',
   STUDENT: 'STUDENT'
 }

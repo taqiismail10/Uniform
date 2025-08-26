@@ -1,7 +1,13 @@
+import AdminProtectedRoutes from '@/utils/AdminProtectedRoutes'
+import { ROLES } from '@/utils/role'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/admin/')({
-  component: RouteComponent,
+  component: () => (
+    <AdminProtectedRoutes role={ROLES.ADMIN} >
+      <RouteComponent />
+    </AdminProtectedRoutes>
+  ),
 })
 
 function RouteComponent() {

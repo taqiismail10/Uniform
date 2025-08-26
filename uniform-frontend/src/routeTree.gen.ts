@@ -24,11 +24,10 @@ import { Route as StudentDashboardRouteImport } from './routes/student/dashboard
 import { Route as InstitutionDashboardRouteImport } from './routes/institution/dashboard'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorized'
-import { Route as AuthStudentLoginRouteImport } from './routes/_auth/studentLogin'
-import { Route as AuthRegistrationRouteImport } from './routes/_auth/registration'
-import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AuthInstitutionLoginRouteImport } from './routes/_auth/institutionLogin'
-import { Route as AuthAdminLoginRouteImport } from './routes/_auth/adminLogin'
+import { Route as AuthStudentStudentLoginRouteImport } from './routes/_auth/student/studentLogin'
+import { Route as AuthStudentRegistrationRouteImport } from './routes/_auth/student/registration'
+import { Route as AuthInstitutionInstitutionLoginRouteImport } from './routes/_auth/institution/institutionLogin'
+import { Route as AuthAdminAdminLoginRouteImport } from './routes/_auth/admin/adminLogin'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -105,29 +104,25 @@ const AuthUnauthorizedRoute = AuthUnauthorizedRouteImport.update({
   path: '/unauthorized',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthStudentLoginRoute = AuthStudentLoginRouteImport.update({
-  id: '/_auth/studentLogin',
-  path: '/studentLogin',
+const AuthStudentStudentLoginRoute = AuthStudentStudentLoginRouteImport.update({
+  id: '/_auth/student/studentLogin',
+  path: '/student/studentLogin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRegistrationRoute = AuthRegistrationRouteImport.update({
-  id: '/_auth/registration',
-  path: '/registration',
+const AuthStudentRegistrationRoute = AuthStudentRegistrationRouteImport.update({
+  id: '/_auth/student/registration',
+  path: '/student/registration',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/_auth/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthInstitutionLoginRoute = AuthInstitutionLoginRouteImport.update({
-  id: '/_auth/institutionLogin',
-  path: '/institutionLogin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthAdminLoginRoute = AuthAdminLoginRouteImport.update({
-  id: '/_auth/adminLogin',
-  path: '/adminLogin',
+const AuthInstitutionInstitutionLoginRoute =
+  AuthInstitutionInstitutionLoginRouteImport.update({
+    id: '/_auth/institution/institutionLogin',
+    path: '/institution/institutionLogin',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthAdminAdminLoginRoute = AuthAdminAdminLoginRouteImport.update({
+  id: '/_auth/admin/adminLogin',
+  path: '/admin/adminLogin',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -140,11 +135,6 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/adminLogin': typeof AuthAdminLoginRoute
-  '/institutionLogin': typeof AuthInstitutionLoginRoute
-  '/login': typeof AuthLoginRoute
-  '/registration': typeof AuthRegistrationRoute
-  '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
@@ -152,6 +142,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminIndexRoute
   '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
+  '/admin/adminLogin': typeof AuthAdminAdminLoginRoute
+  '/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
+  '/student/registration': typeof AuthStudentRegistrationRoute
+  '/student/studentLogin': typeof AuthStudentStudentLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -162,11 +156,6 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/adminLogin': typeof AuthAdminLoginRoute
-  '/institutionLogin': typeof AuthInstitutionLoginRoute
-  '/login': typeof AuthLoginRoute
-  '/registration': typeof AuthRegistrationRoute
-  '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
@@ -174,6 +163,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
+  '/admin/adminLogin': typeof AuthAdminAdminLoginRoute
+  '/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
+  '/student/registration': typeof AuthStudentRegistrationRoute
+  '/student/studentLogin': typeof AuthStudentStudentLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -185,11 +178,6 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/_auth/adminLogin': typeof AuthAdminLoginRoute
-  '/_auth/institutionLogin': typeof AuthInstitutionLoginRoute
-  '/_auth/login': typeof AuthLoginRoute
-  '/_auth/registration': typeof AuthRegistrationRoute
-  '/_auth/studentLogin': typeof AuthStudentLoginRoute
   '/_auth/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
@@ -197,6 +185,10 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/institution/': typeof InstitutionIndexRoute
   '/student/': typeof StudentIndexRoute
+  '/_auth/admin/adminLogin': typeof AuthAdminAdminLoginRoute
+  '/_auth/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
+  '/_auth/student/registration': typeof AuthStudentRegistrationRoute
+  '/_auth/student/studentLogin': typeof AuthStudentStudentLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -209,11 +201,6 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/terms'
-    | '/adminLogin'
-    | '/institutionLogin'
-    | '/login'
-    | '/registration'
-    | '/studentLogin'
     | '/unauthorized'
     | '/admin/dashboard'
     | '/institution/dashboard'
@@ -221,6 +208,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/institution'
     | '/student'
+    | '/admin/adminLogin'
+    | '/institution/institutionLogin'
+    | '/student/registration'
+    | '/student/studentLogin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -231,11 +222,6 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/terms'
-    | '/adminLogin'
-    | '/institutionLogin'
-    | '/login'
-    | '/registration'
-    | '/studentLogin'
     | '/unauthorized'
     | '/admin/dashboard'
     | '/institution/dashboard'
@@ -243,6 +229,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/institution'
     | '/student'
+    | '/admin/adminLogin'
+    | '/institution/institutionLogin'
+    | '/student/registration'
+    | '/student/studentLogin'
   id:
     | '__root__'
     | '/'
@@ -253,11 +243,6 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/terms'
-    | '/_auth/adminLogin'
-    | '/_auth/institutionLogin'
-    | '/_auth/login'
-    | '/_auth/registration'
-    | '/_auth/studentLogin'
     | '/_auth/unauthorized'
     | '/admin/dashboard'
     | '/institution/dashboard'
@@ -265,6 +250,10 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/institution/'
     | '/student/'
+    | '/_auth/admin/adminLogin'
+    | '/_auth/institution/institutionLogin'
+    | '/_auth/student/registration'
+    | '/_auth/student/studentLogin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -276,11 +265,6 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
-  AuthAdminLoginRoute: typeof AuthAdminLoginRoute
-  AuthInstitutionLoginRoute: typeof AuthInstitutionLoginRoute
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthRegistrationRoute: typeof AuthRegistrationRoute
-  AuthStudentLoginRoute: typeof AuthStudentLoginRoute
   AuthUnauthorizedRoute: typeof AuthUnauthorizedRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   InstitutionDashboardRoute: typeof InstitutionDashboardRoute
@@ -288,6 +272,10 @@ export interface RootRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   InstitutionIndexRoute: typeof InstitutionIndexRoute
   StudentIndexRoute: typeof StudentIndexRoute
+  AuthAdminAdminLoginRoute: typeof AuthAdminAdminLoginRoute
+  AuthInstitutionInstitutionLoginRoute: typeof AuthInstitutionInstitutionLoginRoute
+  AuthStudentRegistrationRoute: typeof AuthStudentRegistrationRoute
+  AuthStudentStudentLoginRoute: typeof AuthStudentStudentLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -397,39 +385,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthUnauthorizedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/studentLogin': {
-      id: '/_auth/studentLogin'
-      path: '/studentLogin'
-      fullPath: '/studentLogin'
-      preLoaderRoute: typeof AuthStudentLoginRouteImport
+    '/_auth/student/studentLogin': {
+      id: '/_auth/student/studentLogin'
+      path: '/student/studentLogin'
+      fullPath: '/student/studentLogin'
+      preLoaderRoute: typeof AuthStudentStudentLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/registration': {
-      id: '/_auth/registration'
-      path: '/registration'
-      fullPath: '/registration'
-      preLoaderRoute: typeof AuthRegistrationRouteImport
+    '/_auth/student/registration': {
+      id: '/_auth/student/registration'
+      path: '/student/registration'
+      fullPath: '/student/registration'
+      preLoaderRoute: typeof AuthStudentRegistrationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/login': {
-      id: '/_auth/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
+    '/_auth/institution/institutionLogin': {
+      id: '/_auth/institution/institutionLogin'
+      path: '/institution/institutionLogin'
+      fullPath: '/institution/institutionLogin'
+      preLoaderRoute: typeof AuthInstitutionInstitutionLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/institutionLogin': {
-      id: '/_auth/institutionLogin'
-      path: '/institutionLogin'
-      fullPath: '/institutionLogin'
-      preLoaderRoute: typeof AuthInstitutionLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_auth/adminLogin': {
-      id: '/_auth/adminLogin'
-      path: '/adminLogin'
-      fullPath: '/adminLogin'
-      preLoaderRoute: typeof AuthAdminLoginRouteImport
+    '/_auth/admin/adminLogin': {
+      id: '/_auth/admin/adminLogin'
+      path: '/admin/adminLogin'
+      fullPath: '/admin/adminLogin'
+      preLoaderRoute: typeof AuthAdminAdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -444,11 +425,6 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
-  AuthAdminLoginRoute: AuthAdminLoginRoute,
-  AuthInstitutionLoginRoute: AuthInstitutionLoginRoute,
-  AuthLoginRoute: AuthLoginRoute,
-  AuthRegistrationRoute: AuthRegistrationRoute,
-  AuthStudentLoginRoute: AuthStudentLoginRoute,
   AuthUnauthorizedRoute: AuthUnauthorizedRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   InstitutionDashboardRoute: InstitutionDashboardRoute,
@@ -456,6 +432,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   InstitutionIndexRoute: InstitutionIndexRoute,
   StudentIndexRoute: StudentIndexRoute,
+  AuthAdminAdminLoginRoute: AuthAdminAdminLoginRoute,
+  AuthInstitutionInstitutionLoginRoute: AuthInstitutionInstitutionLoginRoute,
+  AuthStudentRegistrationRoute: AuthStudentRegistrationRoute,
+  AuthStudentStudentLoginRoute: AuthStudentStudentLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

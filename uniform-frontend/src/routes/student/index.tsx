@@ -1,4 +1,4 @@
-import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/student/useAuth'
 import ProtectedRoutes from '@/utils/ProtectedRoutes'
 import { ROLES } from '@/utils/role'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
@@ -20,7 +20,7 @@ function RouteComponent() {
   }
 
   if (!user) {
-    return <Navigate to="/login" />
+    return <Navigate to="/student/studentLogin" />
   }
 
   return (

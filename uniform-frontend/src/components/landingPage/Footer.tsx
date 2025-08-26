@@ -91,13 +91,13 @@ export function Footer() {
               <h3 className="text-lg font-semibold border-b border-gray-800 pb-2">Access</h3>
               <ul className="space-y-3 mt-3">
                 <li>
-                  <Link to="/adminLogin" className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors">
+                  <Link to="/admin/adminLogin" className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors">
                     <Shield className="h-4 w-4" />
                     <span>Admin Login</span>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/institutionLogin" className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors">
+                  <Link to="/institution/institutionLogin" className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors">
                     <Building className="h-4 w-4" />
                     <span>Institution Login</span>
                   </Link>

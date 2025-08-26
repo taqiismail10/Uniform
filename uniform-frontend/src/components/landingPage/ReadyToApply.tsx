@@ -17,7 +17,7 @@ export default function ReadyToApply() {
           <Button
             className="mt-8 md:mt-10 w-full sm:w-4/5 md:w-3/5 lg:w-2/5 xl:w-1/3 flex items-center justify-center px-4 py-4 md:py-6 border border-transparent text-base font-medium rounded-md shadow-sm text-gray-900 bg-white hover:bg-gray-300 transition-all duration-200"
           >
-            <Link to='/registration' className="flex items-center justify-center w-full">
+            <Link to='/student/registration' className="flex items-center justify-center w-full">
               Create Profile
               <ArrowRight className="ml-2 -mr-1 h-5 w-5" />
             </Link>

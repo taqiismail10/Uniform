@@ -1,6 +1,6 @@
 // src/api/profile.ts
 import api from "./axios";
-import type { User } from "@/context/AuthContext";
+import type { User } from "@/context/student/AuthContext";
 import type { AcademicInfo } from "@/components/student/types";
 
 // Get Student Profile

@@ -1,5 +1,5 @@
 // uniform-frontend/src/utils/ProtectedRoutes.tsx
-import { useAuth } from "@/context/useAuth"
+import { useAuth } from "@/context/student/useAuth"
 import { Navigate } from "@tanstack/react-router"
 
 const ProtectedRoutes = (
@@ -23,7 +23,7 @@ const ProtectedRoutes = (
   }
 
   if (!user) {
-    return <Navigate to="/login" />
+    return <Navigate to="/student/studentLogin" />
   }
 
   // Redirect to unauthorized if the user lacks the required role

@@ -4,9 +4,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { GraduationCap, Eye, EyeOff, Calendar, AlertCircle } from 'lucide-react'
+import { GraduationCap, Eye, EyeOff, Calendar, AlertCircle, HomeIcon } from 'lucide-react'
 import { useState } from 'react'
-import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/student/useAuth'
 import { toast } from 'sonner'
 import { registerUser } from '@/api'
 import axios from 'axios'
@@ -66,7 +66,7 @@ function validateYear(year: string): boolean {
   return !isNaN(yearValue) && yearValue >= 1990 && yearValue <= currentYear;
 }
 
-export const Route = createFileRoute('/_auth/registration')({
+export const Route = createFileRoute('/_auth/student/registration')({
   component: RouteComponent,
 })
 
@@ -371,15 +371,17 @@ function RouteComponent() {
     <div className="min-h-screen w-full bg-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg">
         {/* Logo and Title Section */}
-        <div className="text-center pt-8 pb-6">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-gray-900 rounded-full">
-              <GraduationCap className="h-10 w-10 text-white" />
+        <Link to="/" >
+          <div className="text-center pt-8 pb-6">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-gray-900 rounded-full">
+                <GraduationCap className="h-10 w-10 text-white" />
+              </div>
             </div>
+            <h2 className="text-3xl font-bold text-gray-900">Join UniForm</h2>
+            <p className="mt-2 text-gray-600">Centralized University Admission System</p>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Join UniForm</h2>
-          <p className="mt-2 text-gray-600">Centralized University Admission System</p>
-        </div>
+        </Link>
 
         {/* Registration Form */}
         <div className="px-8 pb-8">
@@ -1233,10 +1235,19 @@ function RouteComponent() {
 
           <p className="mt-8 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-gray-900 hover:text-gray-700 transition">
+            <Link to="/student/studentLogin" className="font-medium text-gray-900 hover:text-gray-700 transition">
               Login
             </Link>
           </p>
+
+
+          <Link
+            to='/'
+            className="flex items-center justify-center gap-1 mt-4 font-medium text-sm text-center text-gray-900 hover:text-gray-600 transition"
+          >
+            <HomeIcon className='size-4' />
+            Go Home
+          </Link>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-xs text-center text-gray-500">

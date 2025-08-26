@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/useAuth';
+import { useAuth } from '@/context/student/useAuth';
 import {
   GraduationCap,
   User,
@@ -36,7 +36,7 @@ export default function Header({ userData, activeSection, setActiveSection }: He
     toast.success("Logged Out", {
       description: "You have been successfully logged out."
     });
-    navigate({ to: '/login' });
+    navigate({ to: "/student/studentLogin" });
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
   };

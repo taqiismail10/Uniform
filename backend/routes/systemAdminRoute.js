@@ -1,8 +1,9 @@
+// backend/routes/systemAdminRoute.js
 // import adminAuthController from "../controllers/adminAuthController.js";
 import { Router } from "express";
 import {
-  default as institutionController,
-  default as systemAdminAuthController,
+	default as institutionController,
+	default as systemAdminAuthController,
 } from "../controllers/systemAdminAuthController.js";
 import systemAdminMiddleware from "../middleware/systemAdminMiddleware.js";
 
@@ -12,40 +13,40 @@ router.post("/auth/login", systemAdminAuthController.login);
 
 // System_Admin routes
 router.post(
-  "/admins/create-and-assign",
-  systemAdminMiddleware, // Only SYSTEM_ADMIN can access
-  systemAdminAuthController.createAndAssignInstitutionAdmin
+	"/admins/create-and-assign",
+	systemAdminMiddleware, // Only SYSTEM_ADMIN can access
+	systemAdminAuthController.createAndAssignInstitutionAdmin
 );
 
 router.get(
-  "/admins/profile",
-  systemAdminMiddleware, // Only SYSTEM_ADMIN can access
-  systemAdminAuthController.index
+	"/admins/profile",
+	systemAdminMiddleware, // Only SYSTEM_ADMIN can access
+	systemAdminAuthController.index
 );
 
 // Institution routes
 router.post(
-  "/institutions",
-  systemAdminMiddleware,
-  institutionController.createInstitution
+	"/institutions",
+	systemAdminMiddleware,
+	institutionController.createInstitution
 );
 
 router.delete(
-  "/institutions/:institutionId",
-  systemAdminMiddleware,
-  institutionController.deleteInstitution
+	"/institutions/:institutionId",
+	systemAdminMiddleware,
+	institutionController.deleteInstitution
 );
 
 router.patch(
-  "/admins/:adminId/unassign-institution",
-  systemAdminMiddleware, // Only SYSTEM_ADMIN allowed
-  systemAdminAuthController.unassignInstitutionAdmin
+	"/admins/:adminId/unassign-institution",
+	systemAdminMiddleware, // Only SYSTEM_ADMIN allowed
+	systemAdminAuthController.unassignInstitutionAdmin
 );
 
 router.get(
-  "/institutions",
-  systemAdminMiddleware,
-  systemAdminAuthController.fetchInstitutions
+	"/institutions",
+	systemAdminMiddleware,
+	systemAdminAuthController.fetchInstitutions
 );
 
 export default router;

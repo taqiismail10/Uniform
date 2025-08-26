@@ -1,6 +1,6 @@
 // src/api/auth.ts
 import api from "./axios";
-import type { User } from "@/context/AuthContext";
+import type { User } from "@/context/student/AuthContext";
 import { getUserProfile } from "./profile";
 
 // Register User

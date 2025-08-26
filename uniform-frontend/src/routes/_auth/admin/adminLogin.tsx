@@ -1,15 +1,15 @@
-import { userLogin } from '@/api'
+// uniform-frontend/src/routes/_auth/admin/adminLogin.tsx
+import { adminLogin } from '@/api/admin'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/admin/useAuth'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Shield, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Toaster } from 'sonner'
 
-export const Route = createFileRoute('/_auth/adminLogin')({
+export const Route = createFileRoute('/_auth/admin/adminLogin')({
   component: RouteComponent,
 })
 
@@ -31,9 +31,12 @@ function RouteComponent() {
       });
       return;
     }
+
     setIsLoading(true);
+
     try {
-      const user = await userLogin(adminId, password);
+      const user = await adminLogin(adminId, password, "SYSTEM_ADMIN");
+
       if (user) {
         authLogin(user);
         toast.success("Login Successful", {
@@ -57,7 +60,6 @@ function RouteComponent() {
 
   return (
     <>
-      <Toaster position="top-right" richColors />
       <div className="flex min-h-screen w-full bg-gray-100">
         <div className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-white shadow-lg">
           {/* Left side - Image and Info */}
@@ -93,7 +95,7 @@ function RouteComponent() {
             </div>
 
             <div className="mb-10">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Login</h1>
               <p className="text-gray-600">Access the system administration portal</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">

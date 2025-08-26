@@ -128,10 +128,10 @@ const NavBar = () => {
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
               <Button variant="ghost" asChild>
-                <Link to="/studentLogin">Login</Link>
+                <Link to="/student/studentLogin">Login</Link>
               </Button>
               <Button asChild>
-                <Link to="/registration">Registration</Link>
+                <Link to="/student/registration">Registration</Link>
               </Button>
             </div>
             {/* Mobile menu button */}
@@ -207,7 +207,7 @@ const NavBar = () => {
               className="w-full justify-start"
               asChild
             >
-              <Link to="/studentLogin" onClick={closeMenu}>Login</Link>
+              <Link to="/student/studentLogin" onClick={closeMenu}>Login</Link>
             </Button>
           </div>
           <div>
@@ -215,7 +215,7 @@ const NavBar = () => {
               className="w-full"
               asChild
             >
-              <Link to="/registration" onClick={closeMenu}>Registration</Link>
+              <Link to="/student/registration" onClick={closeMenu}>Registration</Link>
             </Button>
           </div>
         </div>
