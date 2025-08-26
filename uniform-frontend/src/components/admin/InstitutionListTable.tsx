@@ -40,6 +40,7 @@ interface InstitutionListTableProps {
   onSort: (field: 'name' | 'createdAt') => void;
   onDelete: (institution: InstitutionWithCategory) => void;
   onEdit: (institution: InstitutionWithCategory) => void;
+  query?: string;
 }
 
 export function InstitutionListTable({
@@ -47,7 +48,8 @@ export function InstitutionListTable({
   loading,
   onSort,
   onDelete,
-  onEdit
+  onEdit,
+  query = ''
 }: InstitutionListTableProps) {
   // Function to get category badge color based on category name
   const getCategoryBadgeColor = (categoryName: string) => {
@@ -80,6 +82,31 @@ export function InstitutionListTable({
         return 'bg-cyan-100 text-cyan-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const highlight = (text: string | undefined | null, q: string) => {
+    const t = text ?? '';
+    if (!q.trim()) return t;
+    try {
+      const re = new RegExp(`(${escapeRegExp(q)})`, 'ig');
+      const parts = t.split(re);
+      return (
+        <>
+          {parts.map((part, idx) =>
+            re.test(part) ? (
+              <mark key={idx} className="bg-yellow-100 px-0.5 rounded">
+                {part}
+              </mark>
+            ) : (
+              <span key={idx}>{part}</span>
+            )
+          )}
+        </>
+      );
+    } catch {
+      return t;
     }
   };
 
@@ -131,13 +158,13 @@ export function InstitutionListTable({
                 <TableCell>
                   <div className="flex items-center">
                     <Building2 className="mr-2 h-4 w-4 text-gray-500" />
-                    {institution.name}
+                    <span>{highlight(institution.name, query)}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   {institution.InstitutionCategory?.name ? (
                     <Badge className={getCategoryBadgeColor(institution.InstitutionCategory.name)}>
-                      {institution.InstitutionCategory.name}
+                      {highlight(institution.InstitutionCategory.name, query)}
                     </Badge>
                   ) : (
                     <Badge variant="outline">Uncategorized</Badge>

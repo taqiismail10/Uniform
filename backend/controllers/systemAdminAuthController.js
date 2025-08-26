@@ -304,14 +304,11 @@ class systemAdminAuthController {
 
 	static async fetchInstitutions(req, res) {
 		try {
-			// Include related InstitutionCategory so frontend can show category name
+			// Return all institutions with category; frontend handles search/sort/pagination
 			const institutions = await prisma.institution.findMany({
-				include: {
-					InstitutionCategory: true,
-				},
+				include: { InstitutionCategory: true },
 			});
-			// institutionService.getAllInstitutions();
-			return res.status(200).json({ status: 200, institutions });
+			return res.status(200).json({ institutions });
 		} catch (error) {
 			if (error instanceof errors.E_VALIDATION_ERROR) {
 				// console.log(error.messages)

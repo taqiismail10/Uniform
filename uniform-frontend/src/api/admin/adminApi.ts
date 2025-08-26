@@ -17,10 +17,8 @@ export const adminApi = {
   },
 
   // Institutions
-  getInstitutions: async (page = 1, limit = 10, search = ''): Promise<{ institutions: Institution[], total: number }> => {
-    const response = await api.get('/system/institutions', {
-      params: { page, limit, search }
-    });
+  getInstitutions: async (): Promise<{ institutions: Institution[] }> => {
+    const response = await api.get('/system/institutions');
     return response.data;
   },
 

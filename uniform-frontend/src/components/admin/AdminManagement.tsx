@@ -27,7 +27,6 @@ import {
 
 export function AdminManagement() {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // Create admin form state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -45,14 +44,13 @@ export function AdminManagement() {
 
   const fetchInstitutions = async () => {
     try {
-      setLoading(true);
-      const response = await adminApi.getInstitutions(1, 1000); // Get all institutions for the dropdown
+      const response = await adminApi.getInstitutions(); // Get all institutions for the dropdown
       setInstitutions(response.institutions);
     } catch (error) {
       toast.error('Failed to load institutions');
       console.error('Error fetching institutions:', error);
     } finally {
-      setLoading(false);
+      // no-op
     }
   };
 

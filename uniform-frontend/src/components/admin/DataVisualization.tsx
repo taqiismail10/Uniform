@@ -45,7 +45,7 @@ export function DataVisualization() {
   const fetchInstitutions = async () => {
     try {
       setLoading(true);
-      const response = await adminApi.getInstitutions(1, 100); // Get a sample for the table
+      const response = await adminApi.getInstitutions(); // Get institutions
       setInstitutions(response.institutions);
     } catch (error) {
       toast.error('Failed to load institutions');

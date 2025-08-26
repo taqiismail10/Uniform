@@ -27,7 +27,7 @@ export function DashboardOverview() {
   const fetchInstitutions = async () => {
     try {
       setLoading(true);
-      const response = await adminApi.getInstitutions(1, 100); // Get up to 100 institutions
+      const response = await adminApi.getInstitutions();
       setInstitutions(response.institutions);
     } catch (error) {
       toast.error('Failed to load dashboard data');

@@ -1,8 +1,9 @@
 // uniform-frontend/src/components/admin/InstitutionManagement.tsx
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -14,23 +15,28 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { adminApi } from '@/api/admin/adminApi';
-import {
-  Building2,
-  Search,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
+import { Building2, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { CreateInstitutionDialog } from './CreateInstitutionDialog';
 import { InstitutionListTable, type InstitutionWithCategory } from './InstitutionListTable';
 
-export function InstitutionManagement() {
+interface InstitutionManagementProps {
+  page?: number;
+  search?: string;
+  sortFieldProp?: 'name' | 'createdAt';
+  sortDirectionProp?: 'asc' | 'desc';
+  onPageChange?: (page: number) => void;
+  onSearchChange?: (search: string) => void;
+  onSortChange?: (field: 'name' | 'createdAt', direction: 'asc' | 'desc') => void;
+}
+
+export function InstitutionManagement(props: InstitutionManagementProps = {}) {
   const [institutions, setInstitutions] = useState<InstitutionWithCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  // Local input value for search (keeps typing responsive)
+  const [inputValue, setInputValue] = useState(props.search ?? '');
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortField, setSortField] = useState<'name' | 'createdAt'>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
@@ -38,28 +44,43 @@ export function InstitutionManagement() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [institutionToDelete, setInstitutionToDelete] = useState<InstitutionWithCategory | null>(null);
 
-  // Memoized fetchInstitutions function
+  // Keep local input in sync if parent controls search via URL
+  useEffect(() => {
+    if (props.search !== undefined && props.search !== inputValue) {
+      setInputValue(props.search);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.search]);
+
+  // Fetch all institutions once; front-end will handle search/sort/pagination
   const fetchInstitutions = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await adminApi.getInstitutions(
-        currentPage,
-        itemsPerPage,
-        searchTerm
-      );
-      setInstitutions(response.institutions);
-      setTotalItems(response.total);
+      const response = await adminApi.getInstitutions();
+      setInstitutions(response.institutions || []);
     } catch (error) {
       toast.error('Failed to load institutions');
       console.error('Error fetching institutions:', error);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, searchTerm]);
+  }, []);
 
   useEffect(() => {
     fetchInstitutions();
   }, [fetchInstitutions]);
+
+  // Debounce external search updates when controlled via props
+  useEffect(() => {
+    if (props.onSearchChange) {
+      const id = setTimeout(() => {
+        props.onSearchChange?.(inputValue);
+        props.onPageChange?.(1);
+      }, 250);
+      return () => clearTimeout(id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue]);
 
   const handleDeleteInstitution = async () => {
     if (!institutionToDelete) return;
@@ -87,15 +108,68 @@ export function InstitutionManagement() {
   };
 
   const handleSort = (field: 'name' | 'createdAt') => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    let nextDirection: 'asc' | 'desc' = 'asc';
+    if ((props.sortFieldProp ?? sortField) === field) {
+      const currentDir = props.sortDirectionProp ?? sortDirection;
+      nextDirection = currentDir === 'asc' ? 'desc' : 'asc';
+    }
+    if (props.onSortChange) {
+      props.onSortChange(field, nextDirection);
     } else {
-      setSortField(field);
-      setSortDirection('asc');
+      if (sortField === field) {
+        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortField(field);
+        setSortDirection('asc');
+      }
+      setCurrentPage(1);
     }
   };
 
+  // Derived client-side filtering, sorting, pagination
+  const query = (props.onSearchChange ? inputValue : inputValue).trim().toLowerCase();
+
+  const filteredInstitutions = useMemo(() => {
+    if (!query) return institutions;
+    return institutions.filter((inst) => {
+      const cat = inst.InstitutionCategory?.name?.toLowerCase() || '';
+      return (
+        inst.name.toLowerCase().includes(query) ||
+        (inst.description?.toLowerCase().includes(query) ?? false) ||
+        (inst.email?.toLowerCase().includes(query) ?? false) ||
+        (inst.address?.toLowerCase().includes(query) ?? false) ||
+        cat.includes(query)
+      );
+    });
+  }, [institutions, query]);
+
+  const sortedInstitutions = useMemo(() => {
+    const field = props.sortFieldProp ?? sortField;
+    const dir = props.sortDirectionProp ?? sortDirection;
+    const arr = [...filteredInstitutions];
+    arr.sort((a, b) => {
+      if (field === 'name') {
+        const an = a.name.toLowerCase();
+        const bn = b.name.toLowerCase();
+        return dir === 'asc' ? an.localeCompare(bn) : bn.localeCompare(an);
+      } else {
+        const at = new Date(a.createdAt).getTime();
+        const bt = new Date(b.createdAt).getTime();
+        return dir === 'asc' ? at - bt : bt - at;
+      }
+    });
+    return arr;
+  }, [filteredInstitutions, sortField, sortDirection, props.sortFieldProp, props.sortDirectionProp]);
+
+  const effectivePage = props.page ?? currentPage;
+  const totalItems = sortedInstitutions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIdx = (effectivePage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const pageInstitutions = useMemo(
+    () => sortedInstitutions.slice(startIdx, endIdx),
+    [sortedInstitutions, startIdx, endIdx]
+  );
 
   // Function to get category badge color based on category name
   const getCategoryBadgeColor = (categoryName: string) => {
@@ -145,40 +219,85 @@ export function InstitutionManagement() {
         <CardHeader>
           <CardTitle>Institutions List</CardTitle>
           <CardDescription>View and manage all institutions in the system</CardDescription>
-          <div className="flex items-center space-x-2">
-            <div className="relative flex-1">
+          <div className="flex items-center flex-wrap gap-3">
+            <div className="relative flex-1 min-w-[260px]">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
               <Input
                 placeholder="Search institutions..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 pr-8"
+                value={inputValue}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setInputValue(val);
+                  if (!props.onSearchChange) {
+                    setCurrentPage(1);
+                  }
+                }}
               />
+              {inputValue && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-2.5 text-gray-500 hover:text-gray-700"
+                  onClick={() => {
+                    setInputValue('');
+                    if (props.onSearchChange) {
+                      props.onSearchChange('');
+                      props.onPageChange?.(1);
+                    } else {
+                      setCurrentPage(1);
+                    }
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Rows per page</span>
+              <Select value={String(itemsPerPage)} onValueChange={(v) => { setItemsPerPage(parseInt(v)); setCurrentPage(1); }}>
+                <SelectTrigger className="w-[84px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <InstitutionListTable
-            institutions={institutions}
+            institutions={pageInstitutions}
             loading={loading}
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
             onDelete={openDeleteDialog}
             onEdit={handleEditInstitution}
+            query={query}
           />
 
           {/* Pagination */}
           <div className="flex items-center justify-between space-x-2 py-4">
             <div className="text-sm text-gray-500">
-              Showing {institutions.length} of {totalItems} institutions
+              {totalItems === 0 ? 'No results' : (
+                <>Showing {Math.min(totalItems, startIdx + 1)}–{Math.min(totalItems, endIdx)} of {totalItems} institutions</>
+              )}
             </div>
             <div className="flex space-x-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage <= 1}
+                onClick={() => {
+                  const prev = Math.max(1, (props.page ?? currentPage) - 1);
+                  if (props.onPageChange) props.onPageChange(prev); else setCurrentPage(prev);
+                }}
+                disabled={(props.page ?? currentPage) <= 1}
               >
                 <ChevronLeft className="h-4 w-4" />
                 Previous
@@ -186,8 +305,11 @@ export function InstitutionManagement() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage >= totalPages}
+                onClick={() => {
+                  const next = Math.min(totalPages, (props.page ?? currentPage) + 1);
+                  if (props.onPageChange) props.onPageChange(next); else setCurrentPage(next);
+                }}
+                disabled={(props.page ?? currentPage) >= totalPages}
               >
                 Next
                 <ChevronRight className="h-4 w-4" />
