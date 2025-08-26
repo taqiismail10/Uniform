@@ -1,13 +1,13 @@
-// uniform-frontend/src/routes/admin/dashboard.tsx
+// uniform-frontend/src/routes/admin/institutions.tsx
 
 import AdminProtectedRoutes from '@/utils/AdminProtectedRoutes'
 import { ROLES } from '@/utils/role'
 import { createFileRoute } from '@tanstack/react-router'
 import { AdminLayout } from '@/components/admin/AdminLayout'
-import { DashboardOverview } from '@/components/admin/DashboardOverview'
+import { InstitutionManagement } from '@/components/admin/InstitutionManagement'
 import { useNavigate } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/admin/dashboard')({
+export const Route = createFileRoute('/admin/institutions')({
   component: () => (
     <AdminProtectedRoutes role={ROLES.ADMIN}>
       <RouteComponent />
@@ -38,8 +38,9 @@ function RouteComponent() {
   }
 
   return (
-    <AdminLayout activeTab={'dashboard'} onTabChange={onTabChange}>
-      <DashboardOverview />
+    <AdminLayout activeTab={'institutions'} onTabChange={onTabChange}>
+      <InstitutionManagement />
     </AdminLayout>
   )
 }
+

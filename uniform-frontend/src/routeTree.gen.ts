@@ -22,7 +22,12 @@ import { Route as InstitutionIndexRouteImport } from './routes/institution/index
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as StudentDashboardRouteImport } from './routes/student/dashboard'
 import { Route as InstitutionDashboardRouteImport } from './routes/institution/dashboard'
+import { Route as AdminVisualizationRouteImport } from './routes/admin/visualization'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminProfileRouteImport } from './routes/admin/profile'
+import { Route as AdminInstitutionsRouteImport } from './routes/admin/institutions'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
 import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorized'
 import { Route as AuthStudentStudentLoginRouteImport } from './routes/_auth/student/studentLogin'
 import { Route as AuthStudentRegistrationRouteImport } from './routes/_auth/student/registration'
@@ -94,9 +99,34 @@ const InstitutionDashboardRoute = InstitutionDashboardRouteImport.update({
   path: '/institution/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminVisualizationRoute = AdminVisualizationRouteImport.update({
+  id: '/admin/visualization',
+  path: '/admin/visualization',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/admin/profile',
+  path: '/admin/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminInstitutionsRoute = AdminInstitutionsRouteImport.update({
+  id: '/admin/institutions',
+  path: '/admin/institutions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAdminsRoute = AdminAdminsRouteImport.update({
+  id: '/admin/admins',
+  path: '/admin/admins',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthUnauthorizedRoute = AuthUnauthorizedRouteImport.update({
@@ -136,7 +166,12 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/visualization': typeof AdminVisualizationRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin': typeof AdminIndexRoute
@@ -157,7 +192,12 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/visualization': typeof AdminVisualizationRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin': typeof AdminIndexRoute
@@ -179,7 +219,12 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_auth/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/visualization': typeof AdminVisualizationRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin/': typeof AdminIndexRoute
@@ -202,7 +247,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/unauthorized'
+    | '/admin/admins'
     | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/profile'
+    | '/admin/settings'
+    | '/admin/visualization'
     | '/institution/dashboard'
     | '/student/dashboard'
     | '/admin'
@@ -223,7 +273,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/unauthorized'
+    | '/admin/admins'
     | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/profile'
+    | '/admin/settings'
+    | '/admin/visualization'
     | '/institution/dashboard'
     | '/student/dashboard'
     | '/admin'
@@ -244,7 +299,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/_auth/unauthorized'
+    | '/admin/admins'
     | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/profile'
+    | '/admin/settings'
+    | '/admin/visualization'
     | '/institution/dashboard'
     | '/student/dashboard'
     | '/admin/'
@@ -266,7 +326,12 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   AuthUnauthorizedRoute: typeof AuthUnauthorizedRoute
+  AdminAdminsRoute: typeof AdminAdminsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminInstitutionsRoute: typeof AdminInstitutionsRoute
+  AdminProfileRoute: typeof AdminProfileRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminVisualizationRoute: typeof AdminVisualizationRoute
   InstitutionDashboardRoute: typeof InstitutionDashboardRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -371,11 +436,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstitutionDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/visualization': {
+      id: '/admin/visualization'
+      path: '/admin/visualization'
+      fullPath: '/admin/visualization'
+      preLoaderRoute: typeof AdminVisualizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/admin/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/institutions': {
+      id: '/admin/institutions'
+      path: '/admin/institutions'
+      fullPath: '/admin/institutions'
+      preLoaderRoute: typeof AdminInstitutionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/admins': {
+      id: '/admin/admins'
+      path: '/admin/admins'
+      fullPath: '/admin/admins'
+      preLoaderRoute: typeof AdminAdminsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/unauthorized': {
@@ -426,7 +526,12 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   AuthUnauthorizedRoute: AuthUnauthorizedRoute,
+  AdminAdminsRoute: AdminAdminsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminInstitutionsRoute: AdminInstitutionsRoute,
+  AdminProfileRoute: AdminProfileRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminVisualizationRoute: AdminVisualizationRoute,
   InstitutionDashboardRoute: InstitutionDashboardRoute,
   StudentDashboardRoute: StudentDashboardRoute,
   AdminIndexRoute: AdminIndexRoute,

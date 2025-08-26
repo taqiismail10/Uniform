@@ -1,13 +1,13 @@
-// uniform-frontend/src/routes/admin/dashboard.tsx
+// uniform-frontend/src/routes/admin/profile.tsx
 
 import AdminProtectedRoutes from '@/utils/AdminProtectedRoutes'
 import { ROLES } from '@/utils/role'
 import { createFileRoute } from '@tanstack/react-router'
 import { AdminLayout } from '@/components/admin/AdminLayout'
-import { DashboardOverview } from '@/components/admin/DashboardOverview'
 import { useNavigate } from '@tanstack/react-router'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export const Route = createFileRoute('/admin/dashboard')({
+export const Route = createFileRoute('/admin/profile')({
   component: () => (
     <AdminProtectedRoutes role={ROLES.ADMIN}>
       <RouteComponent />
@@ -38,8 +38,16 @@ function RouteComponent() {
   }
 
   return (
-    <AdminLayout activeTab={'dashboard'} onTabChange={onTabChange}>
-      <DashboardOverview />
+    <AdminLayout activeTab={'profile'} onTabChange={onTabChange}>
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-600">System admin profile details will appear here.</p>
+        </CardContent>
+      </Card>
     </AdminLayout>
   )
 }
+

@@ -1,5 +1,6 @@
 // uniform-frontend/src/components/admin/Header.tsx
 import { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +44,7 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
   const [adminProfile, setAdminProfile] = useState<SystemAdmin | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAdminProfile();
@@ -75,6 +77,27 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
   ];
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
+    // Also navigate to the corresponding route
+    switch (tab) {
+      case 'dashboard':
+        navigate({ to: '/admin/dashboard' });
+        break;
+      case 'institutions':
+        navigate({ to: '/admin/institutions' });
+        break;
+      case 'admins':
+        navigate({ to: '/admin/admins' });
+        break;
+      case 'visualization':
+        navigate({ to: '/admin/visualization' });
+        break;
+      case 'profile':
+        navigate({ to: '/admin/profile' });
+        break;
+      case 'settings':
+        navigate({ to: '/admin/settings' });
+        break;
+    }
     setIsMobileMenuOpen(false);
   };
 
@@ -151,11 +174,11 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleTabChange('profile')}>
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleTabChange('settings')}>
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
@@ -225,11 +248,11 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
                           </Button>
                         </div>
                         <div className="space-y-1">
-                          <button className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md">
+                          <button className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md" onClick={() => handleTabChange('profile')}>
                             <User className="mr-3 h-5 w-5" />
                             Profile
                           </button>
-                          <button className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md">
+                          <button className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md" onClick={() => handleTabChange('settings')}>
                             <Settings className="mr-3 h-5 w-5" />
                             Settings
                           </button>

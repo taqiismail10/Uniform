@@ -1,13 +1,13 @@
-// uniform-frontend/src/routes/admin/dashboard.tsx
+// uniform-frontend/src/routes/admin/settings.tsx
 
 import AdminProtectedRoutes from '@/utils/AdminProtectedRoutes'
 import { ROLES } from '@/utils/role'
 import { createFileRoute } from '@tanstack/react-router'
 import { AdminLayout } from '@/components/admin/AdminLayout'
-import { DashboardOverview } from '@/components/admin/DashboardOverview'
 import { useNavigate } from '@tanstack/react-router'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export const Route = createFileRoute('/admin/dashboard')({
+export const Route = createFileRoute('/admin/settings')({
   component: () => (
     <AdminProtectedRoutes role={ROLES.ADMIN}>
       <RouteComponent />
@@ -38,8 +38,16 @@ function RouteComponent() {
   }
 
   return (
-    <AdminLayout activeTab={'dashboard'} onTabChange={onTabChange}>
-      <DashboardOverview />
+    <AdminLayout activeTab={'settings'} onTabChange={onTabChange}>
+      <Card>
+        <CardHeader>
+          <CardTitle>Settings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-600">Admin settings appear here.</p>
+        </CardContent>
+      </Card>
     </AdminLayout>
   )
 }
+
