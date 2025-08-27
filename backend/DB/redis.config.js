@@ -10,4 +10,17 @@ const redisCache = redis(
   }
 );
 
+// Prevent unhandled 'error' event from crashing the process when Redis is down
+try {
+  if (redisCache && typeof redisCache.on === 'function') {
+    let warned = false;
+    redisCache.on('error', (err) => {
+      if (!warned) {
+        console.warn(`Redis cache error: ${err?.message || err}`);
+        warned = true;
+      }
+    });
+  }
+} catch (_) {}
+
 export default redisCache;
