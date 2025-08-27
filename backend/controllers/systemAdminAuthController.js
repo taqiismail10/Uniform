@@ -304,11 +304,37 @@ class systemAdminAuthController {
 
 	static async fetchInstitutions(req, res) {
 		try {
-			// Return all institutions with category; frontend handles search/sort/pagination
+			const page = Number(req.query.page) || 1;
+			const limit = Number(req.query.limit) || 1;
+
+			if (page <= 0) {
+				page = 1;
+			}
+
+			if (limit <= 0 || limit > 100) {
+				limit = 5;
+			}
+
+			const skip = (page - 1) * limit;
+
 			const institutions = await prisma.institution.findMany({
-				include: { InstitutionCategory: true },
+				take: limit,
+				skip: skip,
 			});
-			return res.status(200).json({ institutions });
+
+			const totalInstitutions = await prisma.institution.count();
+
+			const totalPages = Math.ceil(totalInstitutions / limit);
+			// institutionService.getAllInstitutions();
+			return res.status(200).json({
+				status: 200,
+				institutions,
+				metadata: {
+					totalPages,
+					currentPage: page,
+					currentLimit: limit,
+				},
+			});
 		} catch (error) {
 			if (error instanceof errors.E_VALIDATION_ERROR) {
 				// console.log(error.messages)

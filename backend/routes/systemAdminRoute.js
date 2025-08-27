@@ -5,6 +5,7 @@ import {
 	default as institutionController,
 	default as systemAdminAuthController,
 } from "../controllers/systemAdminAuthController.js";
+import redisCache from "../DB/redis.config.js";
 import systemAdminMiddleware from "../middleware/systemAdminMiddleware.js";
 
 const router = Router();
@@ -20,6 +21,7 @@ router.post(
 
 router.get(
 	"/admins/profile",
+	redisCache.route(),
 	systemAdminMiddleware, // Only SYSTEM_ADMIN can access
 	systemAdminAuthController.index
 );
@@ -45,6 +47,7 @@ router.patch(
 
 router.get(
 	"/institutions",
+	redisCache.route(),
 	systemAdminMiddleware,
 	systemAdminAuthController.fetchInstitutions
 );
