@@ -106,11 +106,21 @@ class systemAdminAuthController {
 				}
 			}
 
-			// Create institution
+			// Create institution with optional fields
 			const institution = await prisma.institution.create({
 				data: {
 					name: payload.name.trim(),
+					description: payload.description ?? null,
+					address: payload.address ?? null,
+					phone: payload.phone ?? null,
+					email: payload.email ?? null,
+					website: payload.website ?? null,
+					establishedYear: payload.establishedYear ?? null,
+					logoUrl: payload.logoUrl ?? null,
 					institutionCategoryInstitutionCategoryId: categoryId,
+				},
+				include: {
+					InstitutionCategory: true,
 				},
 			});
 
@@ -304,37 +314,36 @@ class systemAdminAuthController {
 
 	static async fetchInstitutions(req, res) {
 		try {
-			const page = Number(req.query.page) || 1;
-			const limit = Number(req.query.limit) || 1;
+			let page = req.query.page !== undefined ? Number(req.query.page) : undefined;
+			let limit = req.query.limit !== undefined ? Number(req.query.limit) : undefined;
 
-			if (page <= 0) {
-				page = 1;
+			const include = { InstitutionCategory: true };
+			const orderBy = { createdAt: 'desc' };
+
+			if (page !== undefined || limit !== undefined) {
+				page = !page || page <= 0 ? 1 : page;
+				limit = !limit || limit <= 0 ? 50 : Math.min(limit, 100);
+				const skip = (page - 1) * limit;
+
+				const [institutions, totalInstitutions] = await Promise.all([
+					prisma.institution.findMany({ take: limit, skip, include, orderBy }),
+					prisma.institution.count(),
+				]);
+
+				const totalPages = Math.ceil(totalInstitutions / limit);
+				return res.status(200).json({
+					status: 200,
+					institutions,
+					metadata: {
+						totalPages,
+						currentPage: page,
+						currentLimit: limit,
+					},
+				});
+			} else {
+				const institutions = await prisma.institution.findMany({ include, orderBy });
+				return res.status(200).json({ status: 200, institutions });
 			}
-
-			if (limit <= 0 || limit > 100) {
-				limit = 5;
-			}
-
-			const skip = (page - 1) * limit;
-
-			const institutions = await prisma.institution.findMany({
-				take: limit,
-				skip: skip,
-			});
-
-			const totalInstitutions = await prisma.institution.count();
-
-			const totalPages = Math.ceil(totalInstitutions / limit);
-			// institutionService.getAllInstitutions();
-			return res.status(200).json({
-				status: 200,
-				institutions,
-				metadata: {
-					totalPages,
-					currentPage: page,
-					currentLimit: limit,
-				},
-			});
 		} catch (error) {
 			if (error instanceof errors.E_VALIDATION_ERROR) {
 				// console.log(error.messages)
@@ -343,6 +352,79 @@ class systemAdminAuthController {
 				return res
 					.status(500)
 					.json({ status: 500, message: "Something went wrong" });
+			}
+		}
+	}
+
+	static async getInstitutionById(req, res) {
+		try {
+			const { institutionId } = req.params;
+			const institution = await prisma.institution.findUnique({
+				where: { institutionId },
+				include: { InstitutionCategory: true },
+			});
+			if (!institution) {
+				return res.status(404).json({ status: 404, message: 'Institution not found' });
+			}
+			return res.status(200).json({ status: 200, institution });
+		} catch (error) {
+			return res.status(500).json({ status: 500, message: 'Something went wrong' });
+		}
+	}
+
+	static async updateInstitution(req, res) {
+		try {
+			const { institutionId } = req.params;
+			const validator = vine.compile(institutionSystemSchema);
+			const payload = await validator.validate(req.body);
+
+			let categoryId = null;
+			if (payload.categoryName !== undefined) {
+				const trimmed = payload.categoryName?.trim() || '';
+				if (trimmed !== '') {
+					const categoryTitleCase = toTitleCase(trimmed);
+					const existingCategory = await prisma.institutionCategory.findFirst({
+						where: { name: { equals: categoryTitleCase, mode: 'insensitive' } },
+					});
+					if (existingCategory) {
+						categoryId = existingCategory.institutionCategoryId;
+					} else {
+						const newCategory = await prisma.institutionCategory.create({
+							data: { name: categoryTitleCase },
+						});
+						categoryId = newCategory.institutionCategoryId;
+					}
+				} else {
+					categoryId = null; // Explicitly clear category if empty string provided
+				}
+			}
+
+			const updated = await prisma.institution.update({
+				where: { institutionId },
+				data: {
+					name: payload.name.trim(),
+					description: payload.description ?? null,
+					address: payload.address ?? null,
+					phone: payload.phone ?? null,
+					email: payload.email ?? null,
+					website: payload.website ?? null,
+					establishedYear: payload.establishedYear ?? null,
+					logoUrl: payload.logoUrl ?? null,
+					// Only set category if provided in payload; otherwise leave unchanged
+					...(payload.categoryName !== undefined
+						? { institutionCategoryInstitutionCategoryId: categoryId }
+						: {}),
+				},
+				include: { InstitutionCategory: true },
+			});
+
+			return res.status(200).json({ status: 200, institution: updated });
+		} catch (error) {
+			if (error instanceof errors.E_VALIDATION_ERROR) {
+				return res.status(400).json({ errors: error.messages });
+			} else {
+				console.error(error);
+				return res.status(500).json({ status: 500, message: 'Something went wrong' });
 			}
 		}
 	}

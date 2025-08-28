@@ -10,6 +10,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Building2, Trash2, Edit, ArrowUpDown } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { format } from 'date-fns';
 
 // Extended type to include InstitutionCategory
@@ -41,6 +42,7 @@ interface InstitutionListTableProps {
   onDelete: (institution: InstitutionWithCategory) => void;
   onEdit: (institution: InstitutionWithCategory) => void;
   query?: string;
+  onRowClick?: (institutionId: string) => void;
 }
 
 export function InstitutionListTable({
@@ -49,7 +51,8 @@ export function InstitutionListTable({
   onSort,
   onDelete,
   onEdit,
-  query = ''
+  query = '',
+  onRowClick,
 }: InstitutionListTableProps) {
   // Function to get category badge color based on category name
   const getCategoryBadgeColor = (categoryName: string) => {
@@ -123,7 +126,6 @@ export function InstitutionListTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">ID</TableHead>
             <TableHead
               className="cursor-pointer flex items-center"
               onClick={() => onSort('name')}
@@ -145,21 +147,35 @@ export function InstitutionListTable({
         <TableBody>
           {institutions.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-4">
+              <TableCell colSpan={4} className="text-center py-4">
                 No institutions found
               </TableCell>
             </TableRow>
           ) : (
             institutions.map((institution) => (
-              <TableRow key={institution.institutionId} className="hover:bg-gray-50">
-                <TableCell className="font-medium">
-                  {institution.institutionId.substring(0, 8)}
-                </TableCell>
+              <TableRow
+                key={institution.institutionId}
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => onRowClick?.(institution.institutionId)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onRowClick?.(institution.institutionId)
+                  }
+                }}
+              >
                 <TableCell>
-                  <div className="flex items-center">
+                  <Link
+                    to={'/admin/institutions/$institutionId'}
+                    params={{ institutionId: institution.institutionId }}
+                    className="flex items-center text-inherit hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Building2 className="mr-2 h-4 w-4 text-gray-500" />
                     <span>{highlight(institution.name, query)}</span>
-                  </div>
+                  </Link>
                 </TableCell>
                 <TableCell>
                   {institution.InstitutionCategory?.name ? (
@@ -178,14 +194,20 @@ export function InstitutionListTable({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onEdit(institution)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(institution)
+                      }}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onDelete(institution)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(institution)
+                      }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

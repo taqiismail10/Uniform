@@ -1,5 +1,5 @@
 // uniform-frontend/src/components/admin/CreateInstitutionDialog.tsx
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -22,6 +22,7 @@ import {
 import { toast } from 'sonner';
 import { adminApi } from '@/api/admin/adminApi';
 import { Plus } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 // Predefined categories for the dropdown
 const INSTITUTION_CATEGORIES = [
@@ -44,6 +45,13 @@ const INSTITUTION_CATEGORIES = [
 interface CreateInstitutionPayload {
   name: string;
   categoryName?: string;
+  description?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  establishedYear?: number;
+  logoUrl?: string;
 }
 
 interface CreateInstitutionDialogProps {
@@ -54,9 +62,17 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
   const [isOpen, setIsOpen] = useState(false);
   const [newInstitution, setNewInstitution] = useState({
     name: '',
-    categoryName: ''
+    categoryName: '',
+    description: '',
+    address: '',
+    phone: '',
+    email: '',
+    website: '',
+    establishedYear: '',
+    logoUrl: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   const handleCreateInstitution = async () => {
     if (!newInstitution.name.trim()) {
@@ -67,15 +83,22 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
     try {
       setIsSubmitting(true);
 
-      // Create properly typed payload
+      // Build payload — backend currently accepts name and optional categoryName.
+      // We include other optional fields for future compatibility.
       const payload: CreateInstitutionPayload = {
-        name: newInstitution.name,
+        name: newInstitution.name.trim(),
+        categoryName: newInstitution.categoryName?.trim() || undefined,
+        description: newInstitution.description?.trim() || undefined,
+        address: newInstitution.address?.trim() || undefined,
+        phone: newInstitution.phone?.trim() || undefined,
+        email: newInstitution.email?.trim() || undefined,
+        website: newInstitution.website?.trim() || undefined,
+        establishedYear:
+          newInstitution.establishedYear && !Number.isNaN(Number(newInstitution.establishedYear))
+            ? Number(newInstitution.establishedYear)
+            : undefined,
+        logoUrl: newInstitution.logoUrl?.trim() || undefined,
       };
-
-      // Only add categoryName if it's provided
-      if (newInstitution.categoryName.trim()) {
-        payload.categoryName = newInstitution.categoryName;
-      }
 
       await adminApi.createInstitution(payload);
 
@@ -83,7 +106,14 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       setIsOpen(false);
       setNewInstitution({
         name: '',
-        categoryName: ''
+        categoryName: '',
+        description: '',
+        address: '',
+        phone: '',
+        email: '',
+        website: '',
+        establishedYear: '',
+        logoUrl: '',
       });
       onInstitutionCreated();
     } catch (error) {
@@ -100,7 +130,14 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       // Reset form when dialog is closed
       setNewInstitution({
         name: '',
-        categoryName: ''
+        categoryName: '',
+        description: '',
+        address: '',
+        phone: '',
+        email: '',
+        website: '',
+        establishedYear: '',
+        logoUrl: '',
       });
     }
   };
@@ -113,17 +150,19 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
           Create Institution
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[640px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Institution</DialogTitle>
           <DialogDescription>
             Add a new educational institution to the system.
           </DialogDescription>
         </DialogHeader>
+        {/* Form body */}
         <div className="grid gap-4 py-4">
+          {/* Name */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Name
+              Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
@@ -131,8 +170,11 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
               onChange={(e) => setNewInstitution({ ...newInstitution, name: e.target.value })}
               className="col-span-3"
               placeholder="Enter institution name"
+              required
             />
           </div>
+
+          {/* Category */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="category" className="text-right">
               Category
@@ -141,7 +183,7 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
               value={newInstitution.categoryName}
               onValueChange={(value) => setNewInstitution({ ...newInstitution, categoryName: value })}
             >
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger id="category" className="col-span-3">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
@@ -152,6 +194,112 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Description */}
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="description" className="text-right mt-2">
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              value={newInstitution.description}
+              onChange={(e) => setNewInstitution({ ...newInstitution, description: e.target.value })}
+              className="col-span-3"
+              placeholder="Brief description"
+              rows={3}
+            />
+          </div>
+
+          {/* Address */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="address" className="text-right">
+              Address
+            </Label>
+            <Input
+              id="address"
+              value={newInstitution.address}
+              onChange={(e) => setNewInstitution({ ...newInstitution, address: e.target.value })}
+              className="col-span-3"
+              placeholder="Street, City, State"
+            />
+          </div>
+
+          {/* Phone */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="phone" className="text-right">
+              Phone
+            </Label>
+            <Input
+              id="phone"
+              value={newInstitution.phone}
+              onChange={(e) => setNewInstitution({ ...newInstitution, phone: e.target.value })}
+              className="col-span-3"
+              placeholder="+1 555 000 1234"
+              inputMode="tel"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="email" className="text-right">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={newInstitution.email}
+              onChange={(e) => setNewInstitution({ ...newInstitution, email: e.target.value })}
+              className="col-span-3"
+              placeholder="contact@institution.edu"
+            />
+          </div>
+
+          {/* Website */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="website" className="text-right">
+              Website
+            </Label>
+            <Input
+              id="website"
+              type="url"
+              value={newInstitution.website}
+              onChange={(e) => setNewInstitution({ ...newInstitution, website: e.target.value })}
+              className="col-span-3"
+              placeholder="https://www.example.edu"
+            />
+          </div>
+
+          {/* Established Year */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="establishedYear" className="text-right">
+              Established
+            </Label>
+            <Input
+              id="establishedYear"
+              type="number"
+              value={newInstitution.establishedYear}
+              onChange={(e) => setNewInstitution({ ...newInstitution, establishedYear: e.target.value })}
+              className="col-span-3"
+              placeholder="YYYY"
+              min={1800}
+              max={currentYear}
+            />
+          </div>
+
+          {/* Logo URL */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="logoUrl" className="text-right">
+              Logo URL
+            </Label>
+            <Input
+              id="logoUrl"
+              type="url"
+              value={newInstitution.logoUrl}
+              onChange={(e) => setNewInstitution({ ...newInstitution, logoUrl: e.target.value })}
+              className="col-span-3"
+              placeholder="https://..."
+            />
           </div>
         </div>
         <DialogFooter>

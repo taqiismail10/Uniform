@@ -34,9 +34,21 @@ router.post(
 );
 
 router.delete(
-	"/institutions/:institutionId",
-	systemAdminMiddleware,
-	institutionController.deleteInstitution
+    "/institutions/:institutionId",
+    systemAdminMiddleware,
+    institutionController.deleteInstitution
+);
+
+router.get(
+    "/institutions/:institutionId",
+    systemAdminMiddleware,
+    institutionController.getInstitutionById
+);
+
+router.put(
+    "/institutions/:institutionId",
+    systemAdminMiddleware,
+    institutionController.updateInstitution
 );
 
 router.patch(

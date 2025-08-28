@@ -29,6 +29,7 @@ import { Route as AdminInstitutionsRouteImport } from './routes/admin/institutio
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
 import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorized'
+import { Route as AdminInstitutionsInstitutionIdRouteImport } from './routes/admin/institutions.$institutionId'
 import { Route as AuthStudentStudentLoginRouteImport } from './routes/_auth/student/studentLogin'
 import { Route as AuthStudentRegistrationRouteImport } from './routes/_auth/student/registration'
 import { Route as AuthInstitutionInstitutionLoginRouteImport } from './routes/_auth/institution/institutionLogin'
@@ -134,6 +135,12 @@ const AuthUnauthorizedRoute = AuthUnauthorizedRouteImport.update({
   path: '/unauthorized',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminInstitutionsInstitutionIdRoute =
+  AdminInstitutionsInstitutionIdRouteImport.update({
+    id: '/$institutionId',
+    path: '/$institutionId',
+    getParentRoute: () => AdminInstitutionsRoute,
+  } as any)
 const AuthStudentStudentLoginRoute = AuthStudentStudentLoginRouteImport.update({
   id: '/_auth/student/studentLogin',
   path: '/student/studentLogin',
@@ -168,7 +175,7 @@ export interface FileRoutesByFullPath {
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/institutions': typeof AdminInstitutionsRouteWithChildren
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/visualization': typeof AdminVisualizationRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
   '/student/registration': typeof AuthStudentRegistrationRoute
   '/student/studentLogin': typeof AuthStudentStudentLoginRoute
+  '/admin/institutions/$institutionId': typeof AdminInstitutionsInstitutionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -194,7 +202,7 @@ export interface FileRoutesByTo {
   '/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/institutions': typeof AdminInstitutionsRouteWithChildren
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/visualization': typeof AdminVisualizationRoute
@@ -207,6 +215,7 @@ export interface FileRoutesByTo {
   '/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
   '/student/registration': typeof AuthStudentRegistrationRoute
   '/student/studentLogin': typeof AuthStudentStudentLoginRoute
+  '/admin/institutions/$institutionId': typeof AdminInstitutionsInstitutionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -221,7 +230,7 @@ export interface FileRoutesById {
   '/_auth/unauthorized': typeof AuthUnauthorizedRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/institutions': typeof AdminInstitutionsRoute
+  '/admin/institutions': typeof AdminInstitutionsRouteWithChildren
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/visualization': typeof AdminVisualizationRoute
@@ -234,6 +243,7 @@ export interface FileRoutesById {
   '/_auth/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
   '/_auth/student/registration': typeof AuthStudentRegistrationRoute
   '/_auth/student/studentLogin': typeof AuthStudentStudentLoginRoute
+  '/admin/institutions/$institutionId': typeof AdminInstitutionsInstitutionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/institution/institutionLogin'
     | '/student/registration'
     | '/student/studentLogin'
+    | '/admin/institutions/$institutionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/institution/institutionLogin'
     | '/student/registration'
     | '/student/studentLogin'
+    | '/admin/institutions/$institutionId'
   id:
     | '__root__'
     | '/'
@@ -314,6 +326,7 @@ export interface FileRouteTypes {
     | '/_auth/institution/institutionLogin'
     | '/_auth/student/registration'
     | '/_auth/student/studentLogin'
+    | '/admin/institutions/$institutionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -328,7 +341,7 @@ export interface RootRouteChildren {
   AuthUnauthorizedRoute: typeof AuthUnauthorizedRoute
   AdminAdminsRoute: typeof AdminAdminsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminInstitutionsRoute: typeof AdminInstitutionsRoute
+  AdminInstitutionsRoute: typeof AdminInstitutionsRouteWithChildren
   AdminProfileRoute: typeof AdminProfileRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminVisualizationRoute: typeof AdminVisualizationRoute
@@ -485,6 +498,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthUnauthorizedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/institutions/$institutionId': {
+      id: '/admin/institutions/$institutionId'
+      path: '/$institutionId'
+      fullPath: '/admin/institutions/$institutionId'
+      preLoaderRoute: typeof AdminInstitutionsInstitutionIdRouteImport
+      parentRoute: typeof AdminInstitutionsRoute
+    }
     '/_auth/student/studentLogin': {
       id: '/_auth/student/studentLogin'
       path: '/student/studentLogin'
@@ -516,6 +536,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminInstitutionsRouteChildren {
+  AdminInstitutionsInstitutionIdRoute: typeof AdminInstitutionsInstitutionIdRoute
+}
+
+const AdminInstitutionsRouteChildren: AdminInstitutionsRouteChildren = {
+  AdminInstitutionsInstitutionIdRoute: AdminInstitutionsInstitutionIdRoute,
+}
+
+const AdminInstitutionsRouteWithChildren =
+  AdminInstitutionsRoute._addFileChildren(AdminInstitutionsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -528,7 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthUnauthorizedRoute: AuthUnauthorizedRoute,
   AdminAdminsRoute: AdminAdminsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminInstitutionsRoute: AdminInstitutionsRoute,
+  AdminInstitutionsRoute: AdminInstitutionsRouteWithChildren,
   AdminProfileRoute: AdminProfileRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminVisualizationRoute: AdminVisualizationRoute,

@@ -18,6 +18,7 @@ import { adminApi } from '@/api/admin/adminApi';
 import { Building2, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { CreateInstitutionDialog } from './CreateInstitutionDialog';
+import { useNavigate } from '@tanstack/react-router';
 import { InstitutionListTable, type InstitutionWithCategory } from './InstitutionListTable';
 
 interface InstitutionManagementProps {
@@ -31,6 +32,7 @@ interface InstitutionManagementProps {
 }
 
 export function InstitutionManagement(props: InstitutionManagementProps = {}) {
+  const navigate = useNavigate();
   const [institutions, setInstitutions] = useState<InstitutionWithCategory[]>([]);
   const [loading, setLoading] = useState(true);
   // Local input value for search (keeps typing responsive)
@@ -280,6 +282,12 @@ export function InstitutionManagement(props: InstitutionManagementProps = {}) {
             onDelete={openDeleteDialog}
             onEdit={handleEditInstitution}
             query={query}
+            onRowClick={(id) =>
+              navigate({
+                to: '/admin/institutions/$institutionId',
+                params: { institutionId: id },
+              })
+            }
           />
 
           {/* Pagination */}

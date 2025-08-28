@@ -22,13 +22,48 @@ export const adminApi = {
     return response.data;
   },
 
-  createInstitution: async (institutionData: { name: string; description?: string }): Promise<Institution> => {
+  createInstitution: async (
+    institutionData: {
+      name: string;
+      description?: string;
+      address?: string;
+      phone?: string;
+      email?: string;
+      website?: string;
+      establishedYear?: number;
+      logoUrl?: string;
+      categoryName?: string;
+    }
+  ): Promise<Institution> => {
     const response = await api.post('/system/institutions', institutionData);
     return response.data;
   },
 
   deleteInstitution: async (institutionId: string): Promise<void> => {
     await api.delete(`/system/institutions/${institutionId}`);
+  },
+
+  getInstitutionById: async (institutionId: string): Promise<Institution> => {
+    const response = await api.get(`/system/institutions/${institutionId}`);
+    return response.data.institution;
+  },
+
+  updateInstitution: async (
+    institutionId: string,
+    data: {
+      name: string;
+      description?: string;
+      address?: string;
+      phone?: string;
+      email?: string;
+      website?: string;
+      establishedYear?: number;
+      logoUrl?: string;
+      categoryName?: string;
+    }
+  ): Promise<Institution> => {
+    const response = await api.put(`/system/institutions/${institutionId}`, data);
+    return response.data.institution;
   },
 
   // Admins
