@@ -10,24 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Building2 } from 'lucide-react'
+import { Building2, MapPin, Phone as PhoneIcon, Mail, Globe, CalendarDays, Tag as TagIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 // Local categories list (kept in sync with CreateInstitutionDialog)
 const INSTITUTION_CATEGORIES = [
-  'Public',
-  'Private',
-  'Engineering',
-  'Medical',
-  'Science & Technology',
-  'Agriculture',
-  'Arts & Humanities',
-  'Business',
-  'Law',
-  'Education',
-  'Vocational',
-  'Community College',
-  'Research Institute',
+  'Private Institution',
+  'Public Institution',
 ]
 
 export const Route = createFileRoute('/admin/institutions/$institutionId')({
@@ -126,10 +115,16 @@ function RouteComponent() {
       setInstitution(updated)
       setIsEditing(false)
       toast.success('Institution updated')
-    } catch (e: any) {
-      if (e?.response?.data?.errors) {
-        const first = e.response.data.errors[0]
-        toast.error(first?.message || 'Validation failed')
+    } catch (e: unknown) {
+      const resp = (e as Record<string, unknown>)?.['response'] as
+        | Record<string, unknown>
+        | undefined
+      const data = resp?.['data'] as Record<string, unknown> | undefined
+      const errors = data?.['errors'] as Array<Record<string, unknown>> | undefined
+      const firstMessage = errors?.[0]?.['message'] as string | undefined
+
+      if (firstMessage) {
+        toast.error(firstMessage || 'Validation failed')
       } else {
         toast.error('Failed to update institution')
       }
@@ -146,8 +141,10 @@ function RouteComponent() {
 
   const getCategoryBadgeColor = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
+      case 'public institution':
       case 'public':
         return 'bg-blue-100 text-blue-800'
+      case 'private institution':
       case 'private':
         return 'bg-purple-100 text-purple-800'
       case 'engineering':
@@ -206,12 +203,15 @@ function RouteComponent() {
       <Card>
         <CardHeader>
           <div className="flex items-start gap-4">
-            <div className="h-14 w-14 rounded-md bg-gray-100 flex items-center justify-center overflow-hidden">
+            <div className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 aspect-square rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
               {institution?.logoUrl ? (
-                // eslint-disable-next-line jsx-a11y/alt-text
-                <img src={institution.logoUrl} className="h-full w-full object-cover" />
+                <img
+                  src={institution.logoUrl}
+                  alt={institution?.name ? `${institution.name} logo` : 'Institution logo'}
+                  className="block h-full w-full object-cover rounded-full"
+                />
               ) : (
-                <Building2 className="h-7 w-7 text-gray-500" />
+                <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-gray-500" />
               )}
             </div>
             <div>
@@ -241,14 +241,18 @@ function RouteComponent() {
           ) : (
             <div className="grid gap-8 max-w-4xl">
               {!isEditing ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                   <div>
                     <div className="text-xs uppercase text-gray-500">Name</div>
-                    <div className="mt-1 text-gray-900">{display(institution?.name)}</div>
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-gray-500" />
+                      {display(institution?.name)}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs uppercase text-gray-500">Category</div>
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <TagIcon className="h-4 w-4 text-gray-500" />
                       {institution?.InstitutionCategory?.name ? (
                         <Badge className={getCategoryBadgeColor(institution.InstitutionCategory.name)}>
                           {institution.InstitutionCategory.name}
@@ -260,15 +264,21 @@ function RouteComponent() {
                   </div>
                   <div className="md:col-span-2">
                     <div className="text-xs uppercase text-gray-500">Description</div>
-                    <div className="mt-1 text-gray-900 whitespace-pre-wrap">{display(institution?.description)}</div>
+                    <div className="mt-1 text-gray-900 whitespace-pre-wrap">
+                      {display(institution?.description)}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs uppercase text-gray-500">Address</div>
-                    <div className="mt-1 text-gray-900">{display(institution?.address)}</div>
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      {display(institution?.address)}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs uppercase text-gray-500">Phone</div>
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <PhoneIcon className="h-4 w-4 text-gray-500" />
                       {institution?.phone ? (
                         <a className="text-blue-600 hover:underline" href={`tel:${institution.phone}`}>{institution.phone}</a>
                       ) : (
@@ -278,7 +288,8 @@ function RouteComponent() {
                   </div>
                   <div>
                     <div className="text-xs uppercase text-gray-500">Email</div>
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-gray-500" />
                       {institution?.email ? (
                         <a className="text-blue-600 hover:underline" href={`mailto:${institution.email}`}>{institution.email}</a>
                       ) : (
@@ -288,7 +299,8 @@ function RouteComponent() {
                   </div>
                   <div>
                     <div className="text-xs uppercase text-gray-500">Website</div>
-                    <div className="mt-1 text-gray-900">
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-gray-500" />
                       {institution?.website ? (
                         <a className="text-blue-600 hover:underline" href={institution.website} target="_blank" rel="noreferrer">
                           {institution.website}
@@ -300,12 +312,12 @@ function RouteComponent() {
                   </div>
                   <div>
                     <div className="text-xs uppercase text-gray-500">Established</div>
-                    <div className="mt-1 text-gray-900">{display(institution?.establishedYear ?? undefined)}</div>
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <CalendarDays className="h-4 w-4 text-gray-500" />
+                      {display(institution?.establishedYear ?? undefined)}
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs uppercase text-gray-500">Logo URL</div>
-                    <div className="mt-1 text-gray-900 truncate">{display(institution?.logoUrl)}</div>
-                  </div>
+                  {/* Logo URL hidden in view mode by request */}
                 </div>
               ) : (
                 <div className="grid gap-4">

@@ -26,19 +26,8 @@ import { Textarea } from '@/components/ui/textarea';
 
 // Predefined categories for the dropdown
 const INSTITUTION_CATEGORIES = [
-  'Public',
-  'Private',
-  'Engineering',
-  'Medical',
-  'Science & Technology',
-  'Agriculture',
-  'Arts & Humanities',
-  'Business',
-  'Law',
-  'Education',
-  'Vocational',
-  'Community College',
-  'Research Institute'
+  'Public Institution',
+  'Private Institution',
 ];
 
 // Define a proper type for the payload

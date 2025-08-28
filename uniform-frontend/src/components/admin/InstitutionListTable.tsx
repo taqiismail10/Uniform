@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Building2, Trash2, Edit, ArrowUpDown } from 'lucide-react';
+import { Building2, Trash2, ArrowUpDown } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { format } from 'date-fns';
 
@@ -50,15 +50,16 @@ export function InstitutionListTable({
   loading,
   onSort,
   onDelete,
-  onEdit,
   query = '',
   onRowClick,
 }: InstitutionListTableProps) {
   // Function to get category badge color based on category name
   const getCategoryBadgeColor = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
+      case 'public institution':
       case 'public':
         return 'bg-blue-100 text-blue-800';
+      case 'private institution':
       case 'private':
         return 'bg-purple-100 text-purple-800';
       case 'engineering':
@@ -191,16 +192,6 @@ export function InstitutionListTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(institution)
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
