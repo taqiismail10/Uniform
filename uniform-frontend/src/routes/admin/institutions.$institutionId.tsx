@@ -3,12 +3,14 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { adminApi } from '@/api/admin/adminApi'
 import type { Institution } from '@/types/admin'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Building2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 // Local categories list (kept in sync with CreateInstitutionDialog)
@@ -38,6 +40,7 @@ function RouteComponent() {
   const [institution, setInstitution] = useState<Institution | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const currentYear = useMemo(() => new Date().getFullYear(), [])
 
   // Edit form state
@@ -80,6 +83,24 @@ function RouteComponent() {
     run()
   }, [params.institutionId])
 
+  const handleStartEdit = () => setIsEditing(true)
+  const handleCancelEdit = () => {
+    if (institution) {
+      setForm({
+        name: institution.name ?? '',
+        categoryName: institution.InstitutionCategory?.name ?? '',
+        description: institution.description ?? '',
+        address: institution.address ?? '',
+        phone: institution.phone ?? '',
+        email: institution.email ?? '',
+        website: institution.website ?? '',
+        establishedYear: institution.establishedYear?.toString() ?? '',
+        logoUrl: institution.logoUrl ?? '',
+      })
+    }
+    setIsEditing(false)
+  }
+
   const handleSave = async () => {
     if (!form.name.trim()) {
       toast.error('Name is required')
@@ -103,6 +124,7 @@ function RouteComponent() {
       }
       const updated = await adminApi.updateInstitution(params.institutionId, payload)
       setInstitution(updated)
+      setIsEditing(false)
       toast.success('Institution updated')
     } catch (e: any) {
       if (e?.response?.data?.errors) {
@@ -117,150 +139,284 @@ function RouteComponent() {
     }
   }
 
+  const display = (val?: string | number | null) => {
+    if (val === undefined || val === null || String(val).trim() === '') return '—'
+    return String(val)
+  }
+
+  const getCategoryBadgeColor = (categoryName: string) => {
+    switch (categoryName.toLowerCase()) {
+      case 'public':
+        return 'bg-blue-100 text-blue-800'
+      case 'private':
+        return 'bg-purple-100 text-purple-800'
+      case 'engineering':
+        return 'bg-green-100 text-green-800'
+      case 'medical':
+        return 'bg-red-100 text-red-800'
+      case 'science & technology':
+        return 'bg-indigo-100 text-indigo-800'
+      case 'agriculture':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'arts & humanities':
+        return 'bg-pink-100 text-pink-800'
+      case 'business':
+        return 'bg-orange-100 text-orange-800'
+      case 'law':
+        return 'bg-gray-100 text-gray-800'
+      case 'education':
+        return 'bg-teal-100 text-teal-800'
+      case 'vocational':
+        return 'bg-amber-100 text-amber-800'
+      case 'community college':
+        return 'bg-lime-100 text-lime-800'
+      case 'research institute':
+        return 'bg-cyan-100 text-cyan-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Institution Details</h1>
-          <p className="text-gray-500">View and update institution information</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Institution</h1>
+          <p className="text-gray-500">Overview and settings</p>
         </div>
-        <Button variant="outline" onClick={() => navigate({ to: '/admin/institutions' })}>
-          Back to list
-        </Button>
+        <div className="flex items-center gap-2">
+          {!isEditing ? (
+            <>
+              <Button variant="outline" onClick={() => navigate({ to: '/admin/institutions' })}>
+                Back to list
+              </Button>
+              <Button onClick={handleStartEdit}>Edit</Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{institution?.name || 'Loading...'}</CardTitle>
-          <CardDescription>
-            ID: {params.institutionId}
-            {institution?.createdAt ? (
-              <>
-                {' '}• Created {new Date(institution.createdAt).toLocaleDateString()}
-              </>
-            ) : null}
-          </CardDescription>
+          <div className="flex items-start gap-4">
+            <div className="h-14 w-14 rounded-md bg-gray-100 flex items-center justify-center overflow-hidden">
+              {institution?.logoUrl ? (
+                // eslint-disable-next-line jsx-a11y/alt-text
+                <img src={institution.logoUrl} className="h-full w-full object-cover" />
+              ) : (
+                <Building2 className="h-7 w-7 text-gray-500" />
+              )}
+            </div>
+            <div>
+              <CardTitle className="text-xl font-semibold">
+                {institution?.name || 'Loading...'}
+              </CardTitle>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                <span>ID: {params.institutionId.substring(0, 8)}</span>
+                {institution?.createdAt && (
+                  <span>• Created {new Date(institution.createdAt).toLocaleDateString()}</span>
+                )}
+                {institution?.updatedAt && (
+                  <span>• Updated {new Date(institution.updatedAt).toLocaleDateString()}</span>
+                )}
+                {(!isEditing && institution?.InstitutionCategory?.name) && (
+                  <Badge className={getCategoryBadgeColor(institution.InstitutionCategory.name)}>
+                    {institution.InstitutionCategory.name}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="py-12 text-center text-gray-500">Loading institution...</div>
           ) : (
-            <div className="grid gap-4 max-w-3xl">
-              {/* Name */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">Name <span className="text-red-500">*</span></Label>
-                <Input
-                  id="name"
-                  className="col-span-3"
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  required
-                />
-              </div>
-              {/* Category */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="category" className="text-right">Category</Label>
-                <Select
-                  value={form.categoryName}
-                  onValueChange={(v) => setForm((f) => ({ ...f, categoryName: v }))}
-                >
-                  <SelectTrigger id="category" className="col-span-3">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INSTITUTION_CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* Description */}
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label htmlFor="description" className="text-right mt-2">Description</Label>
-                <Textarea
-                  id="description"
-                  className="col-span-3"
-                  rows={3}
-                  value={form.description}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                />
-              </div>
-              {/* Address */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right">Address</Label>
-                <Input
-                  id="address"
-                  className="col-span-3"
-                  value={form.address}
-                  onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                />
-              </div>
-              {/* Phone */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">Phone</Label>
-                <Input
-                  id="phone"
-                  className="col-span-3"
-                  inputMode="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                />
-              </div>
-              {/* Email */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  className="col-span-3"
-                  value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                />
-              </div>
-              {/* Website */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="website" className="text-right">Website</Label>
-                <Input
-                  id="website"
-                  type="url"
-                  className="col-span-3"
-                  value={form.website}
-                  onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
-                />
-              </div>
-              {/* Established */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="established" className="text-right">Established</Label>
-                <Input
-                  id="established"
-                  type="number"
-                  className="col-span-3"
-                  min={1800}
-                  max={currentYear}
-                  value={form.establishedYear}
-                  onChange={(e) => setForm((f) => ({ ...f, establishedYear: e.target.value }))}
-                />
-              </div>
-              {/* Logo URL */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="logo" className="text-right">Logo URL</Label>
-                <Input
-                  id="logo"
-                  type="url"
-                  className="col-span-3"
-                  value={form.logoUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <Button variant="outline" onClick={() => navigate({ to: '/admin/institutions' })}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
+            <div className="grid gap-8 max-w-4xl">
+              {!isEditing ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Name</div>
+                    <div className="mt-1 text-gray-900">{display(institution?.name)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Category</div>
+                    <div className="mt-1 text-gray-900">
+                      {institution?.InstitutionCategory?.name ? (
+                        <Badge className={getCategoryBadgeColor(institution.InstitutionCategory.name)}>
+                          {institution.InstitutionCategory.name}
+                        </Badge>
+                      ) : (
+                        'Uncategorized'
+                      )}
+                    </div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <div className="text-xs uppercase text-gray-500">Description</div>
+                    <div className="mt-1 text-gray-900 whitespace-pre-wrap">{display(institution?.description)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Address</div>
+                    <div className="mt-1 text-gray-900">{display(institution?.address)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Phone</div>
+                    <div className="mt-1 text-gray-900">
+                      {institution?.phone ? (
+                        <a className="text-blue-600 hover:underline" href={`tel:${institution.phone}`}>{institution.phone}</a>
+                      ) : (
+                        '—'
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Email</div>
+                    <div className="mt-1 text-gray-900">
+                      {institution?.email ? (
+                        <a className="text-blue-600 hover:underline" href={`mailto:${institution.email}`}>{institution.email}</a>
+                      ) : (
+                        '—'
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Website</div>
+                    <div className="mt-1 text-gray-900">
+                      {institution?.website ? (
+                        <a className="text-blue-600 hover:underline" href={institution.website} target="_blank" rel="noreferrer">
+                          {institution.website}
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Established</div>
+                    <div className="mt-1 text-gray-900">{display(institution?.establishedYear ?? undefined)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Logo URL</div>
+                    <div className="mt-1 text-gray-900 truncate">{display(institution?.logoUrl)}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {/* Name */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">Name <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="name"
+                      className="col-span-3"
+                      value={form.name}
+                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  {/* Category */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="category" className="text-right">Category</Label>
+                    <Select
+                      value={form.categoryName}
+                      onValueChange={(v) => setForm((f) => ({ ...f, categoryName: v }))}
+                    >
+                      <SelectTrigger id="category" className="col-span-3">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INSTITUTION_CATEGORIES.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Description */}
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="description" className="text-right mt-2">Description</Label>
+                    <Textarea
+                      id="description"
+                      className="col-span-3"
+                      rows={3}
+                      value={form.description}
+                      onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                    />
+                  </div>
+                  {/* Address */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="address" className="text-right">Address</Label>
+                    <Input
+                      id="address"
+                      className="col-span-3"
+                      value={form.address}
+                      onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                    />
+                  </div>
+                  {/* Phone */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="phone" className="text-right">Phone</Label>
+                    <Input
+                      id="phone"
+                      className="col-span-3"
+                      inputMode="tel"
+                      value={form.phone}
+                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                    />
+                  </div>
+                  {/* Email */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email" className="text-right">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      className="col-span-3"
+                      value={form.email}
+                      onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    />
+                  </div>
+                  {/* Website */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="website" className="text-right">Website</Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      className="col-span-3"
+                      value={form.website}
+                      onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+                    />
+                  </div>
+                  {/* Established */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="established" className="text-right">Established</Label>
+                    <Input
+                      id="established"
+                      type="number"
+                      className="col-span-3"
+                      min={1800}
+                      max={currentYear}
+                      value={form.establishedYear}
+                      onChange={(e) => setForm((f) => ({ ...f, establishedYear: e.target.value }))}
+                    />
+                  </div>
+                  {/* Logo URL */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="logo" className="text-right">Logo URL</Label>
+                    <Input
+                      id="logo"
+                      type="url"
+                      className="col-span-3"
+                      value={form.logoUrl}
+                      onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -268,4 +424,3 @@ function RouteComponent() {
     </div>
   )
 }
-
