@@ -2,10 +2,8 @@
 
 import AdminProtectedRoutes from '@/utils/AdminProtectedRoutes'
 import { ROLES } from '@/utils/role'
-import { createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AdminLayout } from '@/components/admin/AdminLayout'
-import { InstitutionManagement } from '@/components/admin/InstitutionManagement'
-import { useNavigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/admin/institutions')({
   component: () => (
@@ -17,25 +15,6 @@ export const Route = createFileRoute('/admin/institutions')({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const search = Route.useSearch() as Partial<{
-    page: number
-    q: string
-    sortField: 'name' | 'createdAt'
-    sortDirection: 'asc' | 'desc'
-  }>
-
-  const page = search.page ?? 1
-  const q = search.q ?? ''
-  const sortField = search.sortField ?? 'createdAt'
-  const sortDirection = search.sortDirection ?? 'desc'
-
-  const updateSearch = (patch: Partial<typeof search>) => {
-    navigate({
-      to: '/admin/institutions',
-      search: (prev) => ({ ...prev, ...patch }),
-      replace: true,
-    })
-  }
 
   const onTabChange = (tab: string) => {
     switch (tab) {
@@ -58,15 +37,7 @@ function RouteComponent() {
 
   return (
     <AdminLayout activeTab={'institutions'} onTabChange={onTabChange}>
-      <InstitutionManagement
-        page={page}
-        search={q}
-        sortFieldProp={sortField}
-        sortDirectionProp={sortDirection}
-        onPageChange={(p) => updateSearch({ page: p })}
-        onSearchChange={(s) => updateSearch({ q: s, page: 1 })}
-        onSortChange={(f, d) => updateSearch({ sortField: f, sortDirection: d, page: 1 })}
-      />
+      <Outlet />
     </AdminLayout>
   )
 }
