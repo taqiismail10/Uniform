@@ -1,9 +1,10 @@
+// placeholder
 // uniform-frontend/src/components/admin/AdminManagement.tsx
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useEffect, useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -11,121 +12,109 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import { adminApi } from '@/api/admin/adminApi';
-import type { Institution, Admin } from '@/types/admin';
-import { format } from 'date-fns';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import {
-  Plus,
-  Eye,
-  EyeOff,
-  AlertCircle
-} from 'lucide-react';
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { toast } from 'sonner'
+import { adminApi } from '@/api/admin/adminApi'
+import type { Institution, Admin } from '@/types/admin'
+import { format } from 'date-fns'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Plus, Eye, EyeOff, AlertCircle, Trash2 } from 'lucide-react'
+import axios from 'axios'
 
 export function AdminManagement() {
-  const [institutions, setInstitutions] = useState<Institution[]>([]);
-  const [admins, setAdmins] = useState<Admin[]>([]);
-  const [loadingAdmins, setLoadingAdmins] = useState(true);
+  const [institutions, setInstitutions] = useState<Institution[]>([])
+  const [admins, setAdmins] = useState<Admin[]>([])
+  const [loadingAdmins, setLoadingAdmins] = useState(true)
 
   // Create admin form state
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newAdmin, setNewAdmin] = useState({
-    email: '',
-    password: '',
-    institutionId: ''
-  });
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
-  const [isDeleteAdminDialogOpen, setIsDeleteAdminDialogOpen] = useState(false);
-  const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [newAdmin, setNewAdmin] = useState({ email: '', password: '', institutionId: '' })
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+
+  // Delete confirmation state
+  const [isDeleteAdminDialogOpen, setIsDeleteAdminDialogOpen] = useState(false)
+  const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null)
 
   useEffect(() => {
-    fetchInstitutions();
+    fetchInstitutions()
     void (async () => {
       try {
-        setLoadingAdmins(true);
-        const { admins } = await adminApi.getAdmins();
-        setAdmins(admins || []);
+        setLoadingAdmins(true)
+        const { admins } = await adminApi.getAdmins()
+        setAdmins(admins || [])
       } catch (error) {
-        toast.error('Failed to load admins');
-        console.error('Error fetching admins:', error);
+        toast.error('Failed to load admins')
+        console.error('Error fetching admins:', error)
       } finally {
-        setLoadingAdmins(false);
+        setLoadingAdmins(false)
       }
-    })();
-  }, []);
+    })()
+  }, [])
 
   const fetchInstitutions = async () => {
     try {
-      const response = await adminApi.getInstitutions(); // Get all institutions for the dropdown
-      setInstitutions(response.institutions);
+      const response = await adminApi.getInstitutions()
+      setInstitutions(response.institutions)
     } catch (error) {
-      toast.error('Failed to load institutions');
-      console.error('Error fetching institutions:', error);
-    } finally {
-      // no-op
+      toast.error('Failed to load institutions')
+      console.error('Error fetching institutions:', error)
     }
-  };
+  }
 
   const handleCreateAdmin = async () => {
     if (!newAdmin.email.trim() || !newAdmin.password.trim()) {
-      toast.error('Email and password are required');
-      return;
+      toast.error('Email and password are required')
+      return
     }
     if (newAdmin.password !== confirmPassword) {
-      setPasswordError('Passwords do not match');
-      return;
+      setPasswordError('Passwords do not match')
+      return
     }
 
     try {
-      setIsSubmitting(true);
+      setIsSubmitting(true)
       await adminApi.createAdmin({
         email: newAdmin.email,
         password: newAdmin.password,
         password_confirmation: confirmPassword,
         institutionId: newAdmin.institutionId || undefined,
-      });
+      })
 
-      toast.success('Admin created successfully');
-      setIsCreateDialogOpen(false);
-      setNewAdmin({
-        email: '',
-        password: '',
-        institutionId: ''
-      });
-      setConfirmPassword('');
-      setShowPassword(false);
-      setShowConfirmPassword(false);
-      setPasswordError('');
+      toast.success('Admin created successfully')
+      setIsCreateDialogOpen(false)
+      setNewAdmin({ email: '', password: '', institutionId: '' })
+      setConfirmPassword('')
+      setShowPassword(false)
+      setShowConfirmPassword(false)
+      setPasswordError('')
       // Refresh admin list
       try {
-        setLoadingAdmins(true);
-        const { admins } = await adminApi.getAdmins();
-        setAdmins(admins || []);
+        setLoadingAdmins(true)
+        const { admins } = await adminApi.getAdmins()
+        setAdmins(admins || [])
       } catch (error) {
-        console.error('Failed to refresh admins', error);
+        console.error('Failed to refresh admins', error)
       } finally {
-        setLoadingAdmins(false);
+        setLoadingAdmins(false)
       }
     } catch (error) {
-      toast.error('Failed to create admin');
-      console.error('Error creating admin:', error);
+      toast.error('Failed to create admin')
+      console.error('Error creating admin:', error)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <div>
           <h1 className="text-2xl font-bold">Admin Management</h1>
           <p className="text-gray-500">Manage institution administrators</p>
@@ -146,87 +135,42 @@ export function AdminManagement() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newAdmin.email}
-                  onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                  className="col-span-3"
-                />
+                <Label htmlFor="email" className="text-right">Email</Label>
+                <Input id="email" type="email" value={newAdmin.email} onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })} className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="password" className="text-right">
-                  Password
-                </Label>
+                <Label htmlFor="password" className="text-right">Password</Label>
                 <div className="col-span-3 relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={newAdmin.password}
-                    onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                  <Input id="password" type={showPassword ? 'text' : 'password'} value={newAdmin.password} onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })} className="pr-10" />
+                  <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? (<EyeOff className="h-4 w-4" />) : (<Eye className="h-4 w-4" />)}
                   </Button>
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="confirmPassword" className="text-right">
-                  Confirm Password
-                </Label>
+                <Label htmlFor="confirmPassword" className="text-right">Confirm Password</Label>
                 <div className="col-span-3 relative">
                   <Input
                     id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => {
-                      const v = e.target.value;
-                      setConfirmPassword(v);
-                      setPasswordError(v && newAdmin.password !== v ? 'Passwords do not match' : '');
+                      const v = e.target.value
+                      setConfirmPassword(v)
+                      setPasswordError(v && newAdmin.password !== v ? 'Passwords do not match' : '')
                     }}
                     aria-invalid={passwordError ? true : false}
                     className={`pr-10 ${passwordError ? 'border-gray-500 focus:ring-gray-500 focus:border-gray-500' : ''}`}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                  <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                    {showConfirmPassword ? (<EyeOff className="h-4 w-4" />) : (<Eye className="h-4 w-4" />)}
                   </Button>
-                  {passwordError && (
-                    <p className="mt-1 text-sm text-gray-700">{passwordError}</p>
-                  )}
+                  {passwordError && (<p className="mt-1 text-sm text-gray-700">{passwordError}</p>)}
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="institution" className="text-right">
-                  Institution
-                </Label>
-                <Select
-                  value={newAdmin.institutionId}
-                  onValueChange={(value) => setNewAdmin({ ...newAdmin, institutionId: value })}
-                >
+                <Label htmlFor="institution" className="text-right">Institution</Label>
+                <Select value={newAdmin.institutionId} onValueChange={(value) => setNewAdmin({ ...newAdmin, institutionId: value })}>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select an institution" />
                   </SelectTrigger>
@@ -241,12 +185,8 @@ export function AdminManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateAdmin} disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create'}
-              </Button>
+              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleCreateAdmin} disabled={isSubmitting}>{isSubmitting ? 'Creating...' : 'Create'}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -283,32 +223,11 @@ export function AdminManagement() {
                     <TableCell>{a.email}</TableCell>
                     <TableCell>{a.institution?.name ?? '—'}</TableCell>
                     <TableCell>{format(new Date(a.createdAt), 'MMM dd, yyyy')}</TableCell>
-                    <TableCell>{a.lastLogin ? format(new Date(a.lastLogin), 'MMM dd, yyyy p') : '�'}</TableCell>
+                    <TableCell>{a.lastLogin ? format(new Date(a.lastLogin), 'MMM dd, yyyy p') : '—'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        {a.institutionId ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={async () => {
-                              try {
-                                await adminApi.unassignAdmin(a.adminId);
-                                toast.success('Unassigned admin from institution');
-                                setAdmins((prev) => prev.map((x) => x.adminId === a.adminId ? { ...x, institutionId: undefined, institution: undefined } : x));
-                              } catch {
-                                toast.error('Failed to unassign admin');
-                              }
-                            }}
-                          >
-                            Unassign
-                          </Button>
-                        ) : null}
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => { setAdminToDelete(a); setIsDeleteAdminDialogOpen(true); }}
-                        >
-                          Delete
+                        <Button variant="destructive" size="sm" onClick={() => { setAdminToDelete(a); setIsDeleteAdminDialogOpen(true) }}>
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -325,9 +244,7 @@ export function AdminManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Institution Admin</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete the admin account.
-            </DialogDescription>
+            <DialogDescription>This action cannot be undone. This will permanently delete the admin account.</DialogDescription>
           </DialogHeader>
           {adminToDelete && (
             <div className="py-4">
@@ -340,16 +257,17 @@ export function AdminManagement() {
                 <Button
                   variant="destructive"
                   onClick={async () => {
-                    if (!adminToDelete) return;
+                    if (!adminToDelete) return
                     try {
-                      await adminApi.deleteAdmin(adminToDelete.adminId);
-                      toast.success('Admin deleted');
-                      setAdmins((prev) => prev.filter((x) => x.adminId !== adminToDelete.adminId));
-                      setIsDeleteAdminDialogOpen(false);
-                      setAdminToDelete(null);
-                    } catch {
-                  toast.error('Failed to delete admin');
-                }
+                      await adminApi.deleteAdmin(adminToDelete.adminId)
+                      toast.success('Admin deleted')
+                      setAdmins((prev) => prev.filter((x) => x.adminId !== adminToDelete.adminId))
+                      setIsDeleteAdminDialogOpen(false)
+                      setAdminToDelete(null)
+                    } catch (error) {
+                      const msg = axios.isAxiosError(error) ? (error.response?.data as { message?: string } | undefined)?.message : undefined
+                      toast.error(msg || 'Failed to delete admin')
+                    }
                   }}
                 >
                   Delete
@@ -360,10 +278,5 @@ export function AdminManagement() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
-
-
-
-
-
