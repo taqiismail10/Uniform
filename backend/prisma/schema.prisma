@@ -109,6 +109,7 @@ model Admin {
 model Institution {
   institutionId String @id @default(uuid())
   name          String @unique
+  shortName     String?
 
   description     String?  @db.Text
   address         String?  @db.VarChar(500)

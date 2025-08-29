@@ -24,6 +24,7 @@ import { Route as StudentDashboardRouteImport } from './routes/student/dashboard
 import { Route as InstitutionSettingsRouteImport } from './routes/institution/settings'
 import { Route as InstitutionProfileRouteImport } from './routes/institution/profile'
 import { Route as InstitutionDashboardRouteImport } from './routes/institution/dashboard'
+import { Route as InstitutionApplicationsRouteImport } from './routes/institution/applications'
 import { Route as AdminVisualizationRouteImport } from './routes/admin/visualization'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminProfileRouteImport } from './routes/admin/profile'
@@ -115,6 +116,11 @@ const InstitutionProfileRoute = InstitutionProfileRouteImport.update({
 const InstitutionDashboardRoute = InstitutionDashboardRouteImport.update({
   id: '/institution/dashboard',
   path: '/institution/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstitutionApplicationsRoute = InstitutionApplicationsRouteImport.update({
+  id: '/institution/applications',
+  path: '/institution/applications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminVisualizationRoute = AdminVisualizationRouteImport.update({
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/visualization': typeof AdminVisualizationRoute
+  '/institution/applications': typeof InstitutionApplicationsRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/institution/profile': typeof InstitutionProfileRoute
   '/institution/settings': typeof InstitutionSettingsRoute
@@ -255,6 +262,7 @@ export interface FileRoutesByTo {
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/visualization': typeof AdminVisualizationRoute
+  '/institution/applications': typeof InstitutionApplicationsRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/institution/profile': typeof InstitutionProfileRoute
   '/institution/settings': typeof InstitutionSettingsRoute
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/admin/profile': typeof AdminProfileRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/visualization': typeof AdminVisualizationRoute
+  '/institution/applications': typeof InstitutionApplicationsRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
   '/institution/profile': typeof InstitutionProfileRoute
   '/institution/settings': typeof InstitutionSettingsRoute
@@ -326,6 +335,7 @@ export interface FileRouteTypes {
     | '/admin/profile'
     | '/admin/settings'
     | '/admin/visualization'
+    | '/institution/applications'
     | '/institution/dashboard'
     | '/institution/profile'
     | '/institution/settings'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/admin/profile'
     | '/admin/settings'
     | '/admin/visualization'
+    | '/institution/applications'
     | '/institution/dashboard'
     | '/institution/profile'
     | '/institution/settings'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/admin/profile'
     | '/admin/settings'
     | '/admin/visualization'
+    | '/institution/applications'
     | '/institution/dashboard'
     | '/institution/profile'
     | '/institution/settings'
@@ -428,6 +440,7 @@ export interface RootRouteChildren {
   AdminProfileRoute: typeof AdminProfileRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminVisualizationRoute: typeof AdminVisualizationRoute
+  InstitutionApplicationsRoute: typeof InstitutionApplicationsRoute
   InstitutionDashboardRoute: typeof InstitutionDashboardRoute
   InstitutionProfileRoute: typeof InstitutionProfileRoute
   InstitutionSettingsRoute: typeof InstitutionSettingsRoute
@@ -549,6 +562,13 @@ declare module '@tanstack/react-router' {
       path: '/institution/dashboard'
       fullPath: '/institution/dashboard'
       preLoaderRoute: typeof InstitutionDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/institution/applications': {
+      id: '/institution/applications'
+      path: '/institution/applications'
+      fullPath: '/institution/applications'
+      preLoaderRoute: typeof InstitutionApplicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/visualization': {
@@ -716,6 +736,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminProfileRoute: AdminProfileRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminVisualizationRoute: AdminVisualizationRoute,
+  InstitutionApplicationsRoute: InstitutionApplicationsRoute,
   InstitutionDashboardRoute: InstitutionDashboardRoute,
   InstitutionProfileRoute: InstitutionProfileRoute,
   InstitutionSettingsRoute: InstitutionSettingsRoute,

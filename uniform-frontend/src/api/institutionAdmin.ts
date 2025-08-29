@@ -43,3 +43,33 @@ export const getInstitutionAdminProfile = async (): Promise<InstitutionAdminProf
   return response.data.profile as InstitutionAdminProfile
 }
 
+export const updateInstitutionAdminEmail = async (email: string): Promise<InstitutionAdminProfile> => {
+  const response = await api.put('/admin/update-email', { email })
+  return response.data.profile as InstitutionAdminProfile
+}
+
+export interface InstitutionInfo {
+  institutionId: string
+  name: string
+  shortName?: string | null
+  logoUrl?: string | null
+  description?: string | null
+  address?: string | null
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  establishedYear?: number | null
+  ownership?: 'PUBLIC' | 'PRIVATE' | null
+  type?: 'GENERAL' | 'ENGINEERING' | null
+}
+
+export const getMyInstitution = async (): Promise<InstitutionInfo> => {
+  const response = await api.get('/admin/institution')
+  return response.data.institution as InstitutionInfo
+}
+
+export const updateMyInstitution = async (payload: { shortName?: string }) => {
+  const response = await api.put('/admin/institution', payload)
+  return response.data.institution as InstitutionInfo
+}
+

@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
 import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
-import { getInstitutionAdminProfile, updateInstitutionAdminEmail } from '@/api/institutionAdmin'
+import { getInstitutionAdminProfile, updateInstitutionAdminEmail, getMyInstitution, updateMyInstitution } from '@/api/institutionAdmin'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -24,6 +24,8 @@ function RouteComponent() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [savingEmail, setSavingEmail] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
+  const [instShortName, setInstShortName] = useState('')
+  const [savingInst, setSavingInst] = useState(false)
   const { user, login } = useAuth()
 
   useEffect(() => {
@@ -31,6 +33,10 @@ function RouteComponent() {
       try {
         const p = await getInstitutionAdminProfile()
         setEmail(p.email)
+        try {
+          const inst = await getMyInstitution()
+          setInstShortName(inst.shortName || '')
+        } catch {}
       } catch {}
     })()
   }, [])
@@ -41,6 +47,30 @@ function RouteComponent() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         <h1 className="text-2xl font-bold">Settings</h1>
         <div className="grid gap-6">
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold">Institution</h2>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="shortName" className="text-right">Short Name</Label>
+              <Input id="shortName" className="col-span-3" placeholder="e.g., DU, BUET" value={instShortName} onChange={(e) => setInstShortName(e.target.value)} />
+            </div>
+            <div className="flex justify-end">
+              <Button
+                variant="secondary"
+                className="border border-gray-300 text-gray-800 hover:bg-gray-100"
+                onClick={async () => {
+                  try {
+                    setSavingInst(true)
+                    await updateMyInstitution({ shortName: instShortName })
+                    toast.success('Institution short name updated')
+                  } catch (e: any) {
+                    const msg = e?.response?.data?.message || 'Failed to update institution'
+                    toast.error(msg)
+                  } finally { setSavingInst(false) }
+                }}
+                disabled={savingInst}
+              >{savingInst ? 'Saving…' : 'Save Institution'}</Button>
+            </div>
+          </section>
           <section className="space-y-4">
             <h2 className="text-lg font-semibold">Account Email</h2>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -102,4 +132,3 @@ function RouteComponent() {
     </div>
   )
 }
-
