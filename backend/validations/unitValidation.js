@@ -18,7 +18,7 @@ export const createUnitSchema = vine.object({
     .optional()
     .nullable(),
 
-  maxApplications: vine.number().min(1).max(10000).optional().nullable(),
+  maxApplications: vine.number().min(1).max(10000000).optional().nullable(),
   autoCloseAfterDeadline: vine.boolean().optional(), // Add this line
 
   requirements: vine
@@ -28,6 +28,7 @@ export const createUnitSchema = vine.object({
         hscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]),
         minSscGPA: vine.number().min(0).max(5).optional().nullable(),
         minHscGPA: vine.number().min(0).max(5).optional().nullable(),
+        minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
       })
     )
     .optional(),
@@ -48,7 +49,7 @@ export const updateUnitSchema = vine.object({
 
   applicationDeadline: vine.date().optional().nullable(),
 
-  maxApplications: vine.number().min(1).max(10000).optional().nullable(),
+  maxApplications: vine.number().min(1).max(10000000).optional().nullable(),
 
   autoCloseAfterDeadline: vine.boolean().optional(),
   // ADD THIS - Requirements field for updating
@@ -59,6 +60,7 @@ export const updateUnitSchema = vine.object({
         hscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]),
         minSscGPA: vine.number().min(0).max(5).optional().nullable(),
         minHscGPA: vine.number().min(0).max(5).optional().nullable(),
+        minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
       })
     )
     .optional(),
@@ -69,4 +71,5 @@ export const requirementSchema = vine.object({
   hscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]),
   minSscGPA: vine.number().min(0).max(5).optional().nullable(),
   minHscGPA: vine.number().min(0).max(5).optional().nullable(),
+  minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
 });

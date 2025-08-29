@@ -33,7 +33,7 @@ function RouteComponent() {
     }
     setIsLoading(true);
     try {
-      const user = await userLogin(email, password, "STUDENT");
+      const user = await userLogin(email, password);
       if (user) {
         // Store user data in localStorage/sessionStorage based on remember me
         if (rememberMe) {

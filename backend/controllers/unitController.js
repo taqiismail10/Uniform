@@ -70,6 +70,7 @@ class unitController {
             hscStream: req.hscStream, // Must be one of: SCIENCE, ARTS, COMMERCE
             minSscGPA: req.minSscGPA,
             minHscGPA: req.minHscGPA,
+            minCombinedGPA: req.minCombinedGPA,
           }));
 
           await tx.unitRequirement.createMany({
@@ -365,6 +366,7 @@ class unitController {
         hscStream: req.hscStream,
         minSscGPA: req.minSscGPA,
         minHscGPA: req.minHscGPA,
+        minCombinedGPA: req.minCombinedGPA,
       }));
 
       await prisma.unitRequirement.createMany({
@@ -524,6 +526,9 @@ class unitController {
         where: { institutionId: admin.institutionId },
         take: limit,
         skip: skip,
+        include: {
+          _count: { select: { applications: true } },
+        },
       });
 
       const totalUnits = await prisma.unit.count({
@@ -551,6 +556,58 @@ class unitController {
           .status(500)
           .json({ status: 500, message: "Something went wrong" });
       }
+    }
+  }
+
+  static async getUnitById(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const { unitId } = req.params;
+
+      const admin = await prisma.admin.findUnique({ where: { adminId } });
+      if (!admin || !admin.institutionId) {
+        return res.status(403).json({ status: 403, message: "Not authorized" });
+      }
+
+      const unit = await prisma.unit.findFirst({
+        where: { unitId, institutionId: admin.institutionId },
+        include: {
+          requirements: true,
+          _count: { select: { applications: true } },
+        },
+      });
+
+      if (!unit) {
+        return res.status(404).json({ status: 404, message: "Unit not found" });
+      }
+
+      return res.json({ status: 200, data: unit });
+    } catch (error) {
+      return res.status(500).json({ status: 500, message: "Something went wrong" });
+    }
+  }
+
+  static async deleteUnit(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const { unitId } = req.params;
+
+      const admin = await prisma.admin.findUnique({ where: { adminId } });
+      if (!admin || !admin.institutionId) {
+        return res.status(403).json({ status: 403, message: "Not authorized" });
+      }
+
+      // Ensure the unit belongs to this admin's institution
+      const unit = await prisma.unit.findFirst({ where: { unitId, institutionId: admin.institutionId } });
+      if (!unit) {
+        return res.status(404).json({ status: 404, message: "Unit not found" });
+      }
+
+      await prisma.unit.delete({ where: { unitId } });
+      return res.json({ status: 200, message: "Unit deleted successfully", unitId });
+    } catch (error) {
+      // Likely a foreign key constraint; surface a friendly message
+      return res.status(400).json({ status: 400, message: "Unable to delete unit. Please remove related records first." });
     }
   }
 

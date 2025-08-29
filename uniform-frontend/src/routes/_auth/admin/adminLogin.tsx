@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_auth/admin/adminLogin')({
 function RouteComponent() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false)
-  const [adminId, setAdminId] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -25,9 +25,9 @@ function RouteComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Basic validation
-    if (!adminId || !password) {
+    if (!email || !password) {
       toast.error("Validation Error", {
-        description: "Please enter both Admin ID and password."
+        description: "Please enter both email and password."
       });
       return;
     }
@@ -35,7 +35,7 @@ function RouteComponent() {
     setIsLoading(true);
 
     try {
-      const user = await adminLogin(adminId, password, "SYSTEM_ADMIN");
+      const user = await adminLogin(email, password);
 
       if (user) {
         authLogin(user);
@@ -100,16 +100,16 @@ function RouteComponent() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="adminId" className="text-gray-700 font-medium">
-                  Admin ID
+                <Label htmlFor="email" className="text-gray-700 font-medium">
+                  Email
                 </Label>
                 <Input
-                  type="text"
-                  id="adminId"
-                  placeholder="Enter your Admin ID"
+                  type="email"
+                  id="email"
+                  placeholder="username@domain.com"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
-                  value={adminId}
-                  onChange={(e) => setAdminId(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
                 />

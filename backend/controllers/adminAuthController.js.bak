@@ -1,5 +1,31 @@
 // backend/controllers/adminAuthController.js
 
+  static async index(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const profile = await prisma.admin.findUnique({
+        where: { adminId },
+        select: {
+          adminId: true,
+          email: true,
+          role: true,
+          lastLogin: true,
+          createdAt: true,
+          updatedAt: true,
+          institutionId: true,
+        },
+      });
+      if (!profile) {
+        return res.status(404).json({ status: 404, message: 'Admin profile not found' });
+      }
+      return res.status(200).json({ status: 200, profile });
+    } catch (error) {
+      console.error('Error fetching admin profile:', error);
+      return res.status(500).json({ status: 500, message: 'Something went wrong' });
+    }
+  }
+// backend/controllers/adminAuthController.js
+
 import vine, { errors } from "@vinejs/vine";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -26,9 +52,6 @@ class adminAuthController {
       if (findAdmin) {
         // Compare passwords
         if (!bcrypt.compareSync(payload.password, findAdmin.password)) {
-          // console.log("Password comparison failed");
-          // console.log("Entered Password:", payload.password);
-          // console.log("Hashed Password:", findAdmin.password);
           return res.json({ status: 400, message: "Invalid Credentials" });
         }
 
@@ -41,7 +64,6 @@ class adminAuthController {
         // Generate JWT token
         const payloadData = {
           adminId: findAdmin.adminId,
-          // email: findAdmin.email,
           role: findAdmin.role,
         };
         console.log("Payload Data:", findAdmin.role); // Debugging log
@@ -132,18 +154,18 @@ class adminAuthController {
     try {
       const { adminId } = req.admin;
       let { email } = req.body || {};
-      if (!email) return res.status(400).json({ status: 400, message: "Email is required" });
+      if (!email) return res.status(400).json({ status: 400, message: 'Email is required' });
       email = String(email).trim().toLowerCase();
 
       const exists = await prisma.admin.findFirst({ where: { email, NOT: { adminId } } });
       if (exists) {
-        return res.status(409).json({ status: 409, message: "Email already in use" });
+        return res.status(409).json({ status: 409, message: 'Email already in use' });
       }
 
       const updated = await prisma.admin.update({ where: { adminId }, data: { email } });
       return res.status(200).json({
         status: 200,
-        message: "Email updated successfully",
+        message: 'Email updated successfully',
         profile: {
           adminId: updated.adminId,
           email: updated.email,
@@ -155,10 +177,12 @@ class adminAuthController {
         },
       });
     } catch (error) {
-      console.error("Error updating admin email:", error);
-      return res.status(500).json({ status: 500, message: "Something went wrong" });
+      console.error('Error updating admin email:', error);
+      return res.status(500).json({ status: 500, message: 'Something went wrong' });
     }
   }
 }
 
 export default adminAuthController;
+
+

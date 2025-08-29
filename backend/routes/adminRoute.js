@@ -26,6 +26,8 @@ router.put(
 
 router.post("/units", adminMiddleware, unitController.createUnit); // Create units
 router.put("/units/:unitId", adminMiddleware, unitController.updateUnit);
+router.get("/units/:unitId", adminMiddleware, unitController.getUnitById);
+router.delete("/units/:unitId", adminMiddleware, unitController.deleteUnit);
 
 // Add these routes to your adminRoute.js
 router.post(

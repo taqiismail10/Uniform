@@ -169,6 +169,7 @@ model UnitRequirement {
   hscStream Stream
   minSscGPA Float?
   minHscGPA Float?
+  minCombinedGPA Float?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
