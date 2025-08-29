@@ -19,9 +19,18 @@ import {
 export function DashboardOverview() {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<{ institutions: number; units: number; students: number; applications: number } | null>(null);
 
   useEffect(() => {
     fetchInstitutions();
+    (async () => {
+      try {
+        const s = await adminApi.getDashboard();
+        setStats(s);
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      }
+    })();
   }, []);
 
   const fetchInstitutions = async () => {
@@ -82,8 +91,8 @@ export function DashboardOverview() {
             <Users className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-gray-500">Not available</p>
+            <div className="text-2xl font-bold">{stats ? stats.units : '—'}</div>
+            <p className="text-xs text-gray-500">System-wide</p>
           </CardContent>
         </Card>
 
@@ -93,8 +102,8 @@ export function DashboardOverview() {
             <User className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-gray-500">Not available</p>
+            <div className="text-2xl font-bold">{stats ? stats.students : '—'}</div>
+            <p className="text-xs text-gray-500">System-wide</p>
           </CardContent>
         </Card>
 
@@ -104,8 +113,8 @@ export function DashboardOverview() {
             <FileText className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-gray-500">Not available</p>
+            <div className="text-2xl font-bold">{stats ? stats.applications : '—'}</div>
+            <p className="text-xs text-gray-500">System-wide</p>
           </CardContent>
         </Card>
       </div>

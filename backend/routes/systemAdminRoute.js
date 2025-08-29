@@ -6,6 +6,7 @@ import {
 	default as systemAdminAuthController,
 } from "../controllers/systemAdminAuthController.js";
 import redisCache from "../DB/redis.config.js";
+import unitController from "../controllers/unitController.js";
 import systemAdminMiddleware from "../middleware/systemAdminMiddleware.js";
 
 const router = Router();
@@ -83,6 +84,13 @@ router.put(
 	"/admins/update-email",
 	systemAdminMiddleware,
 	systemAdminAuthController.updateEmail
+);
+
+// Dashboard stats for system admin
+router.get(
+    "/dashboard",
+    systemAdminMiddleware,
+    unitController.dashboard
 );
 
 export default router;

@@ -58,6 +58,12 @@ export const adminApi = {
     return response.data.institution;
   },
 
+  // Dashboard
+  getDashboard: async (): Promise<{ institutions: number; units: number; students: number; applications: number }> => {
+    const response = await api.get('/system/dashboard');
+    return response.data.data;
+  },
+
   updateInstitution: async (
     institutionId: string,
     data: {
