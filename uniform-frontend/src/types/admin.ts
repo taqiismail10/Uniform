@@ -21,6 +21,7 @@ export interface Admin {
   adminId: string;
   email: string;
   role: string;
+  lastLogin?: string;
   createdAt: string;
   updatedAt: string;
   institutionId?: string;
@@ -47,6 +48,7 @@ export interface SystemAdmin {
   systemAdminId: string;
   email: string;
   role: string;
+  lastLogin?: string;
   createdAt: string;
   updatedAt: string;
 }

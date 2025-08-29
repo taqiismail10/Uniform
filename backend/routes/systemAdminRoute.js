@@ -65,16 +65,28 @@ router.patch(
 );
 
 router.get(
-	"/institutions",
-	redisCache.route(),
-	systemAdminMiddleware,
-	systemAdminAuthController.fetchInstitutions
+    "/institutions",
+    redisCache.route(),
+    systemAdminMiddleware,
+    systemAdminAuthController.fetchInstitutions
 );
 
 router.delete(
-	"/admins/:adminId",
+    "/admins/:adminId",
+    systemAdminMiddleware,
+    systemAdminAuthController.deleteAdmin
+);
+
+router.put(
+	"/admins/update-password",
 	systemAdminMiddleware,
-	systemAdminAuthController.deleteAdmin
+	systemAdminAuthController.updatePassword
+);
+
+router.put(
+	"/admins/update-email",
+	systemAdminMiddleware,
+	systemAdminAuthController.updateEmail
 );
 
 export default router;

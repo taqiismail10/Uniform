@@ -168,7 +168,10 @@ function RouteComponent() {
     return String(val)
   }
 
-const getCategoryBadgeColor = (_categoryName: string) => 'bg-gray-100 text-gray-800'
+const getCategoryBadgeColor = (categoryName: string) => {
+  void categoryName
+  return 'bg-gray-100 text-gray-800'
+}
 
   return (
     <div className="space-y-4">

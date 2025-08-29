@@ -44,6 +44,12 @@ class systemAdminAuthController {
 					.json({ status: 400, message: "Invalid Credentials" });
 			}
 
+			// Update last login timestamp
+			await prisma.systemadmin.update({
+				where: { systemAdminId: findAdmin.systemAdminId },
+				data: { lastLogin: new Date() },
+			});
+
 			// Generate JWT token
 			const payloadData = {
 				systemAdminId: findAdmin.systemAdminId,
@@ -284,6 +290,7 @@ class systemAdminAuthController {
 					systemAdminId: true,
 					email: true,
 					role: true,
+					lastLogin: true,
 					createdAt: true,
 					updatedAt: true,
 				},
@@ -351,6 +358,54 @@ class systemAdminAuthController {
 					.status(500)
 					.json({ status: 500, message: "Something went wrong" });
 			}
+		}
+	}
+
+	static async updatePassword(req, res) {
+		try {
+			const { systemAdminId } = req.admin;
+			const { oldPassword, newPassword } = req.body;
+			if (!oldPassword || !newPassword) {
+				return res.status(400).json({ status: 400, message: 'Old and new password are required' });
+			}
+			const admin = await prisma.systemadmin.findUnique({ where: { systemAdminId } });
+			if (!admin) {
+				return res.status(404).json({ status: 404, message: 'System admin not found' });
+			}
+			const valid = bcrypt.compareSync(oldPassword, admin.password);
+			if (!valid) {
+				return res.status(400).json({ status: 400, message: 'Old password is incorrect' });
+			}
+			const hashed = await bcrypt.hash(newPassword, 10);
+			await prisma.systemadmin.update({ where: { systemAdminId }, data: { password: hashed } });
+			return res.status(200).json({ status: 200, message: 'Password updated successfully' });
+		} catch (error) {
+			console.error('Error updating system admin password:', error);
+			return res.status(500).json({ status: 500, message: 'Something went wrong' });
+		}
+	}
+
+	static async updateEmail(req, res) {
+		try {
+			const { systemAdminId } = req.admin;
+			let { email } = req.body;
+			if (!email) return res.status(400).json({ status: 400, message: 'Email is required' });
+			email = String(email).trim().toLowerCase();
+			const exists = await prisma.systemadmin.findFirst({ where: { email, NOT: { systemAdminId } } });
+			if (exists) {
+				return res.status(409).json({ status: 409, message: 'Email already in use' });
+			}
+			const updated = await prisma.systemadmin.update({ where: { systemAdminId }, data: { email } });
+			return res.status(200).json({ status: 200, message: 'Email updated successfully', profile: {
+				systemAdminId: updated.systemAdminId,
+				email: updated.email,
+				role: updated.role,
+				createdAt: updated.createdAt,
+				updatedAt: updated.updatedAt,
+			}});
+		} catch (error) {
+			console.error('Error updating system admin email:', error);
+			return res.status(500).json({ status: 500, message: 'Something went wrong' });
 		}
 	}
 

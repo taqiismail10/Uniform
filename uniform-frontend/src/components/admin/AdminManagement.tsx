@@ -273,6 +273,7 @@ export function AdminManagement() {
                   <TableHead>Email</TableHead>
                   <TableHead>Institution</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Last Login</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -282,6 +283,7 @@ export function AdminManagement() {
                     <TableCell>{a.email}</TableCell>
                     <TableCell>{a.institution?.name ?? 'â€”'}</TableCell>
                     <TableCell>{format(new Date(a.createdAt), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell>{a.lastLogin ? format(new Date(a.lastLogin), 'MMM dd, yyyy p') : '—'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {a.institutionId ? (
@@ -360,3 +362,7 @@ export function AdminManagement() {
     </div>
   );
 }
+
+
+
+

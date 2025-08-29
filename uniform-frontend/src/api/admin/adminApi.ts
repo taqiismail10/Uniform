@@ -15,6 +15,14 @@ export const adminApi = {
     const response = await api.get('/system/admins/profile');
     return response.data.profile;
   },
+  updateSystemAdminPassword: async (data: { oldPassword: string; newPassword: string }): Promise<{ status: number; message: string }> => {
+    const response = await api.put('/system/admins/update-password', data);
+    return response.data;
+  },
+  updateSystemAdminEmail: async (email: string): Promise<SystemAdmin> => {
+    const response = await api.put('/system/admins/update-email', { email });
+    return response.data.profile;
+  },
 
   // Institutions
   getInstitutions: async (): Promise<{ institutions: Institution[] }> => {

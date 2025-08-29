@@ -89,6 +89,7 @@ model Systemadmin {
   email         String   @unique
   password      String   @db.VarChar(255)
   role          String   @default("SYSTEM_ADMIN")
+  lastLogin     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
 }
@@ -98,6 +99,7 @@ model Admin {
   email     String   @unique
   password  String   @db.VarChar(255)
   role      String   @default("INSTITUTION_ADMIN")
+  lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   institutionId String?

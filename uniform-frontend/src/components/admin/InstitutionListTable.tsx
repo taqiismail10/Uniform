@@ -56,7 +56,10 @@ export function InstitutionListTable({
   onRowClick,
 }: InstitutionListTableProps) {
   // Function to get category badge color based on category name
-  const getCategoryBadgeColor = (_categoryName: string) => 'bg-gray-100 text-gray-800';
+  const getCategoryBadgeColor = (categoryName: string) => {
+    void categoryName; // referenced to satisfy no-unused-vars while keeping signature
+    return 'bg-gray-100 text-gray-800';
+  };
 
   const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const highlight = (text: string | undefined | null, q: string) => {

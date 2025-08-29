@@ -32,6 +32,12 @@ class adminAuthController {
           return res.json({ status: 400, message: "Invalid Credentials" });
         }
 
+        // Update last login timestamp
+        await prisma.admin.update({
+          where: { adminId: findAdmin.adminId },
+          data: { lastLogin: new Date() },
+        });
+
         // Generate JWT token
         const payloadData = {
           adminId: findAdmin.adminId,

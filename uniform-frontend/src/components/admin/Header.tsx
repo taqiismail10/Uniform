@@ -102,10 +102,13 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
   };
 
   const formatLastLogin = () => {
-    if (!adminProfile) return '';
-    // In a real app, you would have a lastLogin field in the profile
-    // For now, we'll just return a placeholder
-    return 'Today, 10:30 AM';
+    if (!adminProfile || !adminProfile.lastLogin) return ''
+    try {
+      const d = new Date(adminProfile.lastLogin)
+      return d.toLocaleString()
+    } catch {
+      return ''
+    }
   };
 
   const getInitials = (email: string) => {
