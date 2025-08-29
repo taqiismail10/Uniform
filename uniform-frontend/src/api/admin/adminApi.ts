@@ -33,6 +33,8 @@ export const adminApi = {
       establishedYear?: number;
       logoUrl?: string;
       categoryName?: string;
+      ownership?: 'PUBLIC' | 'PRIVATE';
+      type?: 'GENERAL' | 'ENGINEERING';
     }
   ): Promise<Institution> => {
     const response = await api.post('/system/institutions', institutionData);
@@ -60,6 +62,8 @@ export const adminApi = {
       establishedYear?: number;
       logoUrl?: string;
       categoryName?: string;
+      ownership?: 'PUBLIC' | 'PRIVATE';
+      type?: 'GENERAL' | 'ENGINEERING';
     }
   ): Promise<Institution> => {
     const response = await api.put(`/system/institutions/${institutionId}`, data);
@@ -67,7 +71,11 @@ export const adminApi = {
   },
 
   // Admins
-  createAdmin: async (adminData: { email: string; password: string; institutionId?: string }): Promise<Admin> => {
+  getAdmins: async (params?: { page?: number; limit?: number; search?: string; institutionId?: string }): Promise<{ admins: Admin[]; metadata?: unknown }> => {
+    const response = await api.get('/system/admins', { params });
+    return response.data;
+  },
+  createAdmin: async (adminData: { email: string; password: string; password_confirmation: string; institutionId?: string }): Promise<Admin> => {
     const response = await api.post('/system/admins/create-and-assign', adminData);
     return response.data;
   },

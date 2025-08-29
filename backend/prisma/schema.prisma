@@ -9,6 +9,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enums for institution ownership and type
+enum Ownership {
+  PUBLIC
+  PRIVATE
+}
+
+enum InstitutionType {
+  GENERAL
+  ENGINEERING
+}
+
 enum Stream {
   SCIENCE
   ARTS
@@ -107,6 +118,10 @@ model Institution {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now()) @updatedAt
 
+  // New classification fields
+  ownership Ownership?
+  type      InstitutionType?
+
   units        Unit[]
   admins       Admin[] // Relation to Admin
   applications Application[]
@@ -116,6 +131,9 @@ model Institution {
   institutionForms InstitutionForm[]
 
   InstitutionCategory InstitutionCategory? @relation(fields: [institutionCategoryInstitutionCategoryId], references: [institutionCategoryId])
+
+  @@index([ownership])
+  @@index([type])
 }
 
 model Unit {

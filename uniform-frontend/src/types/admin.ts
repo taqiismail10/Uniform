@@ -10,6 +10,8 @@ export interface Institution {
   website?: string;
   establishedYear?: number;
   logoUrl?: string;
+  ownership?: 'PUBLIC' | 'PRIVATE' | null;
+  type?: 'GENERAL' | 'ENGINEERING' | null;
   createdAt: string;
   updatedAt: string;
   institutionCategoryInstitutionCategoryId?: string;
@@ -70,6 +72,8 @@ export interface Institution {
   website?: string;
   establishedYear?: number;
   logoUrl?: string;
+  ownership?: 'PUBLIC' | 'PRIVATE' | null;
+  type?: 'GENERAL' | 'ENGINEERING' | null;
   createdAt: string;
   updatedAt: string;
   InstitutionCategory?: {

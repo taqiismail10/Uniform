@@ -43,6 +43,8 @@ class institutionController {
         email,
         website,
         establishedYear,
+        ownership,
+        type,
       } = req.body;
       // Update the institution record
       const updated = await prisma.institution.update({
@@ -55,6 +57,10 @@ class institutionController {
           email,
           website,
           establishedYear,
+          ...(ownership !== undefined
+            ? { ownership: String(ownership).toUpperCase() }
+            : {}),
+          ...(type !== undefined ? { type: String(type).toUpperCase() } : {}),
         },
       });
       return res.json({ status: 200, data: updated });

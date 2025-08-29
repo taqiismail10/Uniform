@@ -17,7 +17,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { adminApi } from '@/api/admin/adminApi';
-import type { Institution } from '@/types/admin';
+import type { Institution, Admin } from '@/types/admin';
+import { format } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   Plus,
   Eye,
@@ -27,6 +29,8 @@ import {
 
 export function AdminManagement() {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
+  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(true);
 
   // Create admin form state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -35,11 +39,26 @@ export function AdminManagement() {
     password: '',
     institutionId: ''
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
     fetchInstitutions();
+    void (async () => {
+      try {
+        setLoadingAdmins(true);
+        const response = await adminApi.getAdmins();
+        setAdmins((response as any).admins || []);
+      } catch (error) {
+        toast.error('Failed to load admins');
+        console.error('Error fetching admins:', error);
+      } finally {
+        setLoadingAdmins(false);
+      }
+    })();
   }, []);
 
   const fetchInstitutions = async () => {
@@ -59,13 +78,18 @@ export function AdminManagement() {
       toast.error('Email and password are required');
       return;
     }
+    if (newAdmin.password !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
 
     try {
       setIsSubmitting(true);
       await adminApi.createAdmin({
         email: newAdmin.email,
         password: newAdmin.password,
-        institutionId: newAdmin.institutionId || undefined
+        password_confirmation: confirmPassword,
+        institutionId: newAdmin.institutionId || undefined,
       });
 
       toast.success('Admin created successfully');
@@ -75,7 +99,20 @@ export function AdminManagement() {
         password: '',
         institutionId: ''
       });
+      setConfirmPassword('');
       setShowPassword(false);
+      setShowConfirmPassword(false);
+      setPasswordError('');
+      // Refresh admin list
+      try {
+        setLoadingAdmins(true);
+        const response = await adminApi.getAdmins();
+        setAdmins((response as any).admins || []);
+      } catch (e) {
+        console.error('Failed to refresh admins', e);
+      } finally {
+        setLoadingAdmins(false);
+      }
     } catch (error) {
       toast.error('Failed to create admin');
       console.error('Error creating admin:', error);
@@ -98,7 +135,7 @@ export function AdminManagement() {
               Create Institution Admin
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[560px]">
             <DialogHeader>
               <DialogTitle>Create New Admin</DialogTitle>
               <DialogDescription>
@@ -146,6 +183,41 @@ export function AdminManagement() {
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="confirmPassword" className="text-right">
+                  Confirm Password
+                </Label>
+                <div className="col-span-3 relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setConfirmPassword(v);
+                      setPasswordError(v && newAdmin.password !== v ? 'Passwords do not match' : '');
+                    }}
+                    aria-invalid={passwordError ? true : false}
+                    className={`pr-10 ${passwordError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                  {passwordError && (
+                    <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="institution" className="text-right">
                   Institution
                 </Label>
@@ -184,11 +256,56 @@ export function AdminManagement() {
           <CardDescription>View and manage all institution administrators</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">Admin list not available</h3>
-            <p className="text-gray-500">The backend does not currently support fetching a list of admins.</p>
-          </div>
+          {loadingAdmins ? (
+            <div className="flex justify-center items-center h-24">Loading admins...</div>
+          ) : admins.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-1">No admins found</h3>
+              <p className="text-gray-500">Create the first institution admin to get started.</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Institution</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {admins.map((a) => (
+                  <TableRow key={a.adminId}>
+                    <TableCell>{a.email}</TableCell>
+                    <TableCell>{a.institution?.name ?? '—'}</TableCell>
+                    <TableCell>{format(new Date(a.createdAt), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        {a.institutionId ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                await adminApi.unassignAdmin(a.adminId);
+                                toast.success('Unassigned admin from institution');
+                                setAdmins((prev) => prev.map((x) => x.adminId === a.adminId ? { ...x, institutionId: undefined, institution: undefined } : x));
+                              } catch (e) {
+                                toast.error('Failed to unassign admin');
+                              }
+                            }}
+                          >
+                            Unassign
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

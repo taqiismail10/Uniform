@@ -3,7 +3,7 @@ import vine, { errors } from "@vinejs/vine";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../DB/db.config.js";
-import { adminLoginSchema } from "../validations/AuthValidation.js";
+import { adminLoginSchema, createInstitutionAdminSchema } from "../validations/AuthValidation.js";
 import { institutionSystemSchema } from "../validations/institutionValidation.js";
 
 function toTitleCase(str) {
@@ -107,6 +107,8 @@ class systemAdminAuthController {
 			}
 
 			// Create institution with optional fields
+			const ownership = payload.ownership ? String(payload.ownership).toUpperCase() : undefined;
+			const instType = payload.type ? String(payload.type).toUpperCase() : undefined;
 			const institution = await prisma.institution.create({
 				data: {
 					name: payload.name.trim(),
@@ -117,6 +119,8 @@ class systemAdminAuthController {
 					website: payload.website ?? null,
 					establishedYear: payload.establishedYear ?? null,
 					logoUrl: payload.logoUrl ?? null,
+					ownership: ownership ?? null,
+					type: instType ?? null,
 					institutionCategoryInstitutionCategoryId: categoryId,
 				},
 				include: {
@@ -168,15 +172,9 @@ class systemAdminAuthController {
 
 	static async createAndAssignInstitutionAdmin(req, res) {
 		try {
-			const { email, password, institutionId } = req.body;
-			// Add validation logic here if needed
-
-			if (!email || !password || !institutionId) {
-				return res.status(400).json({
-					status: 400,
-					message: "Email, password, and institutionId are required.",
-				});
-			}
+			// Validate input
+			const validator = vine.compile(createInstitutionAdminSchema);
+			const { email, password, institutionId } = await validator.validate(req.body);
 
 			// Create institution admin
 			// 2. Check if the institution exists
@@ -356,6 +354,57 @@ class systemAdminAuthController {
 		}
 	}
 
+	static async fetchAdmins(req, res) {
+		try {
+			let page = req.query.page !== undefined ? Number(req.query.page) : undefined;
+			let limit = req.query.limit !== undefined ? Number(req.query.limit) : undefined;
+			const search = req.query.search ? String(req.query.search) : undefined;
+			const institutionId = req.query.institutionId ? String(req.query.institutionId) : undefined;
+
+			const where = {};
+			if (search) {
+				where.OR = [
+					{ email: { contains: search, mode: 'insensitive' } },
+				];
+			}
+			if (institutionId) {
+				where.institutionId = institutionId;
+			}
+
+			const include = { institution: { select: { institutionId: true, name: true } } };
+			const orderBy = { createdAt: 'desc' };
+
+			if (page !== undefined || limit !== undefined) {
+				page = !page || page <= 0 ? 1 : page;
+				limit = !limit || limit <= 0 ? 50 : Math.min(limit, 100);
+				const skip = (page - 1) * limit;
+
+				const [admins, totalAdmins] = await Promise.all([
+					prisma.admin.findMany({ where, include, orderBy, skip, take: limit }),
+					prisma.admin.count({ where }),
+				]);
+
+				const totalPages = Math.ceil(totalAdmins / limit);
+				return res.status(200).json({
+					status: 200,
+					admins,
+					metadata: {
+						totalPages,
+						currentPage: page,
+						currentLimit: limit,
+						totalItems: totalAdmins,
+					},
+				});
+			} else {
+				const admins = await prisma.admin.findMany({ where, include, orderBy });
+				return res.status(200).json({ status: 200, admins });
+			}
+		} catch (error) {
+			console.error('Error fetching admins:', error);
+			return res.status(500).json({ status: 500, message: 'Something went wrong' });
+		}
+	}
+
 	static async getInstitutionById(req, res) {
 		try {
 			const { institutionId } = req.params;
@@ -399,6 +448,8 @@ class systemAdminAuthController {
 				}
 			}
 
+			const ownership = payload.ownership !== undefined ? String(payload.ownership).toUpperCase() : undefined;
+			const instType = payload.type !== undefined ? String(payload.type).toUpperCase() : undefined;
 			const updated = await prisma.institution.update({
 				where: { institutionId },
 				data: {
@@ -414,6 +465,9 @@ class systemAdminAuthController {
 					...(payload.categoryName !== undefined
 						? { institutionCategoryInstitutionCategoryId: categoryId }
 						: {}),
+					// Only update enums if provided
+					...(ownership !== undefined ? { ownership } : {}),
+					...(instType !== undefined ? { type: instType } : {}),
 				},
 				include: { InstitutionCategory: true },
 			});

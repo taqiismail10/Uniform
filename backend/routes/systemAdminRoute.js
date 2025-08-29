@@ -26,6 +26,13 @@ router.get(
 	systemAdminAuthController.index
 );
 
+router.get(
+	"/admins",
+	redisCache.route(),
+	systemAdminMiddleware,
+	systemAdminAuthController.fetchAdmins
+);
+
 // Institution routes
 router.post(
 	"/institutions",

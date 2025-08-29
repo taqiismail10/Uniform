@@ -14,10 +14,10 @@ import { Building2, MapPin, Phone as PhoneIcon, Mail, Globe, CalendarDays, Tag a
 import { toast } from 'sonner'
 
 // Local categories list (kept in sync with CreateInstitutionDialog)
-const INSTITUTION_CATEGORIES = [
-  'Private Institution',
-  'Public Institution',
-]
+const INSTITUTION_CATEGORIES = ['University', 'College']
+
+const OWNERSHIP_OPTIONS = ['PUBLIC', 'PRIVATE'] as const
+const INSTITUTION_TYPE_OPTIONS = ['GENERAL', 'ENGINEERING'] as const
 
 export const Route = createFileRoute('/admin/institutions/$institutionId')({
   component: () => <RouteComponent />,
@@ -36,6 +36,8 @@ function RouteComponent() {
   const [form, setForm] = useState({
     name: '',
     categoryName: '',
+    ownership: '',
+    type: '',
     description: '',
     address: '',
     phone: '',
@@ -45,15 +47,37 @@ function RouteComponent() {
     logoUrl: '',
   })
 
+  // Helpers to map legacy combined categories to separate fields
+  const normalizeCategory = (name: string): string => {
+    const lc = name.toLowerCase()
+    if (lc.includes('college')) return 'College'
+    if (lc.includes('university')) return 'University'
+    return name || ''
+  }
+
+  const deriveTypeFromCategory = (name: string): '' | 'GENERAL' | 'ENGINEERING' => {
+    const lc = name.toLowerCase()
+    if (lc.includes('engineering')) return 'ENGINEERING'
+    if (lc.includes('general') || lc.includes('national') || lc.includes('college')) return 'GENERAL'
+    return ''
+  }
+
   useEffect(() => {
     const run = async () => {
       try {
         setLoading(true)
         const data = await adminApi.getInstitutionById(params.institutionId)
         setInstitution(data)
+        const rawCategory = data.InstitutionCategory?.name ?? ''
+        const normalizedCategory = normalizeCategory(rawCategory)
+        const initialType = (data.type as 'GENERAL' | 'ENGINEERING' | null) ?? deriveTypeFromCategory(rawCategory)
+        const initialOwnership = (data.ownership as 'PUBLIC' | 'PRIVATE' | null) ?? (rawCategory.toLowerCase().includes('national') ? 'PUBLIC' : '')
+
         setForm({
           name: data.name ?? '',
-          categoryName: data.InstitutionCategory?.name ?? '',
+          categoryName: normalizedCategory,
+          ownership: initialOwnership || '',
+          type: initialType || '',
           description: data.description ?? '',
           address: data.address ?? '',
           phone: data.phone ?? '',
@@ -75,9 +99,12 @@ function RouteComponent() {
   const handleStartEdit = () => setIsEditing(true)
   const handleCancelEdit = () => {
     if (institution) {
+      const rawCategory = institution.InstitutionCategory?.name ?? ''
       setForm({
         name: institution.name ?? '',
-        categoryName: institution.InstitutionCategory?.name ?? '',
+        categoryName: normalizeCategory(rawCategory),
+        ownership: (institution.ownership as 'PUBLIC' | 'PRIVATE' | null) ?? (rawCategory.toLowerCase().includes('national') ? 'PUBLIC' : ''),
+        type: (institution.type as 'GENERAL' | 'ENGINEERING' | null) ?? deriveTypeFromCategory(rawCategory),
         description: institution.description ?? '',
         address: institution.address ?? '',
         phone: institution.phone ?? '',
@@ -100,6 +127,8 @@ function RouteComponent() {
       const payload = {
         name: form.name.trim(),
         categoryName: form.categoryName?.trim() || undefined,
+        ownership: (form.ownership as 'PUBLIC' | 'PRIVATE') || undefined,
+        type: (form.type as 'GENERAL' | 'ENGINEERING') || undefined,
         description: form.description?.trim() || undefined,
         address: form.address?.trim() || undefined,
         phone: form.phone?.trim() || undefined,
@@ -203,12 +232,12 @@ function RouteComponent() {
       <Card>
         <CardHeader>
           <div className="flex items-start gap-4">
-            <div className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 aspect-square rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+            <div className="h-16 w-16 sm:h-18 sm:w-18 lg:h-20 lg:w-20 p-1 border-1 aspect-square rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
               {institution?.logoUrl ? (
                 <img
                   src={institution.logoUrl}
                   alt={institution?.name ? `${institution.name} logo` : 'Institution logo'}
-                  className="block h-full w-full object-cover rounded-full"
+                  className="block h-[95%] object-cover rounded-full"
                 />
               ) : (
                 <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-gray-500" />
@@ -259,6 +288,32 @@ function RouteComponent() {
                         </Badge>
                       ) : (
                         'Uncategorized'
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Ownership</div>
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <TagIcon className="h-4 w-4 text-gray-500" />
+                      {institution?.ownership ? (
+                        <Badge className="bg-blue-100 text-blue-800">
+                          {institution.ownership.charAt(0) + institution.ownership.slice(1).toLowerCase()}
+                        </Badge>
+                      ) : (
+                        '—'
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase text-gray-500">Type</div>
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <TagIcon className="h-4 w-4 text-gray-500" />
+                      {institution?.type ? (
+                        <Badge className="bg-green-100 text-green-800">
+                          {institution.type.charAt(0) + institution.type.slice(1).toLowerCase()}
+                        </Badge>
+                      ) : (
+                        '—'
                       )}
                     </div>
                   </div>
@@ -345,6 +400,40 @@ function RouteComponent() {
                       <SelectContent>
                         {INSTITUTION_CATEGORIES.map((c) => (
                           <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Ownership */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="ownership" className="text-right">Ownership</Label>
+                    <Select
+                      value={form.ownership}
+                      onValueChange={(v) => setForm((f) => ({ ...f, ownership: v }))}
+                    >
+                      <SelectTrigger id="ownership" className="col-span-3">
+                        <SelectValue placeholder="Select ownership" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OWNERSHIP_OPTIONS.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt.charAt(0) + opt.slice(1).toLowerCase()}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Type */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="type" className="text-right">Type</Label>
+                    <Select
+                      value={form.type}
+                      onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}
+                    >
+                      <SelectTrigger id="type" className="col-span-3">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INSTITUTION_TYPE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt.charAt(0) + opt.slice(1).toLowerCase()}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

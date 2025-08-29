@@ -25,15 +25,17 @@ import { Plus } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
 // Predefined categories for the dropdown
-const INSTITUTION_CATEGORIES = [
-  'Public Institution',
-  'Private Institution',
-];
+const INSTITUTION_CATEGORIES = ['University', 'College'];
+
+const OWNERSHIP_OPTIONS = ['PUBLIC', 'PRIVATE'] as const;
+const INSTITUTION_TYPE_OPTIONS = ['GENERAL', 'ENGINEERING'] as const;
 
 // Define a proper type for the payload
 interface CreateInstitutionPayload {
   name: string;
   categoryName?: string;
+  ownership?: 'PUBLIC' | 'PRIVATE';
+  type?: 'GENERAL' | 'ENGINEERING';
   description?: string;
   address?: string;
   phone?: string;
@@ -52,6 +54,8 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
   const [newInstitution, setNewInstitution] = useState({
     name: '',
     categoryName: '',
+    ownership: '',
+    type: '',
     description: '',
     address: '',
     phone: '',
@@ -77,6 +81,8 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       const payload: CreateInstitutionPayload = {
         name: newInstitution.name.trim(),
         categoryName: newInstitution.categoryName?.trim() || undefined,
+        ownership: (newInstitution.ownership as 'PUBLIC' | 'PRIVATE') || undefined,
+        type: (newInstitution.type as 'GENERAL' | 'ENGINEERING') || undefined,
         description: newInstitution.description?.trim() || undefined,
         address: newInstitution.address?.trim() || undefined,
         phone: newInstitution.phone?.trim() || undefined,
@@ -96,6 +102,8 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       setNewInstitution({
         name: '',
         categoryName: '',
+        ownership: '',
+        type: '',
         description: '',
         address: '',
         phone: '',
@@ -120,6 +128,8 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       setNewInstitution({
         name: '',
         categoryName: '',
+        ownership: '',
+        type: '',
         description: '',
         address: '',
         phone: '',
@@ -179,6 +189,50 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
                 {INSTITUTION_CATEGORIES.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Ownership */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="ownership" className="text-right">
+              Ownership
+            </Label>
+            <Select
+              value={newInstitution.ownership}
+              onValueChange={(value) => setNewInstitution({ ...newInstitution, ownership: value })}
+            >
+              <SelectTrigger id="ownership" className="col-span-3">
+                <SelectValue placeholder="Select ownership" />
+              </SelectTrigger>
+              <SelectContent>
+                {OWNERSHIP_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt.charAt(0) + opt.slice(1).toLowerCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Institution Type */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="type" className="text-right">
+              Type
+            </Label>
+            <Select
+              value={newInstitution.type}
+              onValueChange={(value) => setNewInstitution({ ...newInstitution, type: value })}
+            >
+              <SelectTrigger id="type" className="col-span-3">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {INSTITUTION_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt.charAt(0) + opt.slice(1).toLowerCase()}
                   </SelectItem>
                 ))}
               </SelectContent>

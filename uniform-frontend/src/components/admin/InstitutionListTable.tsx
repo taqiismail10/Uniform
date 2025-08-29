@@ -24,6 +24,8 @@ export interface InstitutionWithCategory {
   website?: string | null;
   establishedYear?: number | null;
   logoUrl?: string | null;
+  ownership?: 'PUBLIC' | 'PRIVATE' | null;
+  type?: 'GENERAL' | 'ENGINEERING' | null;
   createdAt: string;
   updatedAt: string;
   InstitutionCategory?: {
@@ -134,7 +136,7 @@ export function InstitutionListTable({
               Name
               <ArrowUpDown className="ml-2 h-4 w-4" />
             </TableHead>
-            <TableHead>Category</TableHead>
+            <TableHead>Classification</TableHead>
             <TableHead
               className="cursor-pointer flex items-center"
               onClick={() => onSort('createdAt')}
@@ -179,13 +181,33 @@ export function InstitutionListTable({
                   </Link>
                 </TableCell>
                 <TableCell>
-                  {institution.InstitutionCategory?.name ? (
-                    <Badge className={getCategoryBadgeColor(institution.InstitutionCategory.name)}>
-                      {highlight(institution.InstitutionCategory.name, query)}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline">Uncategorized</Badge>
-                  )}
+                  <div className="flex flex-wrap gap-1">
+                    {institution.InstitutionCategory?.name ? (
+                      <Badge className={getCategoryBadgeColor(institution.InstitutionCategory.name)}>
+                        {highlight(institution.InstitutionCategory.name, query)}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Uncategorized</Badge>
+                    )}
+                    {institution.type && (
+                      <Badge className={
+                        institution.type === 'ENGINEERING'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-slate-100 text-slate-800'
+                      }>
+                        {institution.type.charAt(0) + institution.type.slice(1).toLowerCase()}
+                      </Badge>
+                    )}
+                    {institution.ownership && (
+                      <Badge className={
+                        institution.ownership === 'PUBLIC'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }>
+                        {institution.ownership.charAt(0) + institution.ownership.slice(1).toLowerCase()}
+                      </Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {format(new Date(institution.createdAt), 'MMM dd, yyyy')}
