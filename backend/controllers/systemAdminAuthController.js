@@ -361,6 +361,37 @@ class systemAdminAuthController {
 		}
 	}
 
+	static async assignInstitutionAdmin(req, res) {
+		try {
+			const { adminId } = req.params;
+			const { institutionId } = req.body || {};
+			if (!institutionId) {
+				return res.status(400).json({ status: 400, message: 'institutionId is required' });
+			}
+
+			const existingAdmin = await prisma.admin.findUnique({ where: { adminId } });
+			if (!existingAdmin) {
+				return res.status(404).json({ status: 404, message: 'Institution admin not found.' });
+			}
+
+			const institution = await prisma.institution.findUnique({ where: { institutionId } });
+			if (!institution) {
+				return res.status(404).json({ status: 404, message: 'Institution not found.' });
+			}
+
+			const updatedAdmin = await prisma.admin.update({
+				where: { adminId },
+				data: { institutionId },
+				include: { institution: true },
+			});
+
+			return res.status(200).json({ status: 200, message: 'Admin assigned to institution successfully.', admin: updatedAdmin });
+		} catch (error) {
+			console.error('Error assigning institution to admin:', error);
+			return res.status(500).json({ status: 500, message: 'Something went wrong' });
+		}
+	}
+
 	static async updatePassword(req, res) {
 		try {
 			const { systemAdminId } = req.admin;

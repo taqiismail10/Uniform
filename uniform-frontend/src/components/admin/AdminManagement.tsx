@@ -52,8 +52,8 @@ export function AdminManagement() {
     void (async () => {
       try {
         setLoadingAdmins(true);
-        const response = await adminApi.getAdmins();
-        setAdmins((response as any).admins || []);
+        const { admins } = await adminApi.getAdmins();
+        setAdmins(admins || []);
       } catch (error) {
         toast.error('Failed to load admins');
         console.error('Error fetching admins:', error);
@@ -108,10 +108,10 @@ export function AdminManagement() {
       // Refresh admin list
       try {
         setLoadingAdmins(true);
-        const response = await adminApi.getAdmins();
-        setAdmins((response as any).admins || []);
-      } catch (e) {
-        console.error('Failed to refresh admins', e);
+        const { admins } = await adminApi.getAdmins();
+        setAdmins(admins || []);
+      } catch (error) {
+        console.error('Failed to refresh admins', error);
       } finally {
         setLoadingAdmins(false);
       }
@@ -125,7 +125,7 @@ export function AdminManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Admin Management</h1>
           <p className="text-gray-500">Manage institution administrators</p>
@@ -283,7 +283,7 @@ export function AdminManagement() {
                     <TableCell>{a.email}</TableCell>
                     <TableCell>{a.institution?.name ?? 'â€”'}</TableCell>
                     <TableCell>{format(new Date(a.createdAt), 'MMM dd, yyyy')}</TableCell>
-                    <TableCell>{a.lastLogin ? format(new Date(a.lastLogin), 'MMM dd, yyyy p') : '—'}</TableCell>
+                    <TableCell>{a.lastLogin ? format(new Date(a.lastLogin), 'MMM dd, yyyy p') : 'ï¿½'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {a.institutionId ? (
@@ -295,7 +295,7 @@ export function AdminManagement() {
                                 await adminApi.unassignAdmin(a.adminId);
                                 toast.success('Unassigned admin from institution');
                                 setAdmins((prev) => prev.map((x) => x.adminId === a.adminId ? { ...x, institutionId: undefined, institution: undefined } : x));
-                              } catch (e) {
+                              } catch {
                                 toast.error('Failed to unassign admin');
                               }
                             }}
@@ -347,9 +347,9 @@ export function AdminManagement() {
                       setAdmins((prev) => prev.filter((x) => x.adminId !== adminToDelete.adminId));
                       setIsDeleteAdminDialogOpen(false);
                       setAdminToDelete(null);
-                    } catch (e) {
-                      toast.error('Failed to delete admin');
-                    }
+                    } catch {
+                  toast.error('Failed to delete admin');
+                }
                   }}
                 >
                   Delete
@@ -362,6 +362,7 @@ export function AdminManagement() {
     </div>
   );
 }
+
 
 
 

@@ -92,6 +92,11 @@ export const adminApi = {
     await api.patch(`/system/admins/${adminId}/unassign-institution`);
   },
 
+  assignAdmin: async (adminId: string, institutionId: string): Promise<Admin> => {
+    const response = await api.patch(`/system/admins/${adminId}/assign-institution`, { institutionId });
+    return response.data.admin as Admin;
+  },
+
   deleteAdmin: async (adminId: string): Promise<void> => {
     await api.delete(`/system/admins/${adminId}`);
   },

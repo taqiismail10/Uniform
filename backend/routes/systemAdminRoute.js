@@ -59,9 +59,15 @@ router.put(
 );
 
 router.patch(
-	"/admins/:adminId/unassign-institution",
-	systemAdminMiddleware, // Only SYSTEM_ADMIN allowed
-	systemAdminAuthController.unassignInstitutionAdmin
+    "/admins/:adminId/unassign-institution",
+    systemAdminMiddleware, // Only SYSTEM_ADMIN allowed
+    systemAdminAuthController.unassignInstitutionAdmin
+);
+
+router.patch(
+	"/admins/:adminId/assign-institution",
+	systemAdminMiddleware,
+	systemAdminAuthController.assignInstitutionAdmin
 );
 
 router.get(
