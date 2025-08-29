@@ -168,40 +168,7 @@ function RouteComponent() {
     return String(val)
   }
 
-  const getCategoryBadgeColor = (categoryName: string) => {
-    switch (categoryName.toLowerCase()) {
-      case 'public institution':
-      case 'public':
-        return 'bg-blue-100 text-blue-800'
-      case 'private institution':
-      case 'private':
-        return 'bg-purple-100 text-purple-800'
-      case 'engineering':
-        return 'bg-green-100 text-green-800'
-      case 'medical':
-        return 'bg-red-100 text-red-800'
-      case 'science & technology':
-        return 'bg-indigo-100 text-indigo-800'
-      case 'agriculture':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'arts & humanities':
-        return 'bg-pink-100 text-pink-800'
-      case 'business':
-        return 'bg-orange-100 text-orange-800'
-      case 'law':
-        return 'bg-gray-100 text-gray-800'
-      case 'education':
-        return 'bg-teal-100 text-teal-800'
-      case 'vocational':
-        return 'bg-amber-100 text-amber-800'
-      case 'community college':
-        return 'bg-lime-100 text-lime-800'
-      case 'research institute':
-        return 'bg-cyan-100 text-cyan-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
+const getCategoryBadgeColor = (_categoryName: string) => 'bg-gray-100 text-gray-800'
 
   return (
     <div className="space-y-4">
@@ -296,7 +263,7 @@ function RouteComponent() {
                     <div className="mt-1 text-gray-900 flex items-center gap-2">
                       <TagIcon className="h-4 w-4 text-gray-500" />
                       {institution?.ownership ? (
-                        <Badge className="bg-blue-100 text-blue-800">
+                        <Badge className="bg-gray-300 text-gray-900">
                           {institution.ownership.charAt(0) + institution.ownership.slice(1).toLowerCase()}
                         </Badge>
                       ) : (
@@ -309,7 +276,7 @@ function RouteComponent() {
                     <div className="mt-1 text-gray-900 flex items-center gap-2">
                       <TagIcon className="h-4 w-4 text-gray-500" />
                       {institution?.type ? (
-                        <Badge className="bg-green-100 text-green-800">
+                        <Badge className="bg-gray-200 text-gray-800">
                           {institution.type.charAt(0) + institution.type.slice(1).toLowerCase()}
                         </Badge>
                       ) : (
@@ -335,7 +302,7 @@ function RouteComponent() {
                     <div className="mt-1 text-gray-900 flex items-center gap-2">
                       <PhoneIcon className="h-4 w-4 text-gray-500" />
                       {institution?.phone ? (
-                        <a className="text-blue-600 hover:underline" href={`tel:${institution.phone}`}>{institution.phone}</a>
+                        <a className="text-gray-700 hover:underline" href={`tel:${institution.phone}`}>{institution.phone}</a>
                       ) : (
                         '—'
                       )}
@@ -346,7 +313,7 @@ function RouteComponent() {
                     <div className="mt-1 text-gray-900 flex items-center gap-2">
                       <Mail className="h-4 w-4 text-gray-500" />
                       {institution?.email ? (
-                        <a className="text-blue-600 hover:underline" href={`mailto:${institution.email}`}>{institution.email}</a>
+                        <a className="text-gray-700 hover:underline" href={`mailto:${institution.email}`}>{institution.email}</a>
                       ) : (
                         '—'
                       )}
@@ -357,7 +324,7 @@ function RouteComponent() {
                     <div className="mt-1 text-gray-900 flex items-center gap-2">
                       <Globe className="h-4 w-4 text-gray-500" />
                       {institution?.website ? (
-                        <a className="text-blue-600 hover:underline" href={institution.website} target="_blank" rel="noreferrer">
+                        <a className="text-gray-700 hover:underline" href={institution.website} target="_blank" rel="noreferrer">
                           {institution.website}
                         </a>
                       ) : (

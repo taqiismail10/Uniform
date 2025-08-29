@@ -56,40 +56,7 @@ export function InstitutionListTable({
   onRowClick,
 }: InstitutionListTableProps) {
   // Function to get category badge color based on category name
-  const getCategoryBadgeColor = (categoryName: string) => {
-    switch (categoryName.toLowerCase()) {
-      case 'public institution':
-      case 'public':
-        return 'bg-blue-100 text-blue-800';
-      case 'private institution':
-      case 'private':
-        return 'bg-purple-100 text-purple-800';
-      case 'engineering':
-        return 'bg-green-100 text-green-800';
-      case 'medical':
-        return 'bg-red-100 text-red-800';
-      case 'science & technology':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'agriculture':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'arts & humanities':
-        return 'bg-pink-100 text-pink-800';
-      case 'business':
-        return 'bg-orange-100 text-orange-800';
-      case 'law':
-        return 'bg-gray-100 text-gray-800';
-      case 'education':
-        return 'bg-teal-100 text-teal-800';
-      case 'vocational':
-        return 'bg-amber-100 text-amber-800';
-      case 'community college':
-        return 'bg-lime-100 text-lime-800';
-      case 'research institute':
-        return 'bg-cyan-100 text-cyan-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const getCategoryBadgeColor = (_categoryName: string) => 'bg-gray-100 text-gray-800';
 
   const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const highlight = (text: string | undefined | null, q: string) => {
@@ -102,7 +69,7 @@ export function InstitutionListTable({
         <>
           {parts.map((part, idx) =>
             re.test(part) ? (
-              <mark key={idx} className="bg-yellow-100 px-0.5 rounded">
+              <mark key={idx} className="bg-gray-200 px-0.5 rounded">
                 {part}
               </mark>
             ) : (
@@ -192,8 +159,8 @@ export function InstitutionListTable({
                     {institution.type && (
                       <Badge className={
                         institution.type === 'ENGINEERING'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-slate-100 text-slate-800'
+                          ? 'bg-gray-200 text-gray-800'
+                          : 'bg-gray-100 text-gray-700'
                       }>
                         {institution.type.charAt(0) + institution.type.slice(1).toLowerCase()}
                       </Badge>
@@ -201,8 +168,8 @@ export function InstitutionListTable({
                     {institution.ownership && (
                       <Badge className={
                         institution.ownership === 'PUBLIC'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-purple-100 text-purple-800'
+                          ? 'bg-gray-300 text-gray-900'
+                          : 'bg-gray-200 text-gray-800'
                       }>
                         {institution.ownership.charAt(0) + institution.ownership.slice(1).toLowerCase()}
                       </Badge>

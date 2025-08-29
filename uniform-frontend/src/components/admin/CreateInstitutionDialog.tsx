@@ -161,7 +161,7 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
           {/* Name */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Name <span className="text-red-500">*</span>
+              Name <span className="text-gray-700">*</span>
             </Label>
             <Input
               id="name"

@@ -361,7 +361,7 @@ class systemAdminAuthController {
 			const search = req.query.search ? String(req.query.search) : undefined;
 			const institutionId = req.query.institutionId ? String(req.query.institutionId) : undefined;
 
-			const where = {};
+			const where = { role: 'INSTITUTION_ADMIN' };
 			if (search) {
 				where.OR = [
 					{ email: { contains: search, mode: 'insensitive' } },
@@ -401,6 +401,24 @@ class systemAdminAuthController {
 			}
 		} catch (error) {
 			console.error('Error fetching admins:', error);
+			return res.status(500).json({ status: 500, message: 'Something went wrong' });
+		}
+	}
+
+	static async deleteAdmin(req, res) {
+		try {
+			const { adminId } = req.params;
+			if (!adminId) {
+				return res.status(400).json({ status: 400, message: 'adminId is required' });
+			}
+			const existing = await prisma.admin.findUnique({ where: { adminId } });
+			if (!existing) {
+				return res.status(404).json({ status: 404, message: 'Admin not found' });
+			}
+			await prisma.admin.delete({ where: { adminId } });
+			return res.status(200).json({ status: 200, message: 'Admin deleted successfully', adminId });
+		} catch (error) {
+			console.error('Error deleting admin:', error);
 			return res.status(500).json({ status: 500, message: 'Something went wrong' });
 		}
 	}

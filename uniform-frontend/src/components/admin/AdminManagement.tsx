@@ -44,6 +44,8 @@ export function AdminManagement() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+  const [isDeleteAdminDialogOpen, setIsDeleteAdminDialogOpen] = useState(false);
+  const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null);
 
   useEffect(() => {
     fetchInstitutions();
@@ -197,7 +199,7 @@ export function AdminManagement() {
                       setPasswordError(v && newAdmin.password !== v ? 'Passwords do not match' : '');
                     }}
                     aria-invalid={passwordError ? true : false}
-                    className={`pr-10 ${passwordError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}`}
+                    className={`pr-10 ${passwordError ? 'border-gray-500 focus:ring-gray-500 focus:border-gray-500' : ''}`}
                   />
                   <Button
                     type="button"
@@ -213,7 +215,7 @@ export function AdminManagement() {
                     )}
                   </Button>
                   {passwordError && (
-                    <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+                    <p className="mt-1 text-sm text-gray-700">{passwordError}</p>
                   )}
                 </div>
               </div>
@@ -299,6 +301,13 @@ export function AdminManagement() {
                             Unassign
                           </Button>
                         ) : null}
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => { setAdminToDelete(a); setIsDeleteAdminDialogOpen(true); }}
+                        >
+                          Delete
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -308,6 +317,46 @@ export function AdminManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Admin Confirmation Dialog */}
+      <Dialog open={isDeleteAdminDialogOpen} onOpenChange={setIsDeleteAdminDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Institution Admin</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the admin account.
+            </DialogDescription>
+          </DialogHeader>
+          {adminToDelete && (
+            <div className="py-4">
+              <div className="mb-2">
+                <p className="text-sm"><span className="font-medium">Email:</span> {adminToDelete.email}</p>
+                <p className="text-sm"><span className="font-medium">Institution:</span> {adminToDelete.institution?.name ?? '—'}</p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsDeleteAdminDialogOpen(false)}>Cancel</Button>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    if (!adminToDelete) return;
+                    try {
+                      await adminApi.deleteAdmin(adminToDelete.adminId);
+                      toast.success('Admin deleted');
+                      setAdmins((prev) => prev.filter((x) => x.adminId !== adminToDelete.adminId));
+                      setIsDeleteAdminDialogOpen(false);
+                      setAdminToDelete(null);
+                    } catch (e) {
+                      toast.error('Failed to delete admin');
+                    }
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

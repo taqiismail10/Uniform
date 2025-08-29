@@ -83,4 +83,8 @@ export const adminApi = {
   unassignAdmin: async (adminId: string): Promise<void> => {
     await api.patch(`/system/admins/${adminId}/unassign-institution`);
   },
+
+  deleteAdmin: async (adminId: string): Promise<void> => {
+    await api.delete(`/system/admins/${adminId}`);
+  },
 };

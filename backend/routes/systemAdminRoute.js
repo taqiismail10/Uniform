@@ -71,4 +71,10 @@ router.get(
 	systemAdminAuthController.fetchInstitutions
 );
 
+router.delete(
+	"/admins/:adminId",
+	systemAdminMiddleware,
+	systemAdminAuthController.deleteAdmin
+);
+
 export default router;
