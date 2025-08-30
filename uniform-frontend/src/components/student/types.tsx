@@ -19,6 +19,7 @@ export interface UserData {
   dob: string;
   examPath: 'NATIONAL' | 'MADRASHA' | '';
   medium: 'Bangla' | 'English' | 'Arabic' | '';
+  profile?: string; // absolute URL to profile image if available
   // SSC Details
   sscRoll?: string;
   sscRegistration?: string;

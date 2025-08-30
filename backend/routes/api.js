@@ -25,22 +25,19 @@ router.post(
 // Profile routes
 router.get(
   "/profile",
-  redisCache.route(),
   studentMiddleware,
   profileController.index
-); // Private route
+); // Private route (no cache to avoid stale profile image)
 router.put("/profile/:id", studentMiddleware, profileController.update); // Private route
 
 // AcademicInfo routes
 router.get(
   "/academicInfo",
-  redisCache.route(),
   studentMiddleware,
   profileController.getAcademicDetails
 ); // Private route
 router.get(
   "/academicInfo/:id",
-  redisCache.route(),
   studentMiddleware,
   profileController.getAcademicDetails
 ); // Private route

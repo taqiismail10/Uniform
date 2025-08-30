@@ -1,6 +1,8 @@
 // backend/controllers/ProfileController.js
 import prisma from "../DB/db.config.js";
 import { generateRandomNum, imageValidator } from "../utils/helper.js";
+import fs from "fs";
+import path from "path";
 
 class ProfileController {
 	static async index(req, res) {
@@ -95,37 +97,34 @@ class ProfileController {
 			// Prepare update data
 			const updateData = {};
 
-			// Handle profile image upload if provided
-			if (req.files && req.files.profile) {
-				const profile = req.files.profile;
-				const message = imageValidator(
-					profile?.size,
-					profile?.mimetype
-				);
-				console.log("Message ------- : \n", message);
-				if (message !== null) {
-					return res.status(400).json({
-						status: 400,
-						errors: { profile: message },
-					});
-				}
-
-				const imgExt = profile?.name.split(".");
-				const imgName = generateRandomNum() + "." + imgExt[1];
-				const uploadPath = process.cwd() + "/public/images/" + imgName;
-
-				profile.mv(uploadPath, (err) => {
-					if (err) {
-						console.error("File upload error:", err);
-						return res.status(500).json({
-							status: 500,
-							message: "Failed to upload image",
-						});
-					}
-				});
-
-				updateData.profile = imgName;
-			}
+            // Handle profile image upload if provided (store directly in DB as data URL)
+            if (req.files && req.files.profile) {
+                const profile = req.files.profile;
+                const message = imageValidator(
+                    profile?.size,
+                    profile?.mimetype
+                );
+                console.log("Message ------- : \n", message);
+                if (message !== null) {
+                    return res.status(400).json({
+                        status: 400,
+                        errors: { profile: message },
+                    });
+                }
+                try {
+                    const mime = profile?.mimetype || "image/png";
+                    // express-fileupload provides `.data` Buffer
+                    const base64 = (profile?.data ? profile.data.toString("base64") : null);
+                    if (!base64) {
+                        return res.status(400).json({ status: 400, message: "Invalid image payload" });
+                    }
+                    const dataUrl = `data:${mime};base64,${base64}`;
+                    updateData.profile = dataUrl;
+                } catch (err) {
+                    console.error("Image processing error:", err);
+                    return res.status(500).json({ status: 500, message: "Failed to process image" });
+                }
+            }
 
 			// Handle basic profile fields
 			const { fullName, email, phone, address, dob, examPath, medium } =

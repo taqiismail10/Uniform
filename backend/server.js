@@ -28,6 +28,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload());
 app.use(helmet());
 app.use(limiter); // Apply rate limiting to all requests
+// Serve uploaded images and public assets
+import path from "path";
+app.use("/public", express.static(path.join(process.cwd(), "public")));
 
 app.get("/", (req, res) => {
 	return res.json({ message: "Hello, it's working..." });
