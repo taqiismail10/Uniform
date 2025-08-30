@@ -21,6 +21,26 @@ export interface CreateUnitInput {
   requirements?: UnitRequirementInput[]
 }
 
+export interface UnitRequirement {
+  sscStream?: Stream
+  hscStream?: Stream
+  minSscGPA?: number | null
+  minHscGPA?: number | null
+  minCombinedGPA?: number | null
+}
+
+export interface UnitDetail {
+  unitId: string
+  name: string
+  description?: string | null
+  isActive?: boolean
+  applicationDeadline?: string | null
+  maxApplications?: number | null
+  autoCloseAfterDeadline?: boolean
+  requirements?: UnitRequirement[]
+  _count?: { applications?: number }
+}
+
 export const unitsApi = {
   list: async (params?: { page?: number; limit?: number }) => {
     const res = await api.get('/admin/units', { params })
@@ -28,7 +48,7 @@ export const unitsApi = {
   },
   getById: async (unitId: string) => {
     const res = await api.get(`/admin/units/${unitId}`)
-    return res.data as { status: number; data: any }
+    return res.data as { status: number; data: UnitDetail }
   },
   create: async (payload: CreateUnitInput) => {
     const res = await api.post('/admin/units', payload)

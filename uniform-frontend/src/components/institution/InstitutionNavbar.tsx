@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Menu, LayoutDashboard, User, Settings, LogOut, Mail, Clock, Building } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export function InstitutionNavbar() {
   const { logout, user } = useAuth()
@@ -56,21 +57,34 @@ export function InstitutionNavbar() {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* Brand: logo (left) + short name (center-left) on mobile */}
+            <Link to="/institution/dashboard" className="flex items-center gap-2">
+              <div className='w-12 h-12 flex items-center justify-center rounded-full p-1 shadow-sm'>
+                <img
+                  src={institution?.logoUrl || '/logo.svg'}
+                  alt="Institution Logo"
+                  className="h-8 w-8 object-cover"
+                />
+              </div>
+              <span className="text-2xl font-bold text-gray-900 truncate max-w-[50vw]">
+                {shortName}
+              </span>
+            </Link>
             {/* Mobile menu */}
             <Sheet open={openSheet} onOpenChange={setOpenSheet}>
               <SheetTrigger asChild>
-                <button className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50">
+                <button className="md:hidden ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Open navigation</span>
                 </button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0">
+              <SheetContent side="left" className="w-[70%] p-0">
                 <div className="h-14 px-4 border-b border-gray-200 flex items-center gap-2">
                   <img src={institution?.logoUrl || '/logo.svg'} alt="Logo" className="h-6 w-6 rounded-sm object-cover" />
-                  <span className="text-sm font-semibold text-gray-900">{shortName}</span>
+                  <span className="text-xl font-bold text-gray-900">{shortName}</span>
                 </div>
                 <nav className="px-2 py-3 text-sm">
                   <button onClick={() => navigate({ to: '/institution/dashboard' })} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">
@@ -94,19 +108,18 @@ export function InstitutionNavbar() {
                     Settings
                   </button>
                   <hr className="my-2 border-gray-200" />
-                  <button onClick={() => { setOpenSheet(false); setTimeout(() => setOpenLogout(true), 100) }} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">
-                    <LogOut className="h-4 w-4" />
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-gray-800 hover:bg-gray-100"
+                    onClick={() => { setOpenSheet(false); setTimeout(() => setOpenLogout(true), 100) }}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
                     Logout
-                  </button>
+                  </Button>
                 </nav>
               </SheetContent>
             </Sheet>
 
-            {/* Brand */}
-            <Link to="/institution/dashboard" className="inline-flex items-center gap-2">
-              <img src={institution?.logoUrl || '/logo.svg'} alt="Logo" className="h-7 w-7 rounded-sm object-cover" />
-              <span className="font-semibold text-gray-900">{shortName}</span>
-            </Link>
 
             {/* Desktop nav */}
             <nav className="ml-6 hidden md:flex items-center gap-4 text-sm">
@@ -129,8 +142,8 @@ export function InstitutionNavbar() {
           <div className="flex items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="inline-flex items-center gap-2 rounded-full focus:outline-none">
-                  <Avatar className="h-12 w-12 border-1 border-gray-500 p-1">
+                <button className="hidden md:inline-flex items-center gap-2 rounded-full focus:outline-none">
+                  <Avatar className="h-12 w-12 border-1 border-gray-300 shadow-sm p-1">
                     <AvatarImage src={institution?.logoUrl || '/logo.svg'} alt="Institution" />
                     <AvatarFallback className="bg-gray-200 text-gray-700 text-sm">
                       <Building className="h-5 w-5 text-gray-700" />
@@ -182,9 +195,15 @@ export function InstitutionNavbar() {
             <DialogDescription>Are you sure you want to log out of your institution admin account?</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <button className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-800 hover:bg-gray-100" onClick={() => setOpenLogout(false)}>Cancel</button>
-            <button
-              className="px-3 py-1.5 bg-gray-900 text-white rounded-md text-sm hover:bg-gray-800"
+            <Button
+              variant="outline"
+              className="text-gray-800 border-gray-300 hover:bg-gray-100"
+              onClick={() => setOpenLogout(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-black text-white hover:bg-black/90"
               onClick={() => {
                 setOpenLogout(false)
                 // Allow the dialog to close and Radix to cleanup focus/aria state before navigation
@@ -198,7 +217,7 @@ export function InstitutionNavbar() {
               }}
             >
               Logout
-            </button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -259,13 +259,14 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
                             <Settings className="mr-3 h-5 w-5" />
                             Settings
                           </button>
-                          <button
-                            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md"
-                            onClick={() => setIsLogoutDialogOpen(true)}
-                          >
-                            <LogOut className="mr-3 h-5 w-5" />
-                            Log out
-                          </button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-gray-800 hover:bg-gray-100"
+                      onClick={() => setIsLogoutDialogOpen(true)}
+                    >
+                      <LogOut className="mr-3 h-5 w-5" />
+                      Log out
+                    </Button>
                         </div>
                       </div>
                     </div>
@@ -287,10 +288,10 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsLogoutDialogOpen(false)}>
+            <Button variant="outline" className="text-gray-800 border-gray-300 hover:bg-gray-100" onClick={() => setIsLogoutDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleLogout}>
+            <Button className="bg-black text-white hover:bg-black/90" onClick={handleLogout}>
               Log Out
             </Button>
           </DialogFooter>

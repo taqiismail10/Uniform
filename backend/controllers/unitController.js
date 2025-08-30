@@ -127,6 +127,41 @@ class unitController {
       });
 
       if (!admin || !admin.institutionId) {
+        return res.status(403).json({ status: 403, message: "Not authorized" });
+      }
+
+      // If updating name, ensure uniqueness within institution (case-insensitive)
+      if (payload.name) {
+        const existingWithName = await prisma.unit.findFirst({
+          where: {
+            name: { equals: payload.name, mode: "insensitive" },
+            institutionId: admin.institutionId,
+            NOT: { unitId },
+          },
+        });
+        if (existingWithName) {
+          return res
+            .status(400)
+            .json({ status: 400, message: "Unit name already exists" });
+        }
+      }
+
+      // Client may provide duplicate requirements; pre-validate and return helpful error
+      if (payload.requirements !== undefined) {
+        const combos = new Set();
+        for (const r of payload.requirements) {
+          const key = `${r.sscStream}-${r.hscStream}`;
+          if (combos.has(key)) {
+            return res.status(400).json({
+              status: 400,
+              message: `Duplicate stream combination detected: ${key}`,
+            });
+          }
+          combos.add(key);
+        }
+      }
+
+      if (!admin || !admin.institutionId) {
         return res.status(403).json({
           status: 403,
           message: "Not authorized to update units",
@@ -236,6 +271,7 @@ class unitController {
               hscStream: req.hscStream,
               minSscGPA: req.minSscGPA,
               minHscGPA: req.minHscGPA,
+              minCombinedGPA: req.minCombinedGPA,
             }));
 
             await tx.unitRequirement.createMany({

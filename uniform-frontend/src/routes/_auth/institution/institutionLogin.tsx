@@ -7,7 +7,6 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Building, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Toaster } from 'sonner'
 
 export const Route = createFileRoute('/_auth/institution/institutionLogin')({
   component: RouteComponent,
@@ -57,7 +56,6 @@ function RouteComponent() {
 
   return (
     <>
-      <Toaster position="top-right" richColors />
       <div className="flex min-h-screen w-full bg-gray-100">
         <div className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-white shadow-lg">
           {/* Left side - Image and Info */}

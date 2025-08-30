@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { adminApi } from '@/api/admin/adminApi'
-import type { SystemAdmin } from '@/types/admin'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/admin/settings')({
@@ -24,7 +23,7 @@ export const Route = createFileRoute('/admin/settings')({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const [profile, setProfile] = useState<SystemAdmin | null>(null)
+  // Removed unused profile state to avoid TS unused variable error
   const [email, setEmail] = useState('')
   const [savingEmail, setSavingEmail] = useState(false)
   const [oldPassword, setOldPassword] = useState('')
@@ -36,10 +35,7 @@ function RouteComponent() {
     (async () => {
       try {
         const p = await adminApi.getProfile()
-        if (p) {
-          setProfile(p)
-          setEmail(p.email)
-        }
+        if (p) setEmail(p.email)
       } catch (e) {
         // ignore
       }
@@ -82,8 +78,7 @@ function RouteComponent() {
                 onClick={async () => {
                   try {
                     setSavingEmail(true)
-                    const updated = await adminApi.updateSystemAdminEmail(email)
-                    setProfile(updated)
+                    await adminApi.updateSystemAdminEmail(email)
                     toast.success('Email updated')
                   } catch (e: unknown) {
                     const msg = (e as any)?.response?.data?.message || 'Failed to update email'

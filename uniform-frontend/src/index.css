@@ -121,7 +121,13 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Force all anchor links to render in black across the app */
+  a {
+    color: #000 !important;
+  }
+  a:hover, a:focus, a:active, a:visited {
+    color: #000 !important;
+  }
 }
 
-/* Force grayscale across the app */
-html { filter: grayscale(100%); }
+/* Removed global grayscale filter to restore colors */

@@ -1,13 +1,14 @@
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { createFileRoute, useParams, useNavigate, Outlet, useRouterState } from '@tanstack/react-router'
 import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
 import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
 import { unitsApi } from '@/api/units'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+import { Edit, Trash2, ArrowLeft } from 'lucide-react'
 
 type UnitDetail = {
   unitId: string
@@ -17,7 +18,13 @@ type UnitDetail = {
   applicationDeadline?: string | null
   maxApplications?: number | null
   autoCloseAfterDeadline?: boolean
-  requirements?: Array<{ id: string; sscStream: string; hscStream: string; minSscGPA?: number | null; minHscGPA?: number | null; minCombinedGPA?: number | null }>
+  requirements?: Array<{
+    sscStream?: string
+    hscStream?: string
+    minSscGPA?: number | null
+    minHscGPA?: number | null
+    minCombinedGPA?: number | null
+  }>
   _count?: { applications?: number }
 }
 
@@ -30,124 +37,176 @@ export const Route = createFileRoute('/institution/units/$unitId')({
 })
 
 function RouteComponent() {
+  const params = useParams({ from: '/institution/units/$unitId' })
+  const unitId = params.unitId
   const navigate = useNavigate()
-  const { unitId } = useParams({ from: '/institution/units/$unitId' })
+  const isEditing = useRouterState({
+    select: (s) => s.matches.some((m) => m.routeId === '/institution/units/$unitId/edit'),
+  })
   const [unit, setUnit] = useState<UnitDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState(false)
+  const [openDelete, setOpenDelete] = useState(false)
 
   useEffect(() => {
     (async () => {
       try {
         const res = await unitsApi.getById(unitId)
-        setUnit(res.data)
+        setUnit(res?.data ?? null)
+      } catch {
+        toast.error('Unable to load unit')
       } finally {
         setLoading(false)
       }
     })()
   }, [unitId])
 
-  const handleDelete = async () => {
-    if (!confirm('Delete this unit? This action cannot be undone.')) return
+  const performDelete = async () => {
+    if (!unit) return
+    setDeleting(true)
     try {
-      await unitsApi.remove(unitId)
-      toast.success('Unit deleted successfully')
-      navigate({ to: '/institution/units', replace: true })
-    } catch (e) {
+      const res = await unitsApi.remove(unit.unitId)
+      if (res?.status === 200) {
+        toast.success('Unit deleted successfully')
+        navigate({ to: '/institution/units' })
+      } else {
+        toast.error(res?.message || 'Unable to delete unit. Remove related records first.')
+      }
+    } catch {
       toast.error('Unable to delete unit. Remove related records first.')
+    } finally {
+      setDeleting(false)
+      setOpenDelete(false)
     }
+  }
+
+  if (isEditing) {
+    // When the child edit route is active, render the child only.
+    return <Outlet />
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <InstitutionNavbar />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {loading ? (
-          <div className="py-12 text-center text-gray-600">Loading...</div>
-        ) : !unit ? (
-          <div className="py-12 text-center text-gray-600">Unit not found</div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">{unit.name}</h1>
-              <div className="flex items-center gap-2">
-                <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={() => navigate({ to: '/institution/units/$unitId/edit', params: { unitId } })}>
-                  <Pencil className="h-4 w-4 mr-1" /> Edit
-                </Button>
-                <Button variant="destructive" onClick={handleDelete}>
-                  <Trash2 className="h-4 w-4 mr-1" /> Delete
-                </Button>
-              </div>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" className="text-gray-700" onClick={() => navigate({ to: '/institution/units' })}>
+              <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">Unit Details</h1>
+          </div>
+          {unit && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                className="border border-gray-300 text-gray-800 hover:bg-gray-100"
+                onClick={() => navigate({ to: '/institution/units/$unitId/edit', params: { unitId: unit.unitId } })}
+              >
+                <Edit className="h-4 w-4 mr-1" /> Edit
+              </Button>
+              <Button variant="destructive" onClick={() => setOpenDelete(true)}>
+                <Trash2 className="h-4 w-4 mr-1" /> Delete
+              </Button>
             </div>
+          )}
+        </div>
 
-            <Card className="border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-gray-900">Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800">
-                  <div>
-                    <div className="text-sm text-gray-500">Status</div>
-                    <div>{unit.isActive ? 'Active' : 'Inactive'}</div>
+        <Card className="border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-gray-900">{loading ? 'Loading...' : unit?.name || 'Unit'}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="py-12 text-center text-gray-600">Loading unit details...</div>
+            ) : !unit ? (
+              <div className="py-12 text-center text-gray-600">Unit not found</div>
+            ) : (
+              <div className="space-y-4">
+                {unit.description ? (
+                  <p className="text-gray-700">{unit.description}</p>
+                ) : (
+                  <p className="text-gray-500">No description provided.</p>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-500">Application Deadline</div>
+                    <div className="text-gray-800">{unit.applicationDeadline ? new Date(unit.applicationDeadline).toLocaleString() : '—'}</div>
                   </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Applications</div>
-                    <div>{unit._count?.applications ?? 0}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Deadline</div>
-                    <div>{unit.applicationDeadline ? new Date(unit.applicationDeadline).toLocaleString() : '—'}</div>
-                  </div>
-                  <div>
+                  <div className="space-y-1">
                     <div className="text-sm text-gray-500">Max Applications</div>
-                    <div>{unit.maxApplications ?? '—'}</div>
+                    <div className="text-gray-800">{unit.maxApplications ?? '—'}</div>
                   </div>
-                  <div className="md:col-span-2">
-                    <div className="text-sm text-gray-500">Description</div>
-                    <div className="text-gray-800">{unit.description || '—'}</div>
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-500">Status</div>
+                    <div>
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${unit.isActive ? 'bg-gray-200 text-gray-800' : 'bg-gray-100 text-gray-500'}`}>
+                        {unit.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-500">Auto Close After Deadline</div>
+                    <div className="text-gray-800">{unit.autoCloseAfterDeadline ? 'Yes' : 'No'}</div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card className="border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-gray-900">Eligibility Requirements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {!unit.requirements || unit.requirements.length === 0 ? (
-                  <div className="py-8 text-gray-600">No requirements defined.</div>
-                ) : (
-                  <div className="space-y-3">
-                    {unit.requirements.map((r) => (
-                      <div key={r.id} className="grid grid-cols-1 md:grid-cols-3 gap-3 border border-gray-200 rounded-md p-3">
-                        <div className="rounded-md border border-gray-200 p-3">
-                          <div className="text-sm font-medium text-gray-900 mb-2">SSC / Dakhil</div>
-                          <div className="text-sm text-gray-600">Stream</div>
-                          <div className="text-gray-800 mb-2">{r.sscStream}</div>
-                          <div className="text-sm text-gray-600">Min GPA</div>
-                          <div className="text-gray-800">{r.minSscGPA ?? '—'}</div>
-                        </div>
-                        <div className="rounded-md border border-gray-200 p-3">
-                          <div className="text-sm font-medium text-gray-900 mb-2">HSC / Alim</div>
-                          <div className="text-sm text-gray-600">Stream</div>
-                          <div className="text-gray-800 mb-2">{r.hscStream}</div>
-                          <div className="text-sm text-gray-600">Min GPA</div>
-                          <div className="text-gray-800">{r.minHscGPA ?? '—'}</div>
-                        </div>
-                        <div className="rounded-md border border-gray-200 p-3">
-                          <div className="text-sm font-medium text-gray-900 mb-2">Combined GPA</div>
-                          <div className="text-sm text-gray-600">Min Combined GPA (SSC + HSC)</div>
-                          <div className="text-gray-800">{r.minCombinedGPA ?? '—'}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </>
-        )}
+                <div className="pt-2">
+                  <h2 className="text-base font-semibold text-gray-900 mb-2">Eligibility Requirements</h2>
+                  {unit.requirements && unit.requirements.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>SSC Stream</TableHead>
+                          <TableHead>HSC Stream</TableHead>
+                          <TableHead>Min SSC GPA</TableHead>
+                          <TableHead>Min HSC GPA</TableHead>
+                          <TableHead>Min Combined GPA</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {unit.requirements.map((r, i) => (
+                          <TableRow key={i}>
+                            <TableCell>{r.sscStream ?? '—'}</TableCell>
+                            <TableCell>{r.hscStream ?? '—'}</TableCell>
+                            <TableCell>{r.minSscGPA ?? '—'}</TableCell>
+                            <TableCell>{r.minHscGPA ?? '—'}</TableCell>
+                            <TableCell>{r.minCombinedGPA ?? '—'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="text-gray-500">No requirements specified.</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
+
+      <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Unit?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the unit and related data.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDelete(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" disabled={deleting} onClick={performDelete}>
+              {deleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
+
+export default RouteComponent

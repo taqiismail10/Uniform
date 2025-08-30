@@ -425,6 +425,7 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
         </Dialog>
         <Button
           onClick={onLogout}
+          className="bg-black text-white hover:bg-black/90"
         >
           <LogOut className="h-4 w-4 mr-2" />
           Logout
