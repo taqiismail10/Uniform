@@ -64,9 +64,9 @@ export function InstitutionNavbar() {
         .inst-nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -2px; left: 50%; background-color: #000; transition: width 0.2s ease, left 0.2s ease; }
         .inst-nav-link:hover::after, .inst-nav-link.active::after { width: 100%; left: 0; }
       `}</style>
-      <header className="bg-white w-full shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 grid grid-cols-2 md:grid-cols-3 items-center">
-          <div className="flex items-center w-full md:w-auto">
+      <header className="bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 grid grid-cols-3 items-center">
+          <div className="flex items-center gap-3 w-full md:w-auto">
             {/* Brand: logo (left) + short name (center-left) on mobile */}
             <Link to="/institution/dashboard" className="flex items-center gap-2">
               <div className='w-12 h-12 flex items-center justify-center rounded-full p-1 shadow-sm'>
@@ -80,31 +80,10 @@ export function InstitutionNavbar() {
                 {shortName}
               </span>
             </Link>
-            {/* Mobile menu moved to right edge */}
-
-
-            {/* Desktop nav moved to center */}
-          </div>
-
-          {/* Center: Desktop/Tablet nav */}
-          <nav className="hidden md:flex justify-center items-center gap-4 text-sm">
-            <Link to="/institution/dashboard" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/dashboard' ? 'active' : ''}`}>
-              Dashboard
-            </Link>
-            <Link to="/institution/units" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/units' || location.pathname.startsWith('/institution/units/') ? 'active' : ''}`}>
-              Units
-            </Link>
-            <Link to="/institution/applications" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/applications' || location.pathname.startsWith('/institution/applications/') ? 'active' : ''}`}>
-              Applications
-            </Link>
-          </nav>
-
-          {/* User menu + Mobile trigger (right) */}
-          <div className="flex items-center gap-3 justify-end justify-self-end">
-            {/* Mobile menu trigger on the far right */}
+            {/* Mobile menu */}
             <Sheet open={openSheet} onOpenChange={setOpenSheet}>
               <SheetTrigger asChild>
-                <button className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50">
+                <button className="md:hidden ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Open navigation</span>
                 </button>
@@ -144,6 +123,26 @@ export function InstitutionNavbar() {
                 </nav>
               </SheetContent>
             </Sheet>
+
+
+            {/* Desktop nav moved to center */}
+          </div>
+
+          {/* Center: Desktop/Tablet nav */}
+          <nav className="hidden md:flex justify-center items-center gap-4 text-sm">
+            <Link to="/institution/dashboard" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/dashboard' ? 'active' : ''}`}>
+              Dashboard
+            </Link>
+            <Link to="/institution/units" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/units' || location.pathname.startsWith('/institution/units/') ? 'active' : ''}`}>
+              Units
+            </Link>
+            <Link to="/institution/applications" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/applications' || location.pathname.startsWith('/institution/applications/') ? 'active' : ''}`}>
+              Applications
+            </Link>
+          </nav>
+
+          {/* User menu */}
+          <div className="flex items-center gap-3 justify-self-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="hidden md:inline-flex items-center gap-2 rounded-full focus:outline-none">
@@ -228,3 +227,4 @@ export function InstitutionNavbar() {
     </>
   )
 }
+
