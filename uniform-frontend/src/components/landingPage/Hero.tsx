@@ -26,7 +26,7 @@ const Hero = (props: HeroSectionProps) => {
               :
               <>
                 <Button>
-                  <Link to="/registration">
+                  <Link to="/student/registration">
                     Start Applying
                   </Link>
                 </Button>

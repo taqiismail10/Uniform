@@ -1,0 +1,188 @@
+// backend/controllers/adminAuthController.js
+
+  static async index(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const profile = await prisma.admin.findUnique({
+        where: { adminId },
+        select: {
+          adminId: true,
+          email: true,
+          role: true,
+          lastLogin: true,
+          createdAt: true,
+          updatedAt: true,
+          institutionId: true,
+        },
+      });
+      if (!profile) {
+        return res.status(404).json({ status: 404, message: 'Admin profile not found' });
+      }
+      return res.status(200).json({ status: 200, profile });
+    } catch (error) {
+      console.error('Error fetching admin profile:', error);
+      return res.status(500).json({ status: 500, message: 'Something went wrong' });
+    }
+  }
+// backend/controllers/adminAuthController.js
+
+import vine, { errors } from "@vinejs/vine";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import prisma from "../DB/db.config.js";
+import { adminLoginSchema } from "../validations/AuthValidation.js";
+
+const salt = bcrypt.genSaltSync(10);
+const hashedPassword = bcrypt.hashSync("AdminPassword123", salt);
+console.log("New Hashed Password:", hashedPassword);
+
+class adminAuthController {
+  static async login(req, res) {
+    try {
+      const body = req.body;
+      const validator = vine.compile(adminLoginSchema);
+      const payload = await validator.validate(body);
+
+      // Find admin by email
+      const findAdmin = await prisma.admin.findUnique({
+        where: { email: payload.email },
+      });
+      console.log("Admin Record:", findAdmin); // Debugging log
+
+      if (findAdmin) {
+        // Compare passwords
+        if (!bcrypt.compareSync(payload.password, findAdmin.password)) {
+          return res.json({ status: 400, message: "Invalid Credentials" });
+        }
+
+        // Update last login timestamp
+        await prisma.admin.update({
+          where: { adminId: findAdmin.adminId },
+          data: { lastLogin: new Date() },
+        });
+
+        // Generate JWT token
+        const payloadData = {
+          adminId: findAdmin.adminId,
+          role: findAdmin.role,
+        };
+        console.log("Payload Data:", findAdmin.role); // Debugging log
+        console.log("Payload Data:", payloadData); // Debugging log
+
+        const token = jwt.sign(payloadData, process.env.JWT_SECRET, {
+          expiresIn: "365d",
+        });
+        return res.json({
+          status: 200,
+          message: "User logged in successfully",
+          access_token: `Bearer ${token}`,
+        });
+      }
+
+      return res.json({ status: 400, message: "User not found" });
+    } catch (error) {
+      console.error("Error during admin login:", error);
+      if (error instanceof errors.E_VALIDATION_ERROR) {
+        return res.status(400).json({ errors: error.messages });
+      } else {
+        return res
+          .status(500)
+          .json({ status: 500, message: "Something went wrong" });
+      }
+    }
+  }
+
+  static async index(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const profile = await prisma.admin.findUnique({
+        where: { adminId },
+        select: {
+          adminId: true,
+          email: true,
+          role: true,
+          lastLogin: true,
+          createdAt: true,
+          updatedAt: true,
+          institutionId: true,
+        },
+      });
+      if (!profile) {
+        return res.status(404).json({ status: 404, message: "Admin profile not found" });
+      }
+      return res.status(200).json({ status: 200, profile });
+    } catch (error) {
+      console.error("Error fetching admin profile:", error);
+      return res.status(500).json({ status: 500, message: "Something went wrong" });
+    }
+  }
+
+  static async updatePassword(req, res) {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      const { adminId } = req.admin; // Get from JWT
+      console.log(adminId);
+      // Find admin
+      const admin = await prisma.admin.findUnique({ where: { adminId } });
+      if (!admin) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+
+      // Check old password
+      if (!bcrypt.compareSync(oldPassword, admin.password)) {
+        return res.status(400).json({ message: "Old password is incorrect" });
+      }
+
+      // Hash new password and update
+      const hashedPassword = bcrypt.hashSync(newPassword, 10);
+      await prisma.admin.update({
+        where: { adminId },
+        data: { password: hashedPassword },
+      });
+
+      return res.json({
+        status: 200,
+        message: "Password updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      return res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+
+  static async updateEmail(req, res) {
+    try {
+      const { adminId } = req.admin;
+      let { email } = req.body || {};
+      if (!email) return res.status(400).json({ status: 400, message: 'Email is required' });
+      email = String(email).trim().toLowerCase();
+
+      const exists = await prisma.admin.findFirst({ where: { email, NOT: { adminId } } });
+      if (exists) {
+        return res.status(409).json({ status: 409, message: 'Email already in use' });
+      }
+
+      const updated = await prisma.admin.update({ where: { adminId }, data: { email } });
+      return res.status(200).json({
+        status: 200,
+        message: 'Email updated successfully',
+        profile: {
+          adminId: updated.adminId,
+          email: updated.email,
+          role: updated.role,
+          lastLogin: updated.lastLogin,
+          createdAt: updated.createdAt,
+          updatedAt: updated.updatedAt,
+          institutionId: updated.institutionId,
+        },
+      });
+    } catch (error) {
+      console.error('Error updating admin email:', error);
+      return res.status(500).json({ status: 500, message: 'Something went wrong' });
+    }
+  }
+}
+
+export default adminAuthController;
+
+

@@ -81,8 +81,9 @@ class authController {
 				}
 				// * Issue token to user
 				const payloadData = {
-					studentId: findUser.studentId, // Use correct property name as per Prisma schema
+					studentId: findUser.studentId,
 					email: findUser.email,
+					role: findUser.role || "STUDENT",
 				};
 				const token = jwt.sign(payloadData, process.env.JWT_SECRET, {
 					expiresIn: "365d",

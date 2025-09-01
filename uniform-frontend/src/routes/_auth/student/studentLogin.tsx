@@ -1,18 +1,18 @@
+// uniform-frontend/src/routes/_auth/studentLogin.tsx
 import { userLogin } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/student/useAuth'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { GraduationCap, Eye, EyeOff, Loader2, Check } from 'lucide-react'
+import { GraduationCap, Eye, EyeOff, Loader2, Check, AlertCircle, HomeIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Toaster } from 'sonner'
-
-export const Route = createFileRoute('/_auth/login')({
+import studentImage from '@/assets/student_using_laptop.svg'
+import axios from 'axios'
+export const Route = createFileRoute('/_auth/student/studentLogin')({
   component: RouteComponent,
 })
-
 function RouteComponent() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false)
@@ -20,55 +20,91 @@ function RouteComponent() {
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const { login: authLogin } = useAuth();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    // Basic validation
+    setError('')
     if (!email || !password) {
       toast.error("Validation Error", {
         description: "Please enter both email and password."
       });
       return;
     }
-
     setIsLoading(true);
-
     try {
       const user = await userLogin(email, password);
       if (user) {
+        // Store user data in localStorage/sessionStorage based on remember me
+        if (rememberMe) {
+          localStorage.setItem('user', JSON.stringify(user));
+        } else {
+          sessionStorage.setItem('user', JSON.stringify(user));
+        }
+        // Update auth context
         authLogin(user);
         toast.success("Login Successful", {
-          description: "You have been successfully logged in. Redirecting to dashboard..."
+          description: `Welcome back, ${user.userName}! Redirecting to dashboard...`
         });
+        // Navigate to dashboard
         navigate({ to: '/student/dashboard' });
       } else {
+        setError("Invalid email or password. Please try again.");
         toast.error("Login Failed", {
           description: "Invalid credentials. Please check your email and password."
         });
       }
     } catch (error) {
       console.error("Login error:", error);
+      // Handle different error scenarios
+      let errorMessage = "An error occurred during login. Please try again later.";
+      if (axios.isAxiosError(error)) {
+        // Handle axios specific errors
+        if (error.response) {
+          // Server responded with error status
+          const status = error.response.status;
+          const responseData = error.response.data;
+          if (status === 400) {
+            if (responseData.message === "Invalid Credentials") {
+              errorMessage = "Invalid email or password.";
+            } else if (responseData.message === "User not found") {
+              errorMessage = "No account found with this email address.";
+            } else if (responseData.errors) {
+              // Handle validation errors
+              const validationErrors = responseData.errors;
+              const firstError = Object.values(validationErrors)[0];
+              errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+            }
+          } else if (status === 401) {
+            errorMessage = "Invalid email or password.";
+          } else if (status === 500) {
+            errorMessage = "Server error. Please try again later.";
+          }
+        } else if (error.request) {
+          // Request was made but no response received
+          errorMessage = "Network error. Please check your internet connection.";
+        }
+      } else if (error instanceof Error) {
+        // Handle generic JavaScript errors
+        errorMessage = error.message;
+      }
+      setError(errorMessage);
       toast.error("Login Failed", {
-        description: "An error occurred during login. Please try again later."
+        description: errorMessage
       });
     } finally {
       setIsLoading(false);
     }
-  }
-
+  };
   return (
     <>
-      <Toaster position="top-right" richColors />
-
       <div className="flex min-h-screen w-full bg-gray-100">
         <div className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-white shadow-lg">
           {/* Left side - Image and Info */}
-          <div className="hidden md:flex md:w-1/2 lg:w-2/3 items-center justify-center p-8 bg-gray-50">
+          <div className="flex md:w-1/2 lg:w-2/3 items-center justify-center p-4 md:p-8 bg-gray-50">
             <div className="max-w-md">
               <Link to='/'>
-                <div className="mb-4 text-center">
+                <div className="md:mb-4 text-center">
                   <div className="flex justify-center mb-4">
                     <div className="p-3 bg-gray-900 rounded-full">
                       <GraduationCap className="h-10 w-10 text-white" />
@@ -79,21 +115,27 @@ function RouteComponent() {
                 </div>
               </Link>
               <img
-                className="w-full h-auto"
-                src="/src/assets/student_using_laptop.svg"
+                className="w-full h-auto hidden md:block"
+                src={studentImage}
                 alt="Student using UniForm"
               />
-              <div className="mt-8 text-center">
-              </div>
             </div>
           </div>
 
           {/* Right side - Login Form */}
           <div className="w-full md:w-1/2 lg:w-2/5 p-8 md:p-12 flex flex-col justify-center">
             <div className="mb-10">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Login to UniForm</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Student Login</h1>
               <p className="text-gray-600">Access your university admission portal</p>
             </div>
+
+            {/* Error message display */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2" />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
@@ -117,9 +159,9 @@ function RouteComponent() {
                   <Label htmlFor="password" className="text-gray-700 font-medium">
                     Password
                   </Label>
-                  <a href="#" className="text-sm text-gray-700 hover:text-gray-900 transition">
+                  <Link to="/forgot-password" className="text-sm text-gray-700 hover:text-gray-900 transition">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <div className="relative">
                   <Input
@@ -190,10 +232,18 @@ function RouteComponent() {
 
             <p className="mt-8 text-center text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/registration" className="font-medium text-gray-900 hover:text-gray-700 transition">
+              <Link to="/student/registration" className="font-medium text-gray-900 hover:text-gray-700 transition">
                 Sign up
               </Link>
             </p>
+
+            <Link
+              to='/'
+              className="flex items-center justify-center gap-1 mt-4 font-medium text-sm text-center text-gray-900 hover:text-gray-600 transition"
+            >
+              <HomeIcon className='size-4' />
+              Go Home
+            </Link>
 
             <div className="mt-6 pt-6 border-t border-gray-200">
               <p className="text-xs text-center text-gray-500">

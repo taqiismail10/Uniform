@@ -11,7 +11,7 @@ function RouteComponent() {
       <p className='text-gray-800'>You do not have permisson to access this page.</p>
       <Link className='text-blue-500 hover:underline' to={'/'}>Back to Home</Link>
       <br />
-      <Link className='text-blue-500 hover:underline' to={'/login'}>Login</Link>
+      <Link className='text-blue-500 hover:underline' to={'/student/studentLogin'}>Login</Link>
     </div>
   )
 }

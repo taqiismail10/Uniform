@@ -1,6 +1,6 @@
 // src/api/auth.ts
 import api from "./axios";
-import type { User } from "@/context/AuthContext";
+import type { User } from "@/context/student/AuthContext";
 import { getUserProfile } from "./profile";
 
 // Register User
@@ -128,15 +128,10 @@ export const registerUser = async (userData: {
 // Student Login
 export const userLogin = async (
   email: string,
-  password: string,
-  role: string = "STUDENT"
+  password: string
 ): Promise<User | null> => {
   try {
-    const response = await api.post("/auth/login", {
-      email,
-      password,
-      role,
-    });
+    const response = await api.post("/auth/login", { email, password });
     if (response.data.status === 200) {
       localStorage.setItem("accessToken", response.data.access_token);
       const userProfile = await getUserProfile();

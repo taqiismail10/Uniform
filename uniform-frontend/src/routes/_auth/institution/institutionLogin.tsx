@@ -1,22 +1,21 @@
-import { userLogin } from '@/api'
+import { institutionAdminLogin } from '@/api/institutionAdmin'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/admin/useAuth'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Building, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Toaster } from 'sonner'
 
-export const Route = createFileRoute('/_auth/institutionLogin')({
+export const Route = createFileRoute('/_auth/institution/institutionLogin')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false)
-  const [institutionId, setInstitutionId] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -25,15 +24,15 @@ function RouteComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Basic validation
-    if (!institutionId || !password) {
+    if (!email || !password) {
       toast.error("Validation Error", {
-        description: "Please enter both Institution ID and password."
+        description: "Please enter both email and password."
       });
       return;
     }
     setIsLoading(true);
     try {
-      const user = await userLogin(institutionId, password);
+      const user = await institutionAdminLogin(email, password);
       if (user) {
         authLogin(user);
         toast.success("Login Successful", {
@@ -57,7 +56,6 @@ function RouteComponent() {
 
   return (
     <>
-      <Toaster position="top-right" richColors />
       <div className="flex min-h-screen w-full bg-gray-100">
         <div className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-white shadow-lg">
           {/* Left side - Image and Info */}
@@ -97,16 +95,16 @@ function RouteComponent() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="institutionId" className="text-gray-700 font-medium">
-                  Institution ID
+                <Label htmlFor="email" className="text-gray-700 font-medium">
+                  Email
                 </Label>
                 <Input
-                  type="text"
-                  id="institutionId"
-                  placeholder="Enter your Institution ID"
+                  type="email"
+                  id="email"
+                  placeholder="username@domain.com"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
-                  value={institutionId}
-                  onChange={(e) => setInstitutionId(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
                 />

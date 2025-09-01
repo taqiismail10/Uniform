@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/useAuth';
+import { useAuth } from '@/context/student/useAuth';
 import {
   GraduationCap,
   User,
@@ -36,7 +36,7 @@ export default function Header({ userData, activeSection, setActiveSection }: He
     toast.success("Logged Out", {
       description: "You have been successfully logged out."
     });
-    navigate({ to: '/login' });
+    navigate({ to: "/student/studentLogin" });
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
   };
@@ -185,16 +185,14 @@ export default function Header({ userData, activeSection, setActiveSection }: He
                       </Button>
                     </div>
                     <div className="border-t border-gray-100 my-1"></div>
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                      role="menuitem"
+                      className="w-full justify-start text-gray-800 hover:bg-gray-100"
                     >
-                      <div className="flex items-center">
-                        <LogOut className="mr-3 h-4 w-4" />
-                        Logout
-                      </div>
-                    </button>
+                      <LogOut className="mr-3 h-4 w-4" />
+                      Logout
+                    </Button>
                   </div>
                 </div>
               )}
@@ -284,13 +282,13 @@ export default function Header({ userData, activeSection, setActiveSection }: He
             </Button>
           </div>
           <div className="pt-4 border-t border-gray-200">
-            <button
+            <Button
               onClick={handleLogout}
-              className="w-full flex items-center px-4 py-3 text-base font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md"
+              className="w-full justify-start text-white bg-black hover:bg-black/90"
             >
               <LogOut className="mr-3 h-5 w-5" />
               Logout
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 // uniform-frontend/src/components/student/StudentSettings.tsx
 import { useNavigate } from '@tanstack/react-router';
 import { Toaster } from 'sonner';
-import { useAuth } from '@/context/useAuth';
+import { useAuth } from '@/context/student/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   User,

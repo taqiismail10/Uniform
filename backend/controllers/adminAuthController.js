@@ -32,6 +32,12 @@ class adminAuthController {
           return res.json({ status: 400, message: "Invalid Credentials" });
         }
 
+        // Update last login timestamp
+        await prisma.admin.update({
+          where: { adminId: findAdmin.adminId },
+          data: { lastLogin: new Date() },
+        });
+
         // Generate JWT token
         const payloadData = {
           adminId: findAdmin.adminId,
@@ -61,6 +67,31 @@ class adminAuthController {
           .status(500)
           .json({ status: 500, message: "Something went wrong" });
       }
+    }
+  }
+
+  static async index(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const profile = await prisma.admin.findUnique({
+        where: { adminId },
+        select: {
+          adminId: true,
+          email: true,
+          role: true,
+          lastLogin: true,
+          createdAt: true,
+          updatedAt: true,
+          institutionId: true,
+        },
+      });
+      if (!profile) {
+        return res.status(404).json({ status: 404, message: "Admin profile not found" });
+      }
+      return res.status(200).json({ status: 200, profile });
+    } catch (error) {
+      console.error("Error fetching admin profile:", error);
+      return res.status(500).json({ status: 500, message: "Something went wrong" });
     }
   }
 
@@ -94,6 +125,38 @@ class adminAuthController {
     } catch (error) {
       console.error("Error updating password:", error);
       return res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+
+  static async updateEmail(req, res) {
+    try {
+      const { adminId } = req.admin;
+      let { email } = req.body || {};
+      if (!email) return res.status(400).json({ status: 400, message: "Email is required" });
+      email = String(email).trim().toLowerCase();
+
+      const exists = await prisma.admin.findFirst({ where: { email, NOT: { adminId } } });
+      if (exists) {
+        return res.status(409).json({ status: 409, message: "Email already in use" });
+      }
+
+      const updated = await prisma.admin.update({ where: { adminId }, data: { email } });
+      return res.status(200).json({
+        status: 200,
+        message: "Email updated successfully",
+        profile: {
+          adminId: updated.adminId,
+          email: updated.email,
+          role: updated.role,
+          lastLogin: updated.lastLogin,
+          createdAt: updated.createdAt,
+          updatedAt: updated.updatedAt,
+          institutionId: updated.institutionId,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating admin email:", error);
+      return res.status(500).json({ status: 500, message: "Something went wrong" });
     }
   }
 }

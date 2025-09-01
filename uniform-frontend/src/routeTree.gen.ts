@@ -21,14 +21,27 @@ import { Route as StudentIndexRouteImport } from './routes/student/index'
 import { Route as InstitutionIndexRouteImport } from './routes/institution/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as StudentDashboardRouteImport } from './routes/student/dashboard'
+import { Route as InstitutionSettingsRouteImport } from './routes/institution/settings'
+import { Route as InstitutionProfileRouteImport } from './routes/institution/profile'
 import { Route as InstitutionDashboardRouteImport } from './routes/institution/dashboard'
+import { Route as InstitutionApplicationsRouteImport } from './routes/institution/applications'
+import { Route as AdminVisualizationRouteImport } from './routes/admin/visualization'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminProfileRouteImport } from './routes/admin/profile'
+import { Route as AdminInstitutionsRouteImport } from './routes/admin/institutions'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
 import { Route as AuthUnauthorizedRouteImport } from './routes/_auth/unauthorized'
-import { Route as AuthStudentLoginRouteImport } from './routes/_auth/studentLogin'
-import { Route as AuthRegistrationRouteImport } from './routes/_auth/registration'
-import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AuthInstitutionLoginRouteImport } from './routes/_auth/institutionLogin'
-import { Route as AuthAdminLoginRouteImport } from './routes/_auth/adminLogin'
+import { Route as InstitutionUnitsIndexRouteImport } from './routes/institution/units.index'
+import { Route as AdminInstitutionsIndexRouteImport } from './routes/admin/institutions.index'
+import { Route as InstitutionUnitsCreateRouteImport } from './routes/institution/units.create'
+import { Route as InstitutionUnitsUnitIdRouteImport } from './routes/institution/units.$unitId'
+import { Route as AdminInstitutionsInstitutionIdRouteImport } from './routes/admin/institutions.$institutionId'
+import { Route as AuthStudentStudentLoginRouteImport } from './routes/_auth/student/studentLogin'
+import { Route as AuthStudentRegistrationRouteImport } from './routes/_auth/student/registration'
+import { Route as AuthInstitutionInstitutionLoginRouteImport } from './routes/_auth/institution/institutionLogin'
+import { Route as AuthAdminAdminLoginRouteImport } from './routes/_auth/admin/adminLogin'
+import { Route as InstitutionUnitsUnitIdEditRouteImport } from './routes/institution/units.$unitId.edit'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -90,9 +103,44 @@ const StudentDashboardRoute = StudentDashboardRouteImport.update({
   path: '/student/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InstitutionSettingsRoute = InstitutionSettingsRouteImport.update({
+  id: '/institution/settings',
+  path: '/institution/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstitutionProfileRoute = InstitutionProfileRouteImport.update({
+  id: '/institution/profile',
+  path: '/institution/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InstitutionDashboardRoute = InstitutionDashboardRouteImport.update({
   id: '/institution/dashboard',
   path: '/institution/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstitutionApplicationsRoute = InstitutionApplicationsRouteImport.update({
+  id: '/institution/applications',
+  path: '/institution/applications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminVisualizationRoute = AdminVisualizationRouteImport.update({
+  id: '/admin/visualization',
+  path: '/admin/visualization',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/admin/profile',
+  path: '/admin/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminInstitutionsRoute = AdminInstitutionsRouteImport.update({
+  id: '/admin/institutions',
+  path: '/admin/institutions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
@@ -100,36 +148,69 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAdminsRoute = AdminAdminsRouteImport.update({
+  id: '/admin/admins',
+  path: '/admin/admins',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthUnauthorizedRoute = AuthUnauthorizedRouteImport.update({
   id: '/_auth/unauthorized',
   path: '/unauthorized',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthStudentLoginRoute = AuthStudentLoginRouteImport.update({
-  id: '/_auth/studentLogin',
-  path: '/studentLogin',
+const InstitutionUnitsIndexRoute = InstitutionUnitsIndexRouteImport.update({
+  id: '/institution/units/',
+  path: '/institution/units/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRegistrationRoute = AuthRegistrationRouteImport.update({
-  id: '/_auth/registration',
-  path: '/registration',
+const AdminInstitutionsIndexRoute = AdminInstitutionsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminInstitutionsRoute,
+} as any)
+const InstitutionUnitsCreateRoute = InstitutionUnitsCreateRouteImport.update({
+  id: '/institution/units/create',
+  path: '/institution/units/create',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/_auth/login',
-  path: '/login',
+const InstitutionUnitsUnitIdRoute = InstitutionUnitsUnitIdRouteImport.update({
+  id: '/institution/units/$unitId',
+  path: '/institution/units/$unitId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthInstitutionLoginRoute = AuthInstitutionLoginRouteImport.update({
-  id: '/_auth/institutionLogin',
-  path: '/institutionLogin',
+const AdminInstitutionsInstitutionIdRoute =
+  AdminInstitutionsInstitutionIdRouteImport.update({
+    id: '/$institutionId',
+    path: '/$institutionId',
+    getParentRoute: () => AdminInstitutionsRoute,
+  } as any)
+const AuthStudentStudentLoginRoute = AuthStudentStudentLoginRouteImport.update({
+  id: '/_auth/student/studentLogin',
+  path: '/student/studentLogin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthAdminLoginRoute = AuthAdminLoginRouteImport.update({
-  id: '/_auth/adminLogin',
-  path: '/adminLogin',
+const AuthStudentRegistrationRoute = AuthStudentRegistrationRouteImport.update({
+  id: '/_auth/student/registration',
+  path: '/student/registration',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthInstitutionInstitutionLoginRoute =
+  AuthInstitutionInstitutionLoginRouteImport.update({
+    id: '/_auth/institution/institutionLogin',
+    path: '/institution/institutionLogin',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthAdminAdminLoginRoute = AuthAdminAdminLoginRouteImport.update({
+  id: '/_auth/admin/adminLogin',
+  path: '/admin/adminLogin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstitutionUnitsUnitIdEditRoute =
+  InstitutionUnitsUnitIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => InstitutionUnitsUnitIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -140,18 +221,31 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/adminLogin': typeof AuthAdminLoginRoute
-  '/institutionLogin': typeof AuthInstitutionLoginRoute
-  '/login': typeof AuthLoginRoute
-  '/registration': typeof AuthRegistrationRoute
-  '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRouteWithChildren
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/visualization': typeof AdminVisualizationRoute
+  '/institution/applications': typeof InstitutionApplicationsRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
+  '/institution/profile': typeof InstitutionProfileRoute
+  '/institution/settings': typeof InstitutionSettingsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin': typeof AdminIndexRoute
   '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
+  '/admin/adminLogin': typeof AuthAdminAdminLoginRoute
+  '/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
+  '/student/registration': typeof AuthStudentRegistrationRoute
+  '/student/studentLogin': typeof AuthStudentStudentLoginRoute
+  '/admin/institutions/$institutionId': typeof AdminInstitutionsInstitutionIdRoute
+  '/institution/units/$unitId': typeof InstitutionUnitsUnitIdRouteWithChildren
+  '/institution/units/create': typeof InstitutionUnitsCreateRoute
+  '/admin/institutions/': typeof AdminInstitutionsIndexRoute
+  '/institution/units': typeof InstitutionUnitsIndexRoute
+  '/institution/units/$unitId/edit': typeof InstitutionUnitsUnitIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -162,18 +256,30 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/adminLogin': typeof AuthAdminLoginRoute
-  '/institutionLogin': typeof AuthInstitutionLoginRoute
-  '/login': typeof AuthLoginRoute
-  '/registration': typeof AuthRegistrationRoute
-  '/studentLogin': typeof AuthStudentLoginRoute
   '/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/visualization': typeof AdminVisualizationRoute
+  '/institution/applications': typeof InstitutionApplicationsRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
+  '/institution/profile': typeof InstitutionProfileRoute
+  '/institution/settings': typeof InstitutionSettingsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin': typeof AdminIndexRoute
   '/institution': typeof InstitutionIndexRoute
   '/student': typeof StudentIndexRoute
+  '/admin/adminLogin': typeof AuthAdminAdminLoginRoute
+  '/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
+  '/student/registration': typeof AuthStudentRegistrationRoute
+  '/student/studentLogin': typeof AuthStudentStudentLoginRoute
+  '/admin/institutions/$institutionId': typeof AdminInstitutionsInstitutionIdRoute
+  '/institution/units/$unitId': typeof InstitutionUnitsUnitIdRouteWithChildren
+  '/institution/units/create': typeof InstitutionUnitsCreateRoute
+  '/admin/institutions': typeof AdminInstitutionsIndexRoute
+  '/institution/units': typeof InstitutionUnitsIndexRoute
+  '/institution/units/$unitId/edit': typeof InstitutionUnitsUnitIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -185,18 +291,31 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/_auth/adminLogin': typeof AuthAdminLoginRoute
-  '/_auth/institutionLogin': typeof AuthInstitutionLoginRoute
-  '/_auth/login': typeof AuthLoginRoute
-  '/_auth/registration': typeof AuthRegistrationRoute
-  '/_auth/studentLogin': typeof AuthStudentLoginRoute
   '/_auth/unauthorized': typeof AuthUnauthorizedRoute
+  '/admin/admins': typeof AdminAdminsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/institutions': typeof AdminInstitutionsRouteWithChildren
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/visualization': typeof AdminVisualizationRoute
+  '/institution/applications': typeof InstitutionApplicationsRoute
   '/institution/dashboard': typeof InstitutionDashboardRoute
+  '/institution/profile': typeof InstitutionProfileRoute
+  '/institution/settings': typeof InstitutionSettingsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/admin/': typeof AdminIndexRoute
   '/institution/': typeof InstitutionIndexRoute
   '/student/': typeof StudentIndexRoute
+  '/_auth/admin/adminLogin': typeof AuthAdminAdminLoginRoute
+  '/_auth/institution/institutionLogin': typeof AuthInstitutionInstitutionLoginRoute
+  '/_auth/student/registration': typeof AuthStudentRegistrationRoute
+  '/_auth/student/studentLogin': typeof AuthStudentStudentLoginRoute
+  '/admin/institutions/$institutionId': typeof AdminInstitutionsInstitutionIdRoute
+  '/institution/units/$unitId': typeof InstitutionUnitsUnitIdRouteWithChildren
+  '/institution/units/create': typeof InstitutionUnitsCreateRoute
+  '/admin/institutions/': typeof AdminInstitutionsIndexRoute
+  '/institution/units/': typeof InstitutionUnitsIndexRoute
+  '/institution/units/$unitId/edit': typeof InstitutionUnitsUnitIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -209,18 +328,31 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/terms'
-    | '/adminLogin'
-    | '/institutionLogin'
-    | '/login'
-    | '/registration'
-    | '/studentLogin'
     | '/unauthorized'
+    | '/admin/admins'
     | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/profile'
+    | '/admin/settings'
+    | '/admin/visualization'
+    | '/institution/applications'
     | '/institution/dashboard'
+    | '/institution/profile'
+    | '/institution/settings'
     | '/student/dashboard'
     | '/admin'
     | '/institution'
     | '/student'
+    | '/admin/adminLogin'
+    | '/institution/institutionLogin'
+    | '/student/registration'
+    | '/student/studentLogin'
+    | '/admin/institutions/$institutionId'
+    | '/institution/units/$unitId'
+    | '/institution/units/create'
+    | '/admin/institutions/'
+    | '/institution/units'
+    | '/institution/units/$unitId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -231,18 +363,30 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/terms'
-    | '/adminLogin'
-    | '/institutionLogin'
-    | '/login'
-    | '/registration'
-    | '/studentLogin'
     | '/unauthorized'
+    | '/admin/admins'
     | '/admin/dashboard'
+    | '/admin/profile'
+    | '/admin/settings'
+    | '/admin/visualization'
+    | '/institution/applications'
     | '/institution/dashboard'
+    | '/institution/profile'
+    | '/institution/settings'
     | '/student/dashboard'
     | '/admin'
     | '/institution'
     | '/student'
+    | '/admin/adminLogin'
+    | '/institution/institutionLogin'
+    | '/student/registration'
+    | '/student/studentLogin'
+    | '/admin/institutions/$institutionId'
+    | '/institution/units/$unitId'
+    | '/institution/units/create'
+    | '/admin/institutions'
+    | '/institution/units'
+    | '/institution/units/$unitId/edit'
   id:
     | '__root__'
     | '/'
@@ -253,18 +397,31 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/terms'
-    | '/_auth/adminLogin'
-    | '/_auth/institutionLogin'
-    | '/_auth/login'
-    | '/_auth/registration'
-    | '/_auth/studentLogin'
     | '/_auth/unauthorized'
+    | '/admin/admins'
     | '/admin/dashboard'
+    | '/admin/institutions'
+    | '/admin/profile'
+    | '/admin/settings'
+    | '/admin/visualization'
+    | '/institution/applications'
     | '/institution/dashboard'
+    | '/institution/profile'
+    | '/institution/settings'
     | '/student/dashboard'
     | '/admin/'
     | '/institution/'
     | '/student/'
+    | '/_auth/admin/adminLogin'
+    | '/_auth/institution/institutionLogin'
+    | '/_auth/student/registration'
+    | '/_auth/student/studentLogin'
+    | '/admin/institutions/$institutionId'
+    | '/institution/units/$unitId'
+    | '/institution/units/create'
+    | '/admin/institutions/'
+    | '/institution/units/'
+    | '/institution/units/$unitId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -276,18 +433,28 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
-  AuthAdminLoginRoute: typeof AuthAdminLoginRoute
-  AuthInstitutionLoginRoute: typeof AuthInstitutionLoginRoute
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthRegistrationRoute: typeof AuthRegistrationRoute
-  AuthStudentLoginRoute: typeof AuthStudentLoginRoute
   AuthUnauthorizedRoute: typeof AuthUnauthorizedRoute
+  AdminAdminsRoute: typeof AdminAdminsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminInstitutionsRoute: typeof AdminInstitutionsRouteWithChildren
+  AdminProfileRoute: typeof AdminProfileRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminVisualizationRoute: typeof AdminVisualizationRoute
+  InstitutionApplicationsRoute: typeof InstitutionApplicationsRoute
   InstitutionDashboardRoute: typeof InstitutionDashboardRoute
+  InstitutionProfileRoute: typeof InstitutionProfileRoute
+  InstitutionSettingsRoute: typeof InstitutionSettingsRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
   AdminIndexRoute: typeof AdminIndexRoute
   InstitutionIndexRoute: typeof InstitutionIndexRoute
   StudentIndexRoute: typeof StudentIndexRoute
+  AuthAdminAdminLoginRoute: typeof AuthAdminAdminLoginRoute
+  AuthInstitutionInstitutionLoginRoute: typeof AuthInstitutionInstitutionLoginRoute
+  AuthStudentRegistrationRoute: typeof AuthStudentRegistrationRoute
+  AuthStudentStudentLoginRoute: typeof AuthStudentStudentLoginRoute
+  InstitutionUnitsUnitIdRoute: typeof InstitutionUnitsUnitIdRouteWithChildren
+  InstitutionUnitsCreateRoute: typeof InstitutionUnitsCreateRoute
+  InstitutionUnitsIndexRoute: typeof InstitutionUnitsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -376,11 +543,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/institution/settings': {
+      id: '/institution/settings'
+      path: '/institution/settings'
+      fullPath: '/institution/settings'
+      preLoaderRoute: typeof InstitutionSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/institution/profile': {
+      id: '/institution/profile'
+      path: '/institution/profile'
+      fullPath: '/institution/profile'
+      preLoaderRoute: typeof InstitutionProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/institution/dashboard': {
       id: '/institution/dashboard'
       path: '/institution/dashboard'
       fullPath: '/institution/dashboard'
       preLoaderRoute: typeof InstitutionDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/institution/applications': {
+      id: '/institution/applications'
+      path: '/institution/applications'
+      fullPath: '/institution/applications'
+      preLoaderRoute: typeof InstitutionApplicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/visualization': {
+      id: '/admin/visualization'
+      path: '/admin/visualization'
+      fullPath: '/admin/visualization'
+      preLoaderRoute: typeof AdminVisualizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/admin/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/institutions': {
+      id: '/admin/institutions'
+      path: '/admin/institutions'
+      fullPath: '/admin/institutions'
+      preLoaderRoute: typeof AdminInstitutionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/dashboard': {
@@ -390,6 +606,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/admins': {
+      id: '/admin/admins'
+      path: '/admin/admins'
+      fullPath: '/admin/admins'
+      preLoaderRoute: typeof AdminAdminsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth/unauthorized': {
       id: '/_auth/unauthorized'
       path: '/unauthorized'
@@ -397,43 +620,105 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthUnauthorizedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/studentLogin': {
-      id: '/_auth/studentLogin'
-      path: '/studentLogin'
-      fullPath: '/studentLogin'
-      preLoaderRoute: typeof AuthStudentLoginRouteImport
+    '/institution/units/': {
+      id: '/institution/units/'
+      path: '/institution/units'
+      fullPath: '/institution/units'
+      preLoaderRoute: typeof InstitutionUnitsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/registration': {
-      id: '/_auth/registration'
-      path: '/registration'
-      fullPath: '/registration'
-      preLoaderRoute: typeof AuthRegistrationRouteImport
+    '/admin/institutions/': {
+      id: '/admin/institutions/'
+      path: '/'
+      fullPath: '/admin/institutions/'
+      preLoaderRoute: typeof AdminInstitutionsIndexRouteImport
+      parentRoute: typeof AdminInstitutionsRoute
+    }
+    '/institution/units/create': {
+      id: '/institution/units/create'
+      path: '/institution/units/create'
+      fullPath: '/institution/units/create'
+      preLoaderRoute: typeof InstitutionUnitsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/login': {
-      id: '/_auth/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
+    '/institution/units/$unitId': {
+      id: '/institution/units/$unitId'
+      path: '/institution/units/$unitId'
+      fullPath: '/institution/units/$unitId'
+      preLoaderRoute: typeof InstitutionUnitsUnitIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/institutionLogin': {
-      id: '/_auth/institutionLogin'
-      path: '/institutionLogin'
-      fullPath: '/institutionLogin'
-      preLoaderRoute: typeof AuthInstitutionLoginRouteImport
+    '/admin/institutions/$institutionId': {
+      id: '/admin/institutions/$institutionId'
+      path: '/$institutionId'
+      fullPath: '/admin/institutions/$institutionId'
+      preLoaderRoute: typeof AdminInstitutionsInstitutionIdRouteImport
+      parentRoute: typeof AdminInstitutionsRoute
+    }
+    '/_auth/student/studentLogin': {
+      id: '/_auth/student/studentLogin'
+      path: '/student/studentLogin'
+      fullPath: '/student/studentLogin'
+      preLoaderRoute: typeof AuthStudentStudentLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/adminLogin': {
-      id: '/_auth/adminLogin'
-      path: '/adminLogin'
-      fullPath: '/adminLogin'
-      preLoaderRoute: typeof AuthAdminLoginRouteImport
+    '/_auth/student/registration': {
+      id: '/_auth/student/registration'
+      path: '/student/registration'
+      fullPath: '/student/registration'
+      preLoaderRoute: typeof AuthStudentRegistrationRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth/institution/institutionLogin': {
+      id: '/_auth/institution/institutionLogin'
+      path: '/institution/institutionLogin'
+      fullPath: '/institution/institutionLogin'
+      preLoaderRoute: typeof AuthInstitutionInstitutionLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/admin/adminLogin': {
+      id: '/_auth/admin/adminLogin'
+      path: '/admin/adminLogin'
+      fullPath: '/admin/adminLogin'
+      preLoaderRoute: typeof AuthAdminAdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/institution/units/$unitId/edit': {
+      id: '/institution/units/$unitId/edit'
+      path: '/edit'
+      fullPath: '/institution/units/$unitId/edit'
+      preLoaderRoute: typeof InstitutionUnitsUnitIdEditRouteImport
+      parentRoute: typeof InstitutionUnitsUnitIdRoute
     }
   }
 }
+
+interface AdminInstitutionsRouteChildren {
+  AdminInstitutionsInstitutionIdRoute: typeof AdminInstitutionsInstitutionIdRoute
+  AdminInstitutionsIndexRoute: typeof AdminInstitutionsIndexRoute
+}
+
+const AdminInstitutionsRouteChildren: AdminInstitutionsRouteChildren = {
+  AdminInstitutionsInstitutionIdRoute: AdminInstitutionsInstitutionIdRoute,
+  AdminInstitutionsIndexRoute: AdminInstitutionsIndexRoute,
+}
+
+const AdminInstitutionsRouteWithChildren =
+  AdminInstitutionsRoute._addFileChildren(AdminInstitutionsRouteChildren)
+
+interface InstitutionUnitsUnitIdRouteChildren {
+  InstitutionUnitsUnitIdEditRoute: typeof InstitutionUnitsUnitIdEditRoute
+}
+
+const InstitutionUnitsUnitIdRouteChildren: InstitutionUnitsUnitIdRouteChildren =
+  {
+    InstitutionUnitsUnitIdEditRoute: InstitutionUnitsUnitIdEditRoute,
+  }
+
+const InstitutionUnitsUnitIdRouteWithChildren =
+  InstitutionUnitsUnitIdRoute._addFileChildren(
+    InstitutionUnitsUnitIdRouteChildren,
+  )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -444,18 +729,28 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
-  AuthAdminLoginRoute: AuthAdminLoginRoute,
-  AuthInstitutionLoginRoute: AuthInstitutionLoginRoute,
-  AuthLoginRoute: AuthLoginRoute,
-  AuthRegistrationRoute: AuthRegistrationRoute,
-  AuthStudentLoginRoute: AuthStudentLoginRoute,
   AuthUnauthorizedRoute: AuthUnauthorizedRoute,
+  AdminAdminsRoute: AdminAdminsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminInstitutionsRoute: AdminInstitutionsRouteWithChildren,
+  AdminProfileRoute: AdminProfileRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminVisualizationRoute: AdminVisualizationRoute,
+  InstitutionApplicationsRoute: InstitutionApplicationsRoute,
   InstitutionDashboardRoute: InstitutionDashboardRoute,
+  InstitutionProfileRoute: InstitutionProfileRoute,
+  InstitutionSettingsRoute: InstitutionSettingsRoute,
   StudentDashboardRoute: StudentDashboardRoute,
   AdminIndexRoute: AdminIndexRoute,
   InstitutionIndexRoute: InstitutionIndexRoute,
   StudentIndexRoute: StudentIndexRoute,
+  AuthAdminAdminLoginRoute: AuthAdminAdminLoginRoute,
+  AuthInstitutionInstitutionLoginRoute: AuthInstitutionInstitutionLoginRoute,
+  AuthStudentRegistrationRoute: AuthStudentRegistrationRoute,
+  AuthStudentStudentLoginRoute: AuthStudentStudentLoginRoute,
+  InstitutionUnitsUnitIdRoute: InstitutionUnitsUnitIdRouteWithChildren,
+  InstitutionUnitsCreateRoute: InstitutionUnitsCreateRoute,
+  InstitutionUnitsIndexRoute: InstitutionUnitsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

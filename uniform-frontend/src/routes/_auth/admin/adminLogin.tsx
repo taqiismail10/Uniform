@@ -1,22 +1,22 @@
-import { userLogin } from '@/api'
+// uniform-frontend/src/routes/_auth/admin/adminLogin.tsx
+import { adminLogin } from '@/api/admin'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/context/useAuth'
+import { useAuth } from '@/context/admin/useAuth'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Shield, Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Toaster } from 'sonner'
 
-export const Route = createFileRoute('/_auth/adminLogin')({
+export const Route = createFileRoute('/_auth/admin/adminLogin')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false)
-  const [adminId, setAdminId] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -25,15 +25,18 @@ function RouteComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Basic validation
-    if (!adminId || !password) {
+    if (!email || !password) {
       toast.error("Validation Error", {
-        description: "Please enter both Admin ID and password."
+        description: "Please enter both email and password."
       });
       return;
     }
+
     setIsLoading(true);
+
     try {
-      const user = await userLogin(adminId, password);
+      const user = await adminLogin(email, password);
+
       if (user) {
         authLogin(user);
         toast.success("Login Successful", {
@@ -57,7 +60,6 @@ function RouteComponent() {
 
   return (
     <>
-      <Toaster position="top-right" richColors />
       <div className="flex min-h-screen w-full bg-gray-100">
         <div className="flex flex-col md:flex-row w-full max-w-6xl mx-auto bg-white shadow-lg">
           {/* Left side - Image and Info */}
@@ -93,21 +95,21 @@ function RouteComponent() {
             </div>
 
             <div className="mb-10">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Login</h1>
               <p className="text-gray-600">Access the system administration portal</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="adminId" className="text-gray-700 font-medium">
-                  Admin ID
+                <Label htmlFor="email" className="text-gray-700 font-medium">
+                  Email
                 </Label>
                 <Input
-                  type="text"
-                  id="adminId"
-                  placeholder="Enter your Admin ID"
+                  type="email"
+                  id="email"
+                  placeholder="username@domain.com"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition"
-                  value={adminId}
-                  onChange={(e) => setAdminId(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
                 />

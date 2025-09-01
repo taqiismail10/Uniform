@@ -63,11 +63,16 @@ export const registerSchema = vine.object({
 export const loginSchema = vine.object({
 	email: vine.string().trim().email(),
 	password: vine.string(),
-	role: vine.enum(["STUDENT"]),
 });
 
 export const adminLoginSchema = vine.object({
-	email: vine.string().trim().email(),
-	password: vine.string(),
-	role: vine.enum(["SYSTEM_ADMIN", "INSTITUTION_ADMIN"]),
+  email: vine.string().trim().email(),
+  password: vine.string(),
+});
+
+export const createInstitutionAdminSchema = vine.object({
+  email: vine.string().trim().email(),
+  password: vine.string().trim().minLength(6).maxLength(100).confirmed(),
+  password_confirmation: vine.string(),
+  institutionId: vine.string().trim(),
 });

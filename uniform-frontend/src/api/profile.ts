@@ -1,6 +1,6 @@
 // src/api/profile.ts
 import api from "./axios";
-import type { User } from "@/context/AuthContext";
+import type { User } from "@/context/student/AuthContext";
 import type { AcademicInfo } from "@/components/student/types";
 
 // Get Student Profile
@@ -9,6 +9,12 @@ export const getUserProfile = async (): Promise<User | null> => {
     const response = await api.get("/profile");
     if (response.data.status === 200) {
       const backendProfile = response.data.profile;
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+      const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
+      const profileRaw = backendProfile.profile as string | undefined;
+      const profileUrl = profileRaw
+        ? (profileRaw.startsWith('data:') ? profileRaw : `${API_ORIGIN}/public/images/${profileRaw}`)
+        : "";
       const frontendUser: User = {
         userId: backendProfile.studentId,
         userName: backendProfile.fullName,
@@ -20,6 +26,7 @@ export const getUserProfile = async (): Promise<User | null> => {
         dob: backendProfile.dob || "",
         examPath: backendProfile.examPath || "",
         medium: backendProfile.medium || "",
+        profile: profileUrl,
         // Academic details
         sscRoll: backendProfile.sscRoll,
         sscRegistration: backendProfile.sscRegistration,
@@ -57,6 +64,12 @@ export const getAcademicDetails = async (): Promise<User | null> => {
     const response = await api.get("/profile/academic");
     if (response.data.status === 200) {
       const academicDetails = response.data.academicDetails;
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+      const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
+      const profileRaw = academicDetails.profile as string | undefined;
+      const profileUrl = profileRaw
+        ? (profileRaw.startsWith('data:') ? profileRaw : `${API_ORIGIN}/public/images/${profileRaw}`)
+        : "";
       const frontendUser: User = {
         userId: academicDetails.studentId,
         userName: "",
@@ -68,6 +81,7 @@ export const getAcademicDetails = async (): Promise<User | null> => {
         dob: "",
         examPath: academicDetails.examPath || "",
         medium: academicDetails.medium || "",
+        profile: profileUrl,
         // Academic details
         sscRoll: academicDetails.sscRoll,
         sscRegistration: academicDetails.sscRegistration,
@@ -149,7 +163,17 @@ export const updateUserProfile = async (
     if (profileData.email) formData.append("email", profileData.email);
     if (profileData.phone) formData.append("phone", profileData.phone);
     if (profileData.address) formData.append("address", profileData.address);
-    if (profileData.dob) formData.append("dob", profileData.dob);
+    if (profileData.dob) {
+      const v = profileData.dob
+      const toDateOnly = (s: string) => {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
+        const d = new Date(s)
+        if (isNaN(d.getTime())) return s
+        const pad = (n: number) => String(n).padStart(2, '0')
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+      }
+      formData.append("dob", toDateOnly(v))
+    }
     if (profileData.examPath) formData.append("examPath", profileData.examPath);
     if (profileData.medium) formData.append("medium", profileData.medium);
     // Add academic details based on examPath

@@ -39,7 +39,8 @@ const formatDate = (dateString: string) => {
 };
 export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null); // preview
+  const [profileFile, setProfileFile] = useState<File | null>(null); // actual file to upload
   const [formData, setFormData] = useState<UserData>({ ...userData });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,13 +52,25 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
     setIsEditing(false);
     setFormData({ ...userData });
     setProfileImage(null);
+    setProfileFile(null);
     setErrors({});
   };
+  const toDateInputValue = (v: string) => {
+    if (!v) return ''
+    // If already yyyy-MM-dd, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v
+    const d = new Date(v)
+    if (isNaN(d.getTime())) return ''
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    const nextVal = name === 'dob' ? toDateInputValue(value) : value
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: nextVal
     }));
     // Clear error when user starts typing
     if (errors[name]) {
@@ -81,14 +94,25 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
     }
   };
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Basic client-side validation to match backend expectations
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file')
+      return
     }
+    // 1MB guard to match backend validation
+    const maxSizeMB = 1
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      toast.error(`Image must be smaller than ${maxSizeMB}MB`)
+      return
+    }
+    setProfileFile(file)
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setProfileImage(reader.result as string)
+    }
+    reader.readAsDataURL(file)
   };
   // Validate form data
   const validateForm = (): boolean => {
@@ -121,7 +145,7 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
     setIsLoading(true);
     try {
       const updateResponse = await updateUserProfile(userData.userId, {
-        profileImage: profileImage ? new File([profileImage], 'profile.jpg') : undefined,
+        profileImage: profileFile ?? undefined,
         fullName: formData.userName,
         phone: formData.phone,
         address: formData.address,
@@ -165,9 +189,9 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
         <div className="flex flex-col items-center space-y-4">
           <div className="relative">
             <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden border-2 border-white">
-              {profileImage ? (
+              {(profileImage || formData.profile) ? (
                 <img
-                  src={profileImage}
+                  src={profileImage || (formData as unknown as { profile?: string }).profile || ''}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -257,9 +281,9 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
             <div className="flex flex-col items-center space-y-4 py-4">
               <div className="relative">
                 <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-md">
-                  {profileImage ? (
+                  {(profileImage || formData.profile) ? (
                     <img
-                      src={profileImage}
+                      src={profileImage || (formData as unknown as { profile?: string }).profile || ''}
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
@@ -349,7 +373,7 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
                   id="dob"
                   name="dob"
                   type="date"
-                  value={formData.dob}
+                  value={toDateInputValue(formData.dob)}
                   onChange={handleInputChange}
                   disabled={isLoading}
                   className={errors.dob ? "border-red-500" : ""}
@@ -425,6 +449,7 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
         </Dialog>
         <Button
           onClick={onLogout}
+          className="bg-black text-white hover:bg-black/90"
         >
           <LogOut className="h-4 w-4 mr-2" />
           Logout

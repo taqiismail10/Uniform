@@ -18,7 +18,7 @@ export const createUnitSchema = vine.object({
     .optional()
     .nullable(),
 
-  maxApplications: vine.number().min(1).max(10000).optional().nullable(),
+  maxApplications: vine.number().min(1).max(10000000).optional().nullable(),
   autoCloseAfterDeadline: vine.boolean().optional(), // Add this line
 
   requirements: vine
@@ -28,6 +28,7 @@ export const createUnitSchema = vine.object({
         hscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]),
         minSscGPA: vine.number().min(0).max(5).optional().nullable(),
         minHscGPA: vine.number().min(0).max(5).optional().nullable(),
+        minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
       })
     )
     .optional(),
@@ -37,8 +38,8 @@ export const updateUnitSchema = vine.object({
   name: vine
     .string()
     .trim()
-    .minLength(2)
-    .maxLength(100)
+    .minLength(1)
+    .maxLength(50)
     .regex(/^[a-zA-Z0-9\s\-\.]+$/)
     .optional(),
 
@@ -46,12 +47,14 @@ export const updateUnitSchema = vine.object({
 
   isActive: vine.boolean().optional(),
 
-  applicationDeadline: vine.date().optional().nullable(),
+  applicationDeadline: vine
+    .date({ formats: { utc: true } })
+    .optional()
+    .nullable(),
 
-  maxApplications: vine.number().min(1).max(10000).optional().nullable(),
+  maxApplications: vine.number().min(1).max(10000000).optional().nullable(),
 
   autoCloseAfterDeadline: vine.boolean().optional(),
-  // ADD THIS - Requirements field for updating
   requirements: vine
     .array(
       vine.object({
@@ -59,6 +62,7 @@ export const updateUnitSchema = vine.object({
         hscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]),
         minSscGPA: vine.number().min(0).max(5).optional().nullable(),
         minHscGPA: vine.number().min(0).max(5).optional().nullable(),
+        minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
       })
     )
     .optional(),
@@ -69,4 +73,5 @@ export const requirementSchema = vine.object({
   hscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]),
   minSscGPA: vine.number().min(0).max(5).optional().nullable(),
   minHscGPA: vine.number().min(0).max(5).optional().nullable(),
+  minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
 });

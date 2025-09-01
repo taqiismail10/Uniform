@@ -9,6 +9,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enums for institution ownership and type
+enum Ownership {
+  PUBLIC
+  PRIVATE
+}
+
+enum InstitutionType {
+  GENERAL
+  ENGINEERING
+}
+
 enum Stream {
   SCIENCE
   ARTS
@@ -78,6 +89,7 @@ model Systemadmin {
   email         String   @unique
   password      String   @db.VarChar(255)
   role          String   @default("SYSTEM_ADMIN")
+  lastLogin     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
 }
@@ -87,6 +99,7 @@ model Admin {
   email     String   @unique
   password  String   @db.VarChar(255)
   role      String   @default("INSTITUTION_ADMIN")
+  lastLogin DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   institutionId String?
@@ -96,6 +109,7 @@ model Admin {
 model Institution {
   institutionId String @id @default(uuid())
   name          String @unique
+  shortName     String?
 
   description     String?  @db.Text
   address         String?  @db.VarChar(500)
@@ -107,6 +121,10 @@ model Institution {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now()) @updatedAt
 
+  // New classification fields
+  ownership Ownership?
+  type      InstitutionType?
+
   units        Unit[]
   admins       Admin[] // Relation to Admin
   applications Application[]
@@ -116,6 +134,9 @@ model Institution {
   institutionForms InstitutionForm[]
 
   InstitutionCategory InstitutionCategory? @relation(fields: [institutionCategoryInstitutionCategoryId], references: [institutionCategoryId])
+
+  @@index([ownership])
+  @@index([type])
 }
 
 model Unit {
@@ -149,6 +170,7 @@ model UnitRequirement {
   hscStream Stream
   minSscGPA Float?
   minHscGPA Float?
+  minCombinedGPA Float?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 

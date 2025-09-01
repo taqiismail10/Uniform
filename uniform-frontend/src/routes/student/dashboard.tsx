@@ -2,7 +2,7 @@
 import ProtectedRoutes from '@/utils/ProtectedRoutes';
 import { ROLES } from '@/utils/role';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useAuth } from '@/context/useAuth';
+import { useAuth } from '@/context/student/useAuth';
 import { toast } from 'sonner';
 import { useEffect, useState, useCallback } from 'react';
 import { getInstitutions, getAcademicInfo, getApplications, getUserProfile, updateUserProfile } from '@/api';
@@ -52,7 +52,7 @@ function RouteComponent() {
     toast.success("Logged Out", {
       description: "You have been successfully logged out."
     });
-    navigate({ to: '/login' });
+    navigate({ to: '/student/studentLogin' });
   }, [logout, navigate]);
 
   // Get user data from API
