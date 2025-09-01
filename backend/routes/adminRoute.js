@@ -89,6 +89,21 @@ router.get(
   adminMiddleware,
   applicationController.list
 );
+router.get(
+  "/applications/:id",
+  adminMiddleware,
+  applicationController.getById
+);
+router.put(
+  "/applications/:id/approve",
+  adminMiddleware,
+  applicationController.approve
+);
+router.delete(
+  "/applications/:id",
+  adminMiddleware,
+  applicationController.remove
+);
 
 // Institution Management
 // Get admin's institution details
