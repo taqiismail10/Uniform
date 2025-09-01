@@ -48,11 +48,11 @@ export default function AcademicInfoPage({
           </CardHeader>
           <CardContent>
             <div className="mb-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                 {academicInfo.examPath === 'NATIONAL' ? 'National Curriculum' : 'Madrasha Curriculum'}
               </span>
             </div>
-            <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 text-blue-800 text-xs px-3 py-2">
+            <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 text-gray-700 text-xs px-3 py-2">
               Eligibility for applications is determined by your GPA and, where applicable, your SSC/HSC stream(s).
               Units must meet minimum GPA and stream requirements to appear as available to apply.
             </div>
@@ -75,7 +75,7 @@ export default function AcademicInfoPage({
                     </div>
                   </div>
                 )}
-                {academicInfo.sscRoll && (
+                {(academicInfo.sscRoll || sscStream) && (
                   <div className="border border-gray-200 rounded-lg p-4">
                     <h4 className="text-md font-medium text-gray-900 mb-3">SSC</h4>
                     <dl className="space-y-2">
@@ -87,6 +87,12 @@ export default function AcademicInfoPage({
                         <dt className="text-sm text-gray-500">Board</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.sscBoard}</dd>
                       </div>
+                      {sscStream && (
+                        <div className="flex justify-between">
+                          <dt className="text-sm text-gray-500">Stream</dt>
+                          <dd className="text-sm font-medium text-gray-900">{sscStream.charAt(0) + sscStream.slice(1).toLowerCase()}</dd>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <dt className="text-sm text-gray-500">Passing Year</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.sscYear}</dd>
@@ -102,7 +108,7 @@ export default function AcademicInfoPage({
                     </dl>
                   </div>
                 )}
-                {academicInfo.hscRoll && (
+                {(academicInfo.hscRoll || hscStream) && (
                   <div className="border border-gray-200 rounded-lg p-4">
                     <h4 className="text-md font-medium text-gray-900 mb-3">HSC</h4>
                     <dl className="space-y-2">
@@ -114,6 +120,12 @@ export default function AcademicInfoPage({
                         <dt className="text-sm text-gray-500">Board</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.hscBoard}</dd>
                       </div>
+                      {hscStream && (
+                        <div className="flex justify-between">
+                          <dt className="text-sm text-gray-500">Stream</dt>
+                          <dd className="text-sm font-medium text-gray-900">{hscStream.charAt(0) + hscStream.slice(1).toLowerCase()}</dd>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <dt className="text-sm text-gray-500">Passing Year</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.hscYear}</dd>

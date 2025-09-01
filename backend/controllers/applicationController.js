@@ -7,6 +7,10 @@ class applicationController {
       let page = Number(req.query.page) || 1;
       let limit = Number(req.query.limit) || 20;
       const search = (req.query.search || "").toString().trim();
+      const unitId = req.query.unitId ? String(req.query.unitId) : undefined;
+      const examPath = req.query.examPath ? String(req.query.examPath) : undefined; // 'NATIONAL' | 'MADRASHA'
+      const medium = req.query.medium ? String(req.query.medium) : undefined; // 'Bangla' | 'English' | 'Arabic'
+      const board = req.query.board ? String(req.query.board) : undefined; // e.g., 'Dhaka'
       if (page <= 0) page = 1;
       if (limit <= 0 || limit > 100) limit = 20;
       const skip = (page - 1) * limit;
@@ -19,6 +23,7 @@ class applicationController {
 
       const where = {
         institutionId: admin.institutionId,
+        ...(unitId ? { unitId } : {}),
         ...(search
           ? {
               OR: [
@@ -28,13 +33,29 @@ class applicationController {
               ],
             }
           : {}),
+        ...(examPath || medium || board
+          ? {
+              student: {
+                ...(examPath ? { examPath } : {}),
+                ...(medium ? { medium } : {}),
+                ...(board
+                  ? {
+                      OR: [
+                        { sscBoard: { equals: board } },
+                        { hscBoard: { equals: board } },
+                      ],
+                    }
+                  : {}),
+              },
+            }
+          : {}),
       };
 
       const [rows, total] = await Promise.all([
         prisma.application.findMany({
           where,
           include: {
-            student: { select: { studentId: true, fullName: true, email: true } },
+            student: { select: { studentId: true, fullName: true, email: true, examPath: true, medium: true, sscBoard: true, hscBoard: true } },
             unit: { select: { unitId: true, name: true } },
           },
           orderBy: { appliedAt: "desc" },
@@ -61,4 +82,3 @@ class applicationController {
 }
 
 export default applicationController;
-

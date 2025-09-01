@@ -33,6 +33,7 @@ function RouteComponent() {
   const activeSection = useMemo(() => {
     const p = location.pathname
     if (p.startsWith('/student/academic-info')) return 'academic-info'
+    if (p.startsWith('/student/applications')) return 'applications'
     if (p.startsWith('/student/universities') || p.startsWith('/student/institutions')) return 'universities'
     if (p.startsWith('/student/settings')) return 'settings'
     return 'dashboard'
@@ -43,6 +44,7 @@ function RouteComponent() {
       dashboard: '/student/dashboard',
       universities: '/student/universities',
       'academic-info': '/student/academic-info',
+      applications: '/student/applications',
       settings: '/student/settings',
     }
     navigate({ to: map[section] || '/student/dashboard' })
@@ -61,4 +63,3 @@ function RouteComponent() {
 }
 
 export default RouteComponent
-

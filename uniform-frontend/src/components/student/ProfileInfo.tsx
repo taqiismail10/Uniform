@@ -144,21 +144,32 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
     }
     setIsLoading(true);
     try {
-      const updateResponse = await updateUserProfile(userData.userId, {
+      const payload: Partial<UserData> = {
         profileImage: profileFile ?? undefined,
         fullName: formData.userName,
         phone: formData.phone,
         address: formData.address,
         dob: formData.dob,
         examPath: formData.examPath,
-        medium: formData.medium
-      });
+        medium: formData.medium,
+        // Streams (optional, primarily for National curriculum)
+        sscStream: formData.sscStream,
+        hscStream: formData.hscStream,
+      }
+      const updateResponse = await updateUserProfile(userData.userId, payload);
       if (updateResponse) {
         toast.success("Profile Updated", {
           description: "Your profile has been updated successfully."
         });
-        // Update the userData to reflect changes immediately
-        Object.assign(userData, formData);
+        // Immediately reflect updates across the app if parent provided a handler
+        if (onUpdate) {
+          await onUpdate(payload);
+        } else {
+          // Fallback: update local object to reflect changes immediately
+          Object.assign(userData, formData);
+          // Try to persist to localStorage if present
+          try { localStorage.setItem('user', JSON.stringify(userData)); } catch {}
+        }
         setIsEditing(false);
       } else {
         toast.error("Update Failed", {

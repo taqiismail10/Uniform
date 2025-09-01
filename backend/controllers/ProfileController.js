@@ -287,6 +287,8 @@ class ProfileController {
 				where: { studentId },
 				select: {
 					studentId: true,
+					sscStream: true,
+					hscStream: true,
 					examPath: true,
 					medium: true,
 					// Academic details based on examPath

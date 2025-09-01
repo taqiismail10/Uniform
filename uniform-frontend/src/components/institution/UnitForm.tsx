@@ -204,9 +204,6 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-900">Eligibility Requirements</h2>
-          <Button type="button" variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={addRequirement}>
-            <Plus className="h-4 w-4 mr-1" /> Add requirement
-          </Button>
         </div>
 
         <div className="space-y-3">
@@ -279,6 +276,12 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="pt-1">
+          <Button type="button" variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={addRequirement}>
+            <Plus className="h-4 w-4 mr-1" /> Add requirement
+          </Button>
         </div>
       </div>
 

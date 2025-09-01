@@ -63,7 +63,7 @@ export const getUserProfile = async (): Promise<User | null> => {
 // Get Academic Details
 export const getAcademicDetails = async (): Promise<User | null> => {
   try {
-    const response = await api.get("/profile/academic");
+    const response = await api.get("/academicInfo");
     if (response.data.status === 200) {
       const academicDetails = response.data.academicDetails;
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -105,6 +105,9 @@ export const getAcademicDetails = async (): Promise<User | null> => {
         alimGpa: academicDetails.alimGpa?.toString(),
         alimYear: academicDetails.alimYear?.toString(),
         alimBoard: academicDetails.alimBoard,
+        // Streams
+        sscStream: academicDetails.sscStream,
+        hscStream: academicDetails.hscStream,
       };
       return frontendUser;
     }

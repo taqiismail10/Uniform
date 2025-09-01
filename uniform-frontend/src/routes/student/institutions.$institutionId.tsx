@@ -112,21 +112,21 @@ function RouteComponent() {
 
         <Card className="border-gray-200">
           <CardHeader>
-            <CardTitle className="text-gray-900">Eligible Units</CardTitle>
+            <CardTitle className="text-gray-900">Units</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="py-8 text-gray-600">Loading units...</div>
             ) : !inst || !inst.units || inst.units.length === 0 ? (
-              <div className="py-8 text-gray-600">No eligible units available.</div>
+              <div className="py-8 text-gray-600">No units available.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {inst.units.map((u) => (
                   <div key={u.unitId} className="border border-gray-200 rounded-md p-4">
                     <div className="flex items-center justify-between">
                       <div className="text-gray-900 font-medium">{u.name}</div>
-                      <Button size="sm" className="bg-gray-900 hover:bg-gray-800" disabled={applying === u.unitId} onClick={() => doApply(u)}>
-                        {applying === u.unitId ? 'Applying...' : 'Apply'}
+                      <Button size="sm" className="bg-gray-900 hover:bg-gray-800" disabled={applying === u.unitId || u.eligible === false} onClick={() => doApply(u)} title={u.eligible === false ? 'You are not eligible for this unit' : undefined}>
+                        {applying === u.unitId ? 'Applying...' : (u.eligible === false ? 'Not Eligible' : 'Apply')}
                       </Button>
                     </div>
                     {u.description ? (
@@ -147,4 +147,6 @@ function RouteComponent() {
 }
 
 export default RouteComponent
+
+
 

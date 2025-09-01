@@ -26,6 +26,50 @@ class authController {
 			const body = req.body;
 			const validator = vine.compile(registerSchema);
 			const payload = await validator.validate(body);
+
+			// Enforce minimum 2-year gap between SSC and HSC passing years (for National curriculum)
+			if (
+				payload?.examPath === 'NATIONAL' &&
+				payload?.sscYear != null &&
+				payload?.hscYear != null &&
+				Number.isFinite(payload.sscYear) &&
+				Number.isFinite(payload.hscYear)
+			) {
+				if (payload.hscYear < payload.sscYear + 2) {
+					return res.status(400).json({
+						errors: [
+							{
+								field: 'hscYear',
+								rule: 'min_gap',
+								message:
+									'HSC passing year must be at least 2 years after SSC passing year',
+							},
+						],
+					});
+				}
+			}
+
+			// Enforce minimum 2-year gap between Dakhil and Alim passing years (for Madrasha curriculum)
+			if (
+				payload?.examPath === 'MADRASHA' &&
+				payload?.dakhilYear != null &&
+				payload?.alimYear != null &&
+				Number.isFinite(payload.dakhilYear) &&
+				Number.isFinite(payload.alimYear)
+			) {
+				if (payload.alimYear < payload.dakhilYear + 2) {
+					return res.status(400).json({
+						errors: [
+							{
+								field: 'alimYear',
+								rule: 'min_gap',
+								message:
+									'Alim passing year must be at least 2 years after Dakhil passing year',
+							},
+						],
+					});
+				}
+			}
 			const findUser = await prisma.student.findUnique({
 				where: {
 					email: payload.email,

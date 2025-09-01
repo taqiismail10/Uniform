@@ -6,6 +6,7 @@ export interface EligibleUnit {
   description?: string | null
   applicationDeadline?: string | null
   isActive?: boolean
+  eligible?: boolean
 }
 
 export interface EligibleInstitution {

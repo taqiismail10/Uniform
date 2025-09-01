@@ -107,6 +107,13 @@ export default function Header({ userData, activeSection, setActiveSection }: He
               >
                 Academic Info
               </Button>
+              <Button
+                variant={"link"}
+                onClick={() => setActiveSection('applications')}
+                className={`px-3 py-2 text-base font-medium ${activeSection === 'applications' ? 'text-black' : 'text-gray-600'}`}
+              >
+                Applications
+              </Button>
               {/* Settings link removed from desktop navbar */}
             </nav>
             {/* User menu */}

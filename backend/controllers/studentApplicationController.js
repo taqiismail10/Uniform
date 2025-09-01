@@ -80,6 +80,27 @@ class studentApplicationController {
       return res.status(500).json({ status: 500, message: "Something went wrong" });
     }
   }
+
+  static async delete(req, res) {
+    try {
+      const { studentId } = req.user;
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ status: 400, message: "Application id is required" });
+      }
+      const app = await prisma.application.findUnique({ where: { id }, select: { id: true, studentId: true, reviewedAt: true } });
+      if (!app || app.studentId !== studentId) {
+        return res.status(404).json({ status: 404, message: "Application not found" });
+      }
+      if (app.reviewedAt) {
+        return res.status(400).json({ status: 400, message: "Approved applications cannot be deleted" });
+      }
+      await prisma.application.delete({ where: { id } });
+      return res.json({ status: 200, message: "Application deleted" });
+    } catch (error) {
+      return res.status(500).json({ status: 500, message: "Something went wrong" });
+    }
+  }
 }
 
 export default studentApplicationController;

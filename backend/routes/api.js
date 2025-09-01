@@ -68,5 +68,10 @@ router.post(
   studentMiddleware,
   studentApplicationController.create
 );
+router.delete(
+  "/applications/:id",
+  studentMiddleware,
+  studentApplicationController.delete
+);
 
 export default router;

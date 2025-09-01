@@ -117,7 +117,14 @@ class studentExploreController {
       const { institutionId } = req.params;
       const student = await prisma.student.findUnique({
         where: { studentId },
-        select: { sscGpa: true, hscGpa: true, sscStream: true, hscStream: true },
+        select: {
+          sscGpa: true,
+          hscGpa: true,
+          sscStream: true,
+          hscStream: true,
+          sscYear: true,
+          hscYear: true,
+        },
       });
       if (!student) return res.status(404).json({ status: 404, message: 'Student not found' });
 
@@ -128,22 +135,43 @@ class studentExploreController {
       const units = await prisma.unit.findMany({ where: { institutionId, isActive: true }, include: { requirements: true } });
       const ssc = student.sscGpa ?? 0;
       const hsc = student.hscGpa ?? 0;
+      const sscYear = student.sscYear ?? 0;
+      const hscYear = student.hscYear ?? 0;
       const combined = ssc + hsc;
 
-      const eligibleUnits = units.filter((u) => {
-        if (u.autoCloseAfterDeadline && u.applicationDeadline && new Date(u.applicationDeadline) < now) return false;
-        const reqs = u.requirements ?? [];
-        if (reqs.length === 0) return true;
-        return reqs.some((r) => {
-          const passSSC = r.minSscGPA == null || ssc >= r.minSscGPA;
-          const passHSC = r.minHscGPA == null || hsc >= r.minHscGPA;
-          const passCombined = r.minCombinedGPA == null || combined >= r.minCombinedGPA;
-          const passStream = (!student.sscStream || !student.hscStream) || (r.sscStream === student.sscStream && r.hscStream === student.hscStream);
-          return passSSC && passHSC && passCombined && passStream;
+      const resultUnits = units
+        .filter((u) => {
+          // Exclude closed units if auto-closing after deadline
+          if (u.autoCloseAfterDeadline && u.applicationDeadline && new Date(u.applicationDeadline) < now) return false;
+          return true;
+        })
+        .map((u) => {
+          const reqs = u.requirements ?? [];
+          // If no requirements, open to all
+          let eligible = reqs.length === 0;
+          if (!eligible) {
+            eligible = reqs.some((r) => {
+              const passSSC = r.minSscGPA == null || ssc >= r.minSscGPA;
+              const passHSC = r.minHscGPA == null || hsc >= r.minHscGPA;
+              const passCombined = r.minCombinedGPA == null || combined >= r.minCombinedGPA;
+              const passSscYear = (r.minSscYear == null || sscYear >= r.minSscYear) && (r.maxSscYear == null || sscYear <= r.maxSscYear);
+              const passHscYear = (r.minHscYear == null || hscYear >= r.minHscYear) && (r.maxHscYear == null || hscYear <= r.maxHscYear);
+              const passStream = (!student.sscStream || !student.hscStream) ||
+                ((r.sscStream === student.sscStream) && (r.hscStream === student.hscStream));
+              return passSSC && passHSC && passCombined && passStream && passSscYear && passHscYear;
+            });
+          }
+          return {
+            unitId: u.unitId,
+            name: u.name,
+            description: u.description,
+            applicationDeadline: u.applicationDeadline,
+            isActive: u.isActive,
+            eligible,
+          };
         });
-      }).map((u) => ({ unitId: u.unitId, name: u.name, description: u.description, applicationDeadline: u.applicationDeadline, isActive: u.isActive }));
 
-      return res.json({ status: 200, data: { ...inst, units: eligibleUnits } });
+      return res.json({ status: 200, data: { ...inst, units: resultUnits } });
     } catch (error) {
       return res.status(500).json({ status: 500, message: 'Something went wrong' });
     }

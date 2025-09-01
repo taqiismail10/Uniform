@@ -46,6 +46,10 @@ function RouteComponent() {
             minSscGPA: r.minSscGPA ?? null,
             minHscGPA: r.minHscGPA ?? null,
             minCombinedGPA: r.minCombinedGPA ?? null,
+            minSscYear: (r as any).minSscYear ?? null,
+            maxSscYear: (r as any).maxSscYear ?? null,
+            minHscYear: (r as any).minHscYear ?? null,
+            maxHscYear: (r as any).maxHscYear ?? null,
           })),
         }
         setInitial(init)
