@@ -36,7 +36,7 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
   const [saving, setSaving] = useState<boolean>(false)
 
   const [requirements, setRequirements] = useState<UnitRequirementInput[]>([
-    { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0 },
+    { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null },
   ])
 
   // derive initial state from props
@@ -58,14 +58,18 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
       minSscGPA: r.minSscGPA ?? null,
       minHscGPA: r.minHscGPA ?? null,
       minCombinedGPA: r.minCombinedGPA ?? null,
+      minSscYear: r.minSscYear ?? null,
+      maxSscYear: r.maxSscYear ?? null,
+      minHscYear: r.minHscYear ?? null,
+      maxHscYear: r.maxHscYear ?? null,
     }))
-    setRequirements(reqs.length ? reqs : [{ sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0 }])
+    setRequirements(reqs.length ? reqs : [{ sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null }])
   }, [initial])
 
   const addRequirement = () => {
     setRequirements((prev) => [
       ...prev,
-      { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0 },
+      { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null },
     ])
   }
 
@@ -120,6 +124,10 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
           minSscGPA: r.minSscGPA === undefined || r.minSscGPA === null ? undefined : Number(r.minSscGPA),
           minHscGPA: r.minHscGPA === undefined || r.minHscGPA === null ? undefined : Number(r.minHscGPA),
           minCombinedGPA: r.minCombinedGPA === undefined || r.minCombinedGPA === null ? undefined : Number(r.minCombinedGPA),
+          minSscYear: r.minSscYear === undefined || r.minSscYear === null ? undefined : Number(r.minSscYear),
+          maxSscYear: r.maxSscYear === undefined || r.maxSscYear === null ? undefined : Number(r.maxSscYear),
+          minHscYear: r.minHscYear === undefined || r.minHscYear === null ? undefined : Number(r.minHscYear),
+          maxHscYear: r.maxHscYear === undefined || r.maxHscYear === null ? undefined : Number(r.maxHscYear),
         })),
       }
       const res = await onSubmit(payload)
@@ -223,6 +231,16 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
                     </Select>
                     <label className="text-xs text-gray-600">Min GPA</label>
                     <Input type="number" min={0} max={5} step={0.01} value={req.minSscGPA ?? ''} onChange={(e) => updateReq(idx, { minSscGPA: e.target.value === '' ? null : Number(e.target.value) })} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-600">Min Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.minSscYear ?? ''} onChange={(e) => updateReq(idx, { minSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-600">Max Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.maxSscYear ?? ''} onChange={(e) => updateReq(idx, { maxSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -238,6 +256,16 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
                     </Select>
                     <label className="text-xs text-gray-600">Min GPA</label>
                     <Input type="number" min={0} max={5} step={0.01} value={req.minHscGPA ?? ''} onChange={(e) => updateReq(idx, { minHscGPA: e.target.value === '' ? null : Number(e.target.value) })} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-600">Min Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.minHscYear ?? ''} onChange={(e) => updateReq(idx, { minHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-600">Max Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.maxHscYear ?? ''} onChange={(e) => updateReq(idx, { maxHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 

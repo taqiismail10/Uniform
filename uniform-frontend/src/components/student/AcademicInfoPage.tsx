@@ -5,11 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface AcademicInfoPageProps {
   academicInfo: AcademicInfo | null;
   loading?: boolean;
+  sscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  hscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
 }
 
 export default function AcademicInfoPage({
   academicInfo,
-  loading = false
+  loading = false,
+  sscStream,
+  hscStream,
 }: AcademicInfoPageProps) {
   if (loading) {
     return (
@@ -48,9 +52,29 @@ export default function AcademicInfoPage({
                 {academicInfo.examPath === 'NATIONAL' ? 'National Curriculum' : 'Madrasha Curriculum'}
               </span>
             </div>
+            <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 text-blue-800 text-xs px-3 py-2">
+              Eligibility for applications is determined by your GPA and, where applicable, your SSC/HSC stream(s).
+              Units must meet minimum GPA and stream requirements to appear as available to apply.
+            </div>
 
             {academicInfo.examPath === 'NATIONAL' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {(sscStream || hscStream) && (
+                  <div className="md:col-span-2 -mt-2">
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      {sscStream && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                          SSC Stream: {sscStream.charAt(0) + sscStream.slice(1).toLowerCase()}
+                        </span>
+                      )}
+                      {hscStream && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                          HSC Stream: {hscStream.charAt(0) + hscStream.slice(1).toLowerCase()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {academicInfo.sscRoll && (
                   <div className="border border-gray-200 rounded-lg p-4">
                     <h4 className="text-md font-medium text-gray-900 mb-3">SSC</h4>

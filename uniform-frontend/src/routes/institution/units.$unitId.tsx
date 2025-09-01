@@ -23,6 +23,10 @@ type UnitDetail = {
     minSscGPA?: number | null
     minHscGPA?: number | null
     minCombinedGPA?: number | null
+    minSscYear?: number | null
+    maxSscYear?: number | null
+    minHscYear?: number | null
+    maxHscYear?: number | null
   }>
   _count?: { applications?: number }
 }
@@ -156,6 +160,10 @@ function RouteComponent() {
                           <TableHead>Min SSC GPA</TableHead>
                           <TableHead>Min HSC GPA</TableHead>
                           <TableHead>Min Combined GPA</TableHead>
+                          <TableHead>Min SSC Year</TableHead>
+                          <TableHead>Max SSC Year</TableHead>
+                          <TableHead>Min HSC Year</TableHead>
+                          <TableHead>Max HSC Year</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -166,6 +174,10 @@ function RouteComponent() {
                             <TableCell>{r.minSscGPA ?? '—'}</TableCell>
                             <TableCell>{r.minHscGPA ?? '—'}</TableCell>
                             <TableCell>{r.minCombinedGPA ?? '—'}</TableCell>
+                            <TableCell>{(r as any).minSscYear ?? '—'}</TableCell>
+                            <TableCell>{(r as any).maxSscYear ?? '—'}</TableCell>
+                            <TableCell>{(r as any).minHscYear ?? '—'}</TableCell>
+                            <TableCell>{(r as any).maxHscYear ?? '—'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

@@ -5,16 +5,15 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/context/student/useAuth';
 import { toast } from 'sonner';
 import { useEffect, useState, useCallback } from 'react';
-import { getInstitutions, getAcademicInfo, getApplications, getUserProfile, updateUserProfile } from '@/api';
-import type { Application, UserData, AcademicInfo } from '@/components/student/types';
-import Header from '@/components/student/Header';
+import { getInstitutions, getApplications, getUserProfile, updateUserProfile } from '@/api';
+import type { Application, UserData } from '@/components/student/types';
+// Header is rendered by parent /student layout
 import DashboardStats from '@/components/student/DashboardStats';
 import ApplicationStatus from '@/components/student/ApplicationStatus';
 import QuickActions from '@/components/student/QuickActions';
-import UniversitiesSection from '@/components/student/UniversitiesSection';
 import ProfileInfo from '@/components/student/ProfileInfo';
-import AcademicInfoPage from '@/components/student/AcademicInfoPage';
-import StudentSettings from '@/components/student/StudentSettings'; // Import the Settings component
+// import AcademicInfoPage from '@/components/student/AcademicInfoPage';
+// Other sections moved to their own routes
 
 export const Route = createFileRoute('/student/dashboard')({
   component: () => (
@@ -36,14 +35,12 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [academicInfo, setAcademicInfo] = useState<AcademicInfo | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState({
-    academicInfo: true,
     applications: true
   });
-  const [activeSection, setActiveSection] = useState('dashboard');
+  // activeSection handled by parent layout
   // const institutions = Route.useLoaderData() as Institution[];
 
   // Memoize handleLogout to prevent unnecessary re-renders
@@ -67,20 +64,7 @@ function RouteComponent() {
         const userProfile = await getUserProfile();
         if (userProfile) {
           setUserData(userProfile);
-          // Fetch academic info
-          try {
-            const academicData = await getAcademicInfo(userProfile.userId);
-            if (academicData) {
-              setAcademicInfo(academicData);
-            }
-          } catch (error) {
-            console.error("Error fetching academic info:", error);
-            toast.error("Data Error", {
-              description: "Could not load academic information."
-            });
-          } finally {
-            setDataLoading(prev => ({ ...prev, academicInfo: false }));
-          }
+          // Academic info is shown in its own route now
           // Fetch applications
           try {
             const applicationsData = await getApplications(userProfile.userId);
@@ -184,62 +168,54 @@ function RouteComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header
-        userData={userData}
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-      />
-      <main className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-        {activeSection === 'dashboard' && (
-          <>
-            <DashboardStats stats={dashboardStats} />
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-2">
-                <ProfileInfo
-                  userData={userData}
-                  onLogout={handleLogout}
-                  onUpdate={handleProfileUpdate}
-                />
-              </div>
-              <div className="lg:col-span-3">
-                {dataLoading.applications ? (
-                  <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
-                    <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-                      <h3 className="text-lg leading-6 font-medium text-gray-900">Application Status</h3>
-                    </div>
-                    <div className="px-4 py-5 sm:p-6 flex justify-center items-center h-64">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                        <p className="mt-2 text-gray-600">Loading applications...</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <ApplicationStatus applications={applications} />
-                )}
-                <QuickActions />
-              </div>
-            </div>
-          </>
-        )}
-        {activeSection === 'universities' && (
-          <UniversitiesSection />
-        )}
-        {activeSection === 'academic-info' && (
-          <AcademicInfoPage
-            academicInfo={academicInfo}
-            loading={dataLoading.academicInfo}
-          />
-        )}
-        {/* Add Settings section */}
-        {activeSection === 'settings' && (
-          <StudentSettings
+    <>
+      <DashboardStats stats={dashboardStats} />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-2">
+          <ProfileInfo
             userData={userData}
             onLogout={handleLogout}
+            onUpdate={handleProfileUpdate}
           />
-        )}
-      </main>
-    </div>
+          {(userData?.sscStream || userData?.hscStream) && (
+            <div className="mt-4 bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-3 sm:px-6 border-b border-gray-200">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">Academic Background</h3>
+              </div>
+              <div className="px-4 py-4 sm:p-6 flex flex-wrap gap-2 text-sm">
+                {userData?.sscStream && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                    SSC Stream: {userData.sscStream.charAt(0) + userData.sscStream.slice(1).toLowerCase()}
+                  </span>
+                )}
+                {userData?.hscStream && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                    HSC Stream: {userData.hscStream.charAt(0) + userData.hscStream.slice(1).toLowerCase()}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="lg:col-span-3">
+          {dataLoading.applications ? (
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+              <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">Application Status</h3>
+              </div>
+              <div className="px-4 py-5 sm:p-6 flex justify-center items-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">Loading applications...</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <ApplicationStatus applications={applications} />
+          )}
+          <QuickActions />
+        </div>
+      </div>
+    </>
   );
 }

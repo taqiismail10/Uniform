@@ -173,6 +173,11 @@ model UnitRequirement {
   minSscGPA Float?
   minHscGPA Float?
   minCombinedGPA Float?
+  // Eligibility by passing year (Bangladesh admission style)
+  minSscYear Int?
+  maxSscYear Int?
+  minHscYear Int?
+  maxHscYear Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 

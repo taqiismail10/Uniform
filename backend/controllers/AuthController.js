@@ -139,11 +139,14 @@ class authController {
 					message: "Invalid password",
 				});
 			}
-			// Delete the user account
-			await prisma.student.delete({
-				where: {
-					studentId: studentId,
-				},
+			// Delete the user account and dependent records in a transaction to satisfy FKs
+			await prisma.$transaction(async (tx) => {
+				// Remove dependent application records first
+				await tx.application.deleteMany({ where: { studentId } });
+				await tx.appliedUnit.deleteMany({ where: { studentId } });
+				await tx.form.deleteMany({ where: { studentId } });
+				// Finally remove the student
+				await tx.student.delete({ where: { studentId } });
 			});
 			// Return success response
 			return res.status(200).json({

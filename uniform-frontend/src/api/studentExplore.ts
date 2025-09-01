@@ -32,3 +32,14 @@ export const getEligibleInstitutions = async (): Promise<EligibleInstitution[]> 
   }
 }
 
+export const getEligibleInstitutionById = async (
+  institutionId: string,
+): Promise<EligibleInstitution | null> => {
+  try {
+    const res = await api.get(`/institutions/${institutionId}/eligible`)
+    if (res.data?.status === 200) return res.data.data as EligibleInstitution
+    return null
+  } catch (e) {
+    return null
+  }
+}

@@ -8,9 +8,49 @@ class studentApplicationController {
       if (!unitId) {
         return res.status(400).json({ status: 400, message: "unitId is required" });
       }
-      const unit = await prisma.unit.findUnique({ where: { unitId }, select: { unitId: true, institutionId: true } });
+      // Load unit with requirements to validate eligibility
+      const unit = await prisma.unit.findUnique({ where: { unitId }, include: { requirements: true } });
       if (!unit) {
         return res.status(404).json({ status: 404, message: "Unit not found" });
+      }
+      // Load student academic info
+      const student = await prisma.student.findUnique({
+        where: { studentId },
+        select: { sscGpa: true, hscGpa: true, sscStream: true, hscStream: true, sscYear: true, hscYear: true },
+      });
+      if (!student) {
+        return res.status(404).json({ status: 404, message: "Student not found" });
+      }
+      // Validate deadline and active status
+      const now = new Date();
+      if (unit.autoCloseAfterDeadline && unit.applicationDeadline && new Date(unit.applicationDeadline) < now) {
+        return res.status(400).json({ status: 400, message: "Application deadline has passed" });
+      }
+      if (unit.isActive === false) {
+        return res.status(400).json({ status: 400, message: "Unit is not active" });
+      }
+      // Validate academic eligibility (same logic as exploration endpoint)
+      const ssc = Number(student.sscGpa ?? 0);
+      const hsc = Number(student.hscGpa ?? 0);
+      const sscYear = student.sscYear ?? 0;
+      const hscYear = student.hscYear ?? 0;
+      const combined = ssc + hsc;
+      const reqs = unit.requirements ?? [];
+      let eligible = reqs.length === 0;
+      if (!eligible) {
+        eligible = reqs.some((r) => {
+          const passSSC = r.minSscGPA == null || ssc >= r.minSscGPA;
+          const passHSC = r.minHscGPA == null || hsc >= r.minHscGPA;
+          const passCombined = r.minCombinedGPA == null || combined >= r.minCombinedGPA;
+          const passSscYear = (r.minSscYear == null || sscYear >= r.minSscYear) && (r.maxSscYear == null || sscYear <= r.maxSscYear);
+          const passHscYear = (r.minHscYear == null || hscYear >= r.minHscYear) && (r.maxHscYear == null || hscYear <= r.maxHscYear);
+          const passStream = (!student.sscStream || !student.hscStream) ||
+            ((r.sscStream === student.sscStream) && (r.hscStream === student.hscStream));
+          return passSSC && passHSC && passCombined && passStream && passSscYear && passHscYear;
+        });
+      }
+      if (!eligible) {
+        return res.status(400).json({ status: 400, message: "You are not eligible to apply to this unit" });
       }
       // Ensure no duplicate application for same unit by this student
       const existing = await prisma.application.findFirst({ where: { studentId, unitId } });
@@ -43,4 +83,3 @@ class studentApplicationController {
 }
 
 export default studentApplicationController;
-

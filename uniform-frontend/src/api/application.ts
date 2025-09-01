@@ -4,13 +4,21 @@ import type { Application } from "@/components/student/types";
 
 // Get Applications by User ID
 export const getApplications = async (
-  userId: string
+  _userId: string
 ): Promise<Application[]> => {
   try {
-    const response = await api.get<{ applications: Application[] }>(
-      `/applications?userId=${userId}`
-    );
-    return response.data.applications;
+    // Backend uses auth context; userId query is ignored
+    const response = await api.get<{ applications: any[] }>(`/applications`);
+    const raw = response.data.applications || [];
+    // Normalize server payload to Application shape expected by UI
+    return raw.map((a: any) => ({
+      id: a.id ?? a.applicationId ?? `${a.unitId || ''}-${a.institutionId || ''}-${a.appliedAt || ''}`,
+      userId: a.studentId ?? '',
+      university: a.institution?.name ?? a.institutionName ?? '-',
+      unit: a.unit?.name ?? a.unitName ?? '-',
+      appliedDate: a.appliedAt ?? a.appliedDate ?? '',
+      status: (a.status as Application['status']) ?? 'Pending',
+    })) as Application[];
   } catch (error) {
     console.error("Get Applications Failed:", error);
     return [];

@@ -71,6 +71,10 @@ class unitController {
             minSscGPA: req.minSscGPA,
             minHscGPA: req.minHscGPA,
             minCombinedGPA: req.minCombinedGPA,
+            minSscYear: req.minSscYear,
+            maxSscYear: req.maxSscYear,
+            minHscYear: req.minHscYear,
+            maxHscYear: req.maxHscYear,
           }));
 
           await tx.unitRequirement.createMany({
@@ -272,6 +276,10 @@ class unitController {
               minSscGPA: req.minSscGPA,
               minHscGPA: req.minHscGPA,
               minCombinedGPA: req.minCombinedGPA,
+              minSscYear: req.minSscYear,
+              maxSscYear: req.maxSscYear,
+              minHscYear: req.minHscYear,
+              maxHscYear: req.maxHscYear,
             }));
 
             await tx.unitRequirement.createMany({
@@ -403,6 +411,10 @@ class unitController {
         minSscGPA: req.minSscGPA,
         minHscGPA: req.minHscGPA,
         minCombinedGPA: req.minCombinedGPA,
+        minSscYear: req.minSscYear,
+        maxSscYear: req.maxSscYear,
+        minHscYear: req.minHscYear,
+        maxHscYear: req.maxHscYear,
       }));
 
       await prisma.unitRequirement.createMany({

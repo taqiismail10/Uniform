@@ -9,6 +9,10 @@ export interface UnitRequirementInput {
   minSscGPA?: number | null
   minHscGPA?: number | null
   minCombinedGPA?: number | null
+  minSscYear?: number | null
+  maxSscYear?: number | null
+  minHscYear?: number | null
+  maxHscYear?: number | null
 }
 
 export interface CreateUnitInput {
@@ -27,6 +31,10 @@ export interface UnitRequirement {
   minSscGPA?: number | null
   minHscGPA?: number | null
   minCombinedGPA?: number | null
+  minSscYear?: number | null
+  maxSscYear?: number | null
+  minHscYear?: number | null
+  maxHscYear?: number | null
 }
 
 export interface UnitDetail {

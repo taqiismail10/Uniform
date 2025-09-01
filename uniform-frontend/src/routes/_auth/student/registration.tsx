@@ -89,12 +89,14 @@ function RouteComponent() {
     medium: '',
     examPath: '',
     // SSC Details
+    sscStream: '',
     sscRoll: '',
     sscRegistration: '',
     sscGpa: '',
     sscYear: '',
     sscBoard: '',
     // HSC Details
+    hscStream: '',
     hscRoll: '',
     hscRegistration: '',
     hscGpa: '',
@@ -135,6 +137,10 @@ function RouteComponent() {
         return value ? '' : 'Please select a medium';
       case 'examPath':
         return value ? '' : 'Please select an exam path';
+      case 'sscStream':
+        return formData.examPath === 'NATIONAL' && !value ? 'Please select SSC stream' : '';
+      case 'hscStream':
+        return formData.examPath === 'NATIONAL' && !value ? 'Please select HSC stream' : '';
       case 'sscRoll':
         return formData.examPath === 'NATIONAL' && !value.trim() ? 'SSC roll number is required' : '';
       case 'sscRegistration':
@@ -572,6 +578,20 @@ function RouteComponent() {
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">SSC Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 font-medium">SSC Stream</Label>
+                    <Select value={formData.sscStream} onValueChange={(v) => handleSelectChange("sscStream", v)} disabled={isLoading}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select SSC Stream" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SCIENCE">Science</SelectItem>
+                        <SelectItem value="ARTS">Arts</SelectItem>
+                        <SelectItem value="COMMERCE">Commerce</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                     <div className="space-y-2">
                       <Label htmlFor="sscRoll" className="text-gray-700 font-medium">
                         Roll Number
@@ -712,6 +732,20 @@ function RouteComponent() {
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">HSC Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 font-medium">HSC Stream</Label>
+                    <Select value={formData.hscStream} onValueChange={(v) => handleSelectChange("hscStream", v)} disabled={isLoading}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select HSC Stream" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SCIENCE">Science</SelectItem>
+                        <SelectItem value="ARTS">Arts</SelectItem>
+                        <SelectItem value="COMMERCE">Commerce</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                     <div className="space-y-2">
                       <Label htmlFor="hscRoll" className="text-gray-700 font-medium">
                         Roll Number

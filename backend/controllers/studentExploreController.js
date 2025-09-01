@@ -12,6 +12,8 @@ class studentExploreController {
           examPath: true,
           sscStream: true,
           hscStream: true,
+          sscYear: true,
+          hscYear: true,
         },
       });
 
@@ -45,6 +47,8 @@ class studentExploreController {
 
       const ssc = student.sscGpa ?? 0;
       const hsc = student.hscGpa ?? 0;
+      const sscYear = student.sscYear ?? 0;
+      const hscYear = student.hscYear ?? 0;
       const combined = ssc + hsc;
 
       const eligibleByInstitution = new Map();
@@ -63,9 +67,11 @@ class studentExploreController {
             const passSSC = r.minSscGPA == null || ssc >= r.minSscGPA;
             const passHSC = r.minHscGPA == null || hsc >= r.minHscGPA;
             const passCombined = r.minCombinedGPA == null || combined >= r.minCombinedGPA;
+            const passSscYear = (r.minSscYear == null || sscYear >= r.minSscYear) && (r.maxSscYear == null || sscYear <= r.maxSscYear);
+            const passHscYear = (r.minHscYear == null || hscYear >= r.minHscYear) && (r.maxHscYear == null || hscYear <= r.maxHscYear);
             const passStream = (!student.sscStream || !student.hscStream) ||
               ((r.sscStream === student.sscStream) && (r.hscStream === student.hscStream));
-            return passSSC && passHSC && passCombined && passStream;
+            return passSSC && passHSC && passCombined && passStream && passSscYear && passHscYear;
           });
         }
 

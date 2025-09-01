@@ -29,6 +29,10 @@ export const createUnitSchema = vine.object({
         minSscGPA: vine.number().min(0).max(5).optional().nullable(),
         minHscGPA: vine.number().min(0).max(5).optional().nullable(),
         minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
+        minSscYear: vine.number().min(1990).max(2100).optional().nullable(),
+        maxSscYear: vine.number().min(1990).max(2100).optional().nullable(),
+        minHscYear: vine.number().min(1990).max(2100).optional().nullable(),
+        maxHscYear: vine.number().min(1990).max(2100).optional().nullable(),
       })
     )
     .optional(),
@@ -63,6 +67,10 @@ export const updateUnitSchema = vine.object({
         minSscGPA: vine.number().min(0).max(5).optional().nullable(),
         minHscGPA: vine.number().min(0).max(5).optional().nullable(),
         minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
+        minSscYear: vine.number().min(1990).max(2100).optional().nullable(),
+        maxSscYear: vine.number().min(1990).max(2100).optional().nullable(),
+        minHscYear: vine.number().min(1990).max(2100).optional().nullable(),
+        maxHscYear: vine.number().min(1990).max(2100).optional().nullable(),
       })
     )
     .optional(),
@@ -74,4 +82,8 @@ export const requirementSchema = vine.object({
   minSscGPA: vine.number().min(0).max(5).optional().nullable(),
   minHscGPA: vine.number().min(0).max(5).optional().nullable(),
   minCombinedGPA: vine.number().min(0).max(10).optional().nullable(),
+  minSscYear: vine.number().min(1990).max(2100).optional().nullable(),
+  maxSscYear: vine.number().min(1990).max(2100).optional().nullable(),
+  minHscYear: vine.number().min(1990).max(2100).optional().nullable(),
+  maxHscYear: vine.number().min(1990).max(2100).optional().nullable(),
 });
