@@ -5,7 +5,7 @@ import type { Institution } from "@/components/student/types";
 // Get Institutions
 export const getInstitutions = async (): Promise<Institution[]> => {
   try {
-    const response = await api.get<Institution[]>("/institutions");
+    const response = await api.get<Institution[]>("/institutions/eligible");
     return response.data;
   } catch (error) {
     console.error("Get Institutions Failed:", error);

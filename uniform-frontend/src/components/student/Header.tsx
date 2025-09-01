@@ -98,7 +98,7 @@ export default function Header({ userData, activeSection, setActiveSection }: He
                 onClick={() => setActiveSection('universities')}
                 className={`px-3 py-2 text-base font-medium ${activeSection === 'universities' ? 'text-black' : 'text-gray-600'}`}
               >
-                Universities
+                Institution
               </Button>
               <Button
                 variant={"link"}
@@ -255,7 +255,7 @@ export default function Header({ userData, activeSection, setActiveSection }: He
               className={`w-full flex items-center justify-start px-4 py-3 text-base font-medium ${activeSection === 'universities' ? 'text-black' : 'text-gray-600'}`}
             >
               <Building className="mr-3 h-5 w-5" />
-              Universities
+              Institution
             </Button>
             <Button
               variant="link"

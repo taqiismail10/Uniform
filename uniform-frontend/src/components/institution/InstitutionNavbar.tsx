@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/context/admin/useAuth'
 import { useEffect, useState } from 'react'
 import { getInstitutionAdminProfile } from '@/api/institutionAdmin'
@@ -7,12 +7,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Menu, LayoutDashboard, User, Settings, LogOut, Mail, Clock, Building } from 'lucide-react'
+import { Menu, User, Settings, LogOut, Mail, Clock, Building } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function InstitutionNavbar() {
   const { logout, user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [lastLogin, setLastLogin] = useState<string | null>(null)
   const [openLogout, setOpenLogout] = useState(false)
   const [openSheet, setOpenSheet] = useState(false)
@@ -57,6 +58,12 @@ export function InstitutionNavbar() {
 
   return (
     <>
+      <style>{`
+        .inst-nav-link { position: relative; color: #4b5563; transition: color 0.2s ease; }
+        .inst-nav-link:hover, .inst-nav-link.active { color: #000; }
+        .inst-nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -2px; left: 50%; background-color: #000; transition: width 0.2s ease, left 0.2s ease; }
+        .inst-nav-link:hover::after, .inst-nav-link.active::after { width: 100%; left: 0; }
+      `}</style>
       <header className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -87,23 +94,20 @@ export function InstitutionNavbar() {
                   <span className="text-xl font-bold text-gray-900">{shortName}</span>
                 </div>
                 <nav className="px-2 py-3 text-sm">
-                  <button onClick={() => navigate({ to: '/institution/dashboard' })} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">
-                    <LayoutDashboard className="h-4 w-4" />
+                  <button onClick={() => navigate({ to: '/institution/dashboard' })} className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md ${location.pathname === '/institution/dashboard' ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}>
                     Dashboard
                   </button>
-                  <button onClick={() => navigate({ to: '/institution/profile' })} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">
+                  <button onClick={() => navigate({ to: '/institution/profile' })} className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md ${location.pathname === '/institution/profile' ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}>
                     <User className="h-4 w-4" />
                     Profile
                   </button>
-                  <button onClick={() => navigate({ to: '/institution/units' })} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">
-                    <LayoutDashboard className="h-4 w-4" />
+                  <button onClick={() => navigate({ to: '/institution/units' })} className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md ${(location.pathname === '/institution/units' || location.pathname.startsWith('/institution/units/')) ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}>
                     Units
                   </button>
-                  <button onClick={() => navigate({ to: '/institution/applications' })} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">
-                    <LayoutDashboard className="h-4 w-4" />
+                  <button onClick={() => navigate({ to: '/institution/applications' })} className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md ${(location.pathname === '/institution/applications' || location.pathname.startsWith('/institution/applications/')) ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}>
                     Applications
                   </button>
-                  <button onClick={() => navigate({ to: '/institution/settings' })} className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100">
+                  <button onClick={() => navigate({ to: '/institution/settings' })} className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md ${location.pathname === '/institution/settings' ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}>
                     <Settings className="h-4 w-4" />
                     Settings
                   </button>
@@ -123,16 +127,13 @@ export function InstitutionNavbar() {
 
             {/* Desktop nav */}
             <nav className="ml-6 hidden md:flex items-center gap-4 text-sm">
-              <Link to="/institution/dashboard" className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-1">
-                <LayoutDashboard className="h-4 w-4" />
+              <Link to="/institution/dashboard" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/dashboard' ? 'active' : ''}`}>
                 Dashboard
               </Link>
-              <Link to="/institution/units" className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-1">
-                <LayoutDashboard className="h-4 w-4" />
+              <Link to="/institution/units" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/units' || location.pathname.startsWith('/institution/units/') ? 'active' : ''}`}>
                 Units
               </Link>
-              <Link to="/institution/applications" className="text-gray-700 hover:text-gray-900 inline-flex items-center gap-1">
-                <LayoutDashboard className="h-4 w-4" />
+              <Link to="/institution/applications" className={`inst-nav-link inline-flex items-center gap-1 ${location.pathname === '/institution/applications' || location.pathname.startsWith('/institution/applications/') ? 'active' : ''}`}>
                 Applications
               </Link>
             </nav>

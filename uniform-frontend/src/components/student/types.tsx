@@ -44,6 +44,9 @@ export interface UserData {
   alimGpa?: string;
   alimYear?: string;
   alimBoard?: string;
+  // Streams
+  sscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  hscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
 }
 
 export interface AcademicInfo {

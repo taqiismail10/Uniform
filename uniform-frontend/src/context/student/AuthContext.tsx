@@ -12,6 +12,10 @@ export interface User {
   dob: string;
   examPath: 'NATIONAL' | 'MADRASHA' | '';
   medium: 'Bangla' | 'English' | 'Arabic' | '';
+  // Streams
+  sscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  hscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  // Profile image absolute/data URL
   profile?: string; // absolute URL to profile image if available
   // SSC Details
   sscRoll?: string;

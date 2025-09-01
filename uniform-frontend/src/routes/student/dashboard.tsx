@@ -11,7 +11,7 @@ import Header from '@/components/student/Header';
 import DashboardStats from '@/components/student/DashboardStats';
 import ApplicationStatus from '@/components/student/ApplicationStatus';
 import QuickActions from '@/components/student/QuickActions';
-// import UniversitiesSection from '@/components/student/UniversitiesSection';
+import UniversitiesSection from '@/components/student/UniversitiesSection';
 import ProfileInfo from '@/components/student/ProfileInfo';
 import AcademicInfoPage from '@/components/student/AcademicInfoPage';
 import StudentSettings from '@/components/student/StudentSettings'; // Import the Settings component
@@ -84,9 +84,10 @@ function RouteComponent() {
           // Fetch applications
           try {
             const applicationsData = await getApplications(userProfile.userId);
-            setApplications(applicationsData);
+            setApplications(applicationsData || []); // Ensure we always set an array
           } catch (error) {
             console.error("Error fetching applications:", error);
+            setApplications([]); // Set empty array on error
             toast.error("Data Error", {
               description: "Could not load applications."
             });
@@ -177,9 +178,9 @@ function RouteComponent() {
 
   // Calculate dashboard stats
   const dashboardStats = {
-    applications: applications.length,
-    paymentStatus: applications.some(app => app.status === 'Approved') ? 'Completed' : 'Pending',
-    nextDeadline: applications.length > 0 ? 'Jun 15, 2023' : 'N/A'
+    applications: applications?.length || 0,
+    paymentStatus: (applications && applications.length > 0 && applications.some((app: Application) => app.status === 'Approved')) ? 'Completed' : 'Pending',
+    nextDeadline: (applications && applications.length > 0) ? 'Jun 15, 2023' : 'N/A'
   };
 
   return (
@@ -222,9 +223,9 @@ function RouteComponent() {
             </div>
           </>
         )}
-        {/* {activeSection === 'universities' && (
-          <UniversitiesSection institutions={institutions} />
-        )} */}
+        {activeSection === 'universities' && (
+          <UniversitiesSection />
+        )}
         {activeSection === 'academic-info' && (
           <AcademicInfoPage
             academicInfo={academicInfo}

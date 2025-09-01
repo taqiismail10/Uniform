@@ -1,6 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
-import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
 import { getInstitutionAdminProfile, updateInstitutionAdminEmail, getMyInstitution, updateMyInstitution } from '@/api/institutionAdmin'
 import { Input } from '@/components/ui/input'
@@ -8,13 +6,10 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { useAuth } from '@/context/admin/useAuth'
+// Layout and protection are provided by parent /institution route
 
 export const Route = createFileRoute('/institution/settings')({
-  component: () => (
-    <InstitutionProtectedRoutes>
-      <RouteComponent />
-    </InstitutionProtectedRoutes>
-  ),
+  component: () => <RouteComponent />,
 })
 
 function RouteComponent() {
@@ -42,9 +37,7 @@ function RouteComponent() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InstitutionNavbar />
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="max-w-3xl mx-auto py-0 space-y-6">
         <h1 className="text-2xl font-bold">Settings</h1>
         <div className="grid gap-6">
           <section className="space-y-4">
@@ -128,7 +121,6 @@ function RouteComponent() {
             </div>
           </section>
         </div>
-      </main>
     </div>
   )
 }

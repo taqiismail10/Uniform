@@ -7,10 +7,10 @@ export const getApplications = async (
   userId: string
 ): Promise<Application[]> => {
   try {
-    const response = await api.get<Application[]>(
+    const response = await api.get<{ applications: Application[] }>(
       `/applications?userId=${userId}`
     );
-    return response.data;
+    return response.data.applications;
   } catch (error) {
     console.error("Get Applications Failed:", error);
     return [];
@@ -22,8 +22,8 @@ export const submitApplication = async (
   application: Omit<Application, "id">
 ): Promise<Application | null> => {
   try {
-    const response = await api.post<Application>("/applications", application);
-    return response.data;
+    const response = await api.post<{ application: Application }>("/applications", application);
+    return response.data.application;
   } catch (error) {
     console.error("Submit Application Failed:", error);
     return null;
@@ -36,11 +36,11 @@ export const updateApplicationStatus = async (
   status: Application["status"]
 ): Promise<Application | null> => {
   try {
-    const response = await api.patch<Application>(
+    const response = await api.patch<{ application: Application }>(
       `/applications/${applicationId}`,
       { status }
     );
-    return response.data;
+    return response.data.application;
   } catch (error) {
     console.error("Update Application Status Failed:", error);
     return null;

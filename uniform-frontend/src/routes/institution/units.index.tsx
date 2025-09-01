@@ -1,6 +1,4 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
-import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
 import { unitsApi } from '@/api/units'
 import { Button } from '@/components/ui/button'
@@ -9,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+// Layout and protection are provided by parent /institution route
 
 type UnitRow = {
   unitId: string
@@ -19,11 +18,7 @@ type UnitRow = {
 }
 
 export const Route = createFileRoute('/institution/units/')({
-  component: () => (
-    <InstitutionProtectedRoutes>
-      <RouteComponent />
-    </InstitutionProtectedRoutes>
-  ),
+  component: () => <RouteComponent />,
 })
 
 function RouteComponent() {
@@ -63,15 +58,13 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InstitutionNavbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Units</h1>
-          <Button className="bg-gray-900 hover:bg-gray-800" onClick={() => navigate({ to: "/institution/units/create" })}>
-            <Plus className="h-4 w-4 mr-2" /> Create Unit
-          </Button>
-        </div>
+    <div className="space-y-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Units</h1>
+        <Button className="bg-gray-900 hover:bg-gray-800" onClick={() => navigate({ to: "/institution/units/create" })}>
+          <Plus className="h-4 w-4 mr-2" /> Create Unit
+        </Button>
+      </div>
 
         <Card className="border-gray-200">
           <CardHeader>
@@ -129,7 +122,6 @@ function RouteComponent() {
             )}
           </CardContent>
         </Card>
-      </main>
       {/* Delete confirmation dialog */}
       <Dialog open={!!confirmDeleteId} onOpenChange={(open) => !open && setConfirmDeleteId(null)}>
         <DialogContent>

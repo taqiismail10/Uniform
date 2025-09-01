@@ -425,6 +425,34 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
                   <p className="text-red-500 text-xs mt-1">{errors.medium}</p>
                 )}
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">SSC Stream</Label>
+                  <Select value={formData.sscStream || ''} onValueChange={(value) => handleSelectChange('sscStream', value)} disabled={isLoading}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select SSC Stream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SCIENCE">Science</SelectItem>
+                      <SelectItem value="ARTS">Arts</SelectItem>
+                      <SelectItem value="COMMERCE">Commerce</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">HSC Stream</Label>
+                  <Select value={formData.hscStream || ''} onValueChange={(value) => handleSelectChange('hscStream', value)} disabled={isLoading}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select HSC Stream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SCIENCE">Science</SelectItem>
+                      <SelectItem value="ARTS">Arts</SelectItem>
+                      <SelectItem value="COMMERCE">Commerce</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={handleCancelClick} disabled={isLoading}>

@@ -1,6 +1,4 @@
 import { createFileRoute, useParams, useNavigate, Outlet, useRouterState } from '@tanstack/react-router'
-import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
-import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
 import { unitsApi } from '@/api/units'
 import { Button } from '@/components/ui/button'
@@ -9,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Edit, Trash2, ArrowLeft } from 'lucide-react'
+// Layout and protection are provided by parent /institution route
 
 type UnitDetail = {
   unitId: string
@@ -29,11 +28,7 @@ type UnitDetail = {
 }
 
 export const Route = createFileRoute('/institution/units/$unitId')({
-  component: () => (
-    <InstitutionProtectedRoutes>
-      <RouteComponent />
-    </InstitutionProtectedRoutes>
-  ),
+  component: () => <RouteComponent />,
 })
 
 function RouteComponent() {
@@ -86,9 +81,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InstitutionNavbar />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-5xl mx-auto py-0 px-4 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" className="text-gray-700" onClick={() => navigate({ to: '/institution/units' })}>
@@ -185,7 +178,6 @@ function RouteComponent() {
             )}
           </CardContent>
         </Card>
-      </main>
 
       <Dialog open={openDelete} onOpenChange={setOpenDelete}>
         <DialogContent>

@@ -36,6 +36,8 @@ model Student {
   role      String   @default("STUDENT")
   dob       DateTime
   profile   String?
+  sscStream Stream?
+  hscStream Stream?
   // New fields from frontend
   examPath    String?   // NATIONAL or MADRASHA
   medium      String?   // Bangla, English, Arabic
