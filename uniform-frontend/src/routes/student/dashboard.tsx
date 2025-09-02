@@ -6,6 +6,7 @@ import { useAuth } from '@/context/student/useAuth';
 import { toast } from 'sonner';
 import { useEffect, useState, useCallback } from 'react';
 import { getInstitutions, getApplications, getUserProfile, updateUserProfile } from '@/api';
+import { getEligibleInstitutions, type EligibleInstitution } from '@/api/studentExplore';
 import type { Application, UserData } from '@/components/student/types';
 // Header is rendered by parent /student layout
 import DashboardStats from '@/components/student/DashboardStats';
@@ -36,6 +37,7 @@ function RouteComponent() {
   const { user, logout } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [eligible, setEligible] = useState<EligibleInstitution[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState({
     applications: true
@@ -77,6 +79,13 @@ function RouteComponent() {
             });
           } finally {
             setDataLoading(prev => ({ ...prev, applications: false }));
+          }
+          // Fetch eligible institutions (with units & deadlines) for dynamic dashboard
+          try {
+            const eligibleData = await getEligibleInstitutions();
+            setEligible(eligibleData || []);
+          } catch (e) {
+            setEligible([]);
           }
         } else {
           toast.error("Authentication Error", {
@@ -160,11 +169,25 @@ function RouteComponent() {
     );
   }
 
-  // Calculate dashboard stats
+  // Calculate next deadline from eligible units
+  const nextDeadlineDate = (() => {
+    const allDeadlines: Date[] = [];
+    (eligible || []).forEach((inst) => {
+      (inst.units || []).forEach((u) => {
+        if (u.applicationDeadline) {
+          const d = new Date(u.applicationDeadline);
+          if (!isNaN(d.getTime()) && d.getTime() >= Date.now()) allDeadlines.push(d);
+        }
+      });
+    });
+    if (allDeadlines.length === 0) return null;
+    return allDeadlines.sort((a, b) => a.getTime() - b.getTime())[0];
+  })();
+
   const dashboardStats = {
     applications: applications?.length || 0,
     paymentStatus: (applications && applications.length > 0 && applications.some((app: Application) => app.status === 'Approved')) ? 'Completed' : 'Pending',
-    nextDeadline: (applications && applications.length > 0) ? 'Jun 15, 2023' : 'N/A'
+    nextDeadline: nextDeadlineDate ? nextDeadlineDate.toLocaleDateString() : 'N/A'
   };
 
   return (

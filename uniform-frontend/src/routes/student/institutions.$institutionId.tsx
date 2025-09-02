@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { applyToUnit } from '@/api/studentApplications'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
+import { getUserProfile } from '@/api'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 // Header is rendered by parent /student layout
 
 export const Route = createFileRoute('/student/institutions/$institutionId')({
@@ -24,7 +26,9 @@ function RouteComponent() {
   const [inst, setInst] = useState<EligibleInstitution | null>(null)
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState<string | null>(null)
-  
+  const [profile, setProfile] = useState<any | null>(null)
+  const [missingOpen, setMissingOpen] = useState(false)
+  const [missingFields, setMissingFields] = useState<string[]>([])
 
   useEffect(() => {
     (async () => {
@@ -32,15 +36,54 @@ function RouteComponent() {
       try {
         const data = await getEligibleInstitutionById(institutionId)
         setInst(data)
+        try { const p = await getUserProfile(); setProfile(p) } catch {}
       } finally { setLoading(false) }
     })()
   }, [institutionId])
 
-  
+  const getRequiredMissing = (p: any | null): string[] => {
+    const missing: string[] = []
+    if (!p) return ['Profile information not loaded']
+    if (!p.profile) missing.push('Profile Image')
+    if (!p.examPath) missing.push('Exam Path')
+    if (!p.medium) missing.push('Medium')
+    if (p.examPath === 'NATIONAL') {
+      if (!p.sscStream) missing.push('SSC Stream')
+      if (!p.hscStream) missing.push('HSC Stream')
+      if (!p.sscRoll) missing.push('SSC Roll')
+      if (!p.sscRegistration) missing.push('SSC Registration')
+      if (!p.sscGpa) missing.push('SSC GPA')
+      if (!p.sscYear) missing.push('SSC Year')
+      if (!p.sscBoard) missing.push('SSC Board')
+      if (!p.hscRoll) missing.push('HSC Roll')
+      if (!p.hscRegistration) missing.push('HSC Registration')
+      if (!p.hscGpa) missing.push('HSC GPA')
+      if (!p.hscYear) missing.push('HSC Year')
+      if (!p.hscBoard) missing.push('HSC Board')
+    } else if (p.examPath === 'MADRASHA') {
+      if (!p.dakhilRoll) missing.push('Dakhil Roll')
+      if (!p.dakhilRegistration) missing.push('Dakhil Registration')
+      if (!p.dakhilGpa) missing.push('Dakhil GPA')
+      if (!p.dakhilYear) missing.push('Dakhil Year')
+      if (!p.dakhilBoard) missing.push('Dakhil Board')
+      if (!p.alimRoll) missing.push('Alim Roll')
+      if (!p.alimRegistration) missing.push('Alim Registration')
+      if (!p.alimGpa) missing.push('Alim GPA')
+      if (!p.alimYear) missing.push('Alim Year')
+      if (!p.alimBoard) missing.push('Alim Board')
+    }
+    return missing
+  }
 
   const doApply = async (unit: EligibleUnit) => {
     setApplying(unit.unitId)
     try {
+      const missing = getRequiredMissing(profile)
+      if (missing.length > 0) {
+        setMissingFields(missing)
+        setMissingOpen(true)
+        return
+      }
       await applyToUnit(unit.unitId)
       toast.success('Application submitted', { description: `${unit.name}` })
     } catch (e: unknown) {
@@ -78,7 +121,7 @@ function RouteComponent() {
                   </div>
                   <div>
                     <div className="text-lg font-semibold">{inst.name}</div>
-                    <div className="text-sm text-gray-600">{inst.shortName || '—'}</div>
+                    <div className="text-sm text-gray-600">{inst.shortName || '-'}</div>
                   </div>
                 </div>
                 <div>
@@ -86,24 +129,24 @@ function RouteComponent() {
                   <div>
                     {inst.website ? (
                       <a className="text-blue-600 hover:underline break-all" href={inst.website.startsWith('http') ? inst.website : `https://${inst.website}`} target="_blank" rel="noreferrer">{inst.website}</a>
-                    ) : '—'}
+                    ) : '-'}
                   </div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Type</div>
-                  <div>{inst.type || '—'}</div>
+                  <div>{inst.type || '-'}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Ownership</div>
-                  <div>{inst.ownership || '—'}</div>
+                  <div>{inst.ownership || '-'}</div>
                 </div>
                 <div className="md:col-span-3">
                   <div className="text-sm text-gray-500">Address</div>
-                  <div>{inst.address || '—'}</div>
+                  <div>{inst.address || '-'}</div>
                 </div>
                 <div className="md:col-span-3">
                   <div className="text-sm text-gray-500">Description</div>
-                  <div>{inst.description || '—'}</div>
+                  <div>{inst.description || '-'}</div>
                 </div>
               </div>
             )}
@@ -133,7 +176,7 @@ function RouteComponent() {
                       <div className="text-sm text-gray-700 mt-1 line-clamp-2">{u.description}</div>
                     ) : null}
                     <div className="text-xs text-gray-600 mt-2">
-                      Deadline: {u.applicationDeadline ? new Date(u.applicationDeadline).toLocaleString() : '—'}
+                      Deadline: {u.applicationDeadline ? new Date(u.applicationDeadline).toLocaleString() : '-'}
                     </div>
                   </div>
                 ))}
@@ -142,11 +185,32 @@ function RouteComponent() {
           </CardContent>
         </Card>
       </main>
+      <Dialog open={missingOpen} onOpenChange={setMissingOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Complete Your Profile to Apply</DialogTitle>
+            <DialogDescription>
+              Please provide the following information before applying to a unit:
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {missingFields.length === 0 ? (
+              <div className="text-gray-600">All required information is present.</div>
+            ) : (
+              <ul className="list-disc list-inside text-gray-800">
+                {missingFields.map((m) => (<li key={m}>{m}</li>))}
+              </ul>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setMissingOpen(false)}>Close</Button>
+            <Button className="bg-gray-900 hover:bg-gray-800" onClick={() => { setMissingOpen(false); navigate({ to: '/student/dashboard' }) }}>Go to Profile</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
 export default RouteComponent
-
-
 

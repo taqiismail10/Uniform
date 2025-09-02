@@ -10,7 +10,7 @@ export type MyApplication = {
   appliedAt: string
   reviewedAt?: string | null
   unit: { name: string }
-  institution: { name: string }
+  institution: { name: string; logoUrl?: string | null }
 }
 
 export const listMyApplications = async (): Promise<MyApplication[]> => {

@@ -37,7 +37,7 @@ const formatDate = (dateString: string) => {
     day: 'numeric'
   });
 };
-export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
+export default function ProfileInfo({ userData, onLogout, onUpdate }: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null); // preview
   const [profileFile, setProfileFile] = useState<File | null>(null); // actual file to upload
@@ -139,51 +139,43 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
     return Object.keys(newErrors).length === 0;
   };
   const handleSaveClick = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
     setIsLoading(true);
+    const payload: Partial<UserData> = {
+      profileImage: profileFile ?? undefined,
+      fullName: formData.userName,
+      phone: formData.phone,
+      address: formData.address,
+      dob: formData.dob,
+      examPath: formData.examPath,
+      medium: formData.medium,
+      sscStream: formData.sscStream,
+      hscStream: formData.hscStream,
+    }
     try {
-      const payload: Partial<UserData> = {
-        profileImage: profileFile ?? undefined,
-        fullName: formData.userName,
-        phone: formData.phone,
-        address: formData.address,
-        dob: formData.dob,
-        examPath: formData.examPath,
-        medium: formData.medium,
-        // Streams (optional, primarily for National curriculum)
-        sscStream: formData.sscStream,
-        hscStream: formData.hscStream,
-      }
-      const updateResponse = await updateUserProfile(userData.userId, payload);
-      if (updateResponse) {
-        toast.success("Profile Updated", {
-          description: "Your profile has been updated successfully."
-        });
-        // Immediately reflect updates across the app if parent provided a handler
-        if (onUpdate) {
-          await onUpdate(payload);
-        } else {
-          // Fallback: update local object to reflect changes immediately
-          Object.assign(userData, formData);
-          // Try to persist to localStorage if present
-          try { localStorage.setItem('user', JSON.stringify(userData)); } catch {}
-        }
-        setIsEditing(false);
+      if (onUpdate) {
+        // Delegate update + toasts to parent handler to avoid duplicates
+        await onUpdate(payload)
+        setIsEditing(false)
       } else {
-        toast.error("Update Failed", {
-          description: "Failed to update your profile. Please try again."
-        });
+        // Fallback: perform update locally and toast here
+        const ok = await updateUserProfile(userData.userId, payload)
+        if (ok) {
+          toast.success('Profile Updated', { description: 'Your profile has been updated successfully.' })
+          Object.assign(userData, formData)
+          try { localStorage.setItem('user', JSON.stringify(userData)) } catch {}
+          setIsEditing(false)
+        } else {
+          toast.error('Update Failed', { description: 'Failed to update your profile. Please try again.' })
+        }
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      // Show error toast
-      toast.error("Update Failed", {
-        description: "Failed to update your profile. Please try again."
-      });
+      console.error('Error updating profile:', error)
+      if (!onUpdate) {
+        toast.error('Update Failed', { description: 'Failed to update your profile. Please try again.' })
+      }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   };
   const triggerFileInput = () => {

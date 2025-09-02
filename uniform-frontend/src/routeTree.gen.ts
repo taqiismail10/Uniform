@@ -42,6 +42,7 @@ import { Route as InstitutionUnitsIndexRouteImport } from './routes/institution/
 import { Route as AdminInstitutionsIndexRouteImport } from './routes/admin/institutions.index'
 import { Route as StudentInstitutionsInstitutionIdRouteImport } from './routes/student/institutions.$institutionId'
 import { Route as StudentInstitutionsChar96institutionIdRouteImport } from './routes/student/institutions. `$institutionId'
+import { Route as StudentAdmitIdRouteImport } from './routes/student/admit.$id'
 import { Route as InstitutionUnitsCreateRouteImport } from './routes/institution/units.create'
 import { Route as InstitutionUnitsUnitIdRouteImport } from './routes/institution/units.$unitId'
 import { Route as InstitutionApplicationsIdRouteImport } from './routes/institution/applications.$id'
@@ -219,6 +220,11 @@ const StudentInstitutionsChar96institutionIdRoute =
     path: '/institutions/ `$institutionId',
     getParentRoute: () => StudentRoute,
   } as any)
+const StudentAdmitIdRoute = StudentAdmitIdRouteImport.update({
+  id: '/admit/$id',
+  path: '/admit/$id',
+  getParentRoute: () => StudentRoute,
+} as any)
 const InstitutionUnitsCreateRoute = InstitutionUnitsCreateRouteImport.update({
   id: '/units/create',
   path: '/units/create',
@@ -307,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/institution/applications/$id': typeof InstitutionApplicationsIdRoute
   '/institution/units/$unitId': typeof InstitutionUnitsUnitIdRouteWithChildren
   '/institution/units/create': typeof InstitutionUnitsCreateRoute
+  '/student/admit/$id': typeof StudentAdmitIdRoute
   '/student/institutions/ `$institutionId': typeof StudentInstitutionsChar96institutionIdRoute
   '/student/institutions/$institutionId': typeof StudentInstitutionsInstitutionIdRoute
   '/admin/institutions/': typeof AdminInstitutionsIndexRoute
@@ -348,6 +355,7 @@ export interface FileRoutesByTo {
   '/institution/applications/$id': typeof InstitutionApplicationsIdRoute
   '/institution/units/$unitId': typeof InstitutionUnitsUnitIdRouteWithChildren
   '/institution/units/create': typeof InstitutionUnitsCreateRoute
+  '/student/admit/$id': typeof StudentAdmitIdRoute
   '/student/institutions/ `$institutionId': typeof StudentInstitutionsChar96institutionIdRoute
   '/student/institutions/$institutionId': typeof StudentInstitutionsInstitutionIdRoute
   '/admin/institutions': typeof AdminInstitutionsIndexRoute
@@ -393,6 +401,7 @@ export interface FileRoutesById {
   '/institution/applications/$id': typeof InstitutionApplicationsIdRoute
   '/institution/units/$unitId': typeof InstitutionUnitsUnitIdRouteWithChildren
   '/institution/units/create': typeof InstitutionUnitsCreateRoute
+  '/student/admit/$id': typeof StudentAdmitIdRoute
   '/student/institutions/ `$institutionId': typeof StudentInstitutionsChar96institutionIdRoute
   '/student/institutions/$institutionId': typeof StudentInstitutionsInstitutionIdRoute
   '/admin/institutions/': typeof AdminInstitutionsIndexRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/institution/applications/$id'
     | '/institution/units/$unitId'
     | '/institution/units/create'
+    | '/student/admit/$id'
     | '/student/institutions/ `$institutionId'
     | '/student/institutions/$institutionId'
     | '/admin/institutions/'
@@ -480,6 +490,7 @@ export interface FileRouteTypes {
     | '/institution/applications/$id'
     | '/institution/units/$unitId'
     | '/institution/units/create'
+    | '/student/admit/$id'
     | '/student/institutions/ `$institutionId'
     | '/student/institutions/$institutionId'
     | '/admin/institutions'
@@ -524,6 +535,7 @@ export interface FileRouteTypes {
     | '/institution/applications/$id'
     | '/institution/units/$unitId'
     | '/institution/units/create'
+    | '/student/admit/$id'
     | '/student/institutions/ `$institutionId'
     | '/student/institutions/$institutionId'
     | '/admin/institutions/'
@@ -789,6 +801,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentInstitutionsChar96institutionIdRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/admit/$id': {
+      id: '/student/admit/$id'
+      path: '/admit/$id'
+      fullPath: '/student/admit/$id'
+      preLoaderRoute: typeof StudentAdmitIdRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/institution/units/create': {
       id: '/institution/units/create'
       path: '/units/create'
@@ -916,6 +935,7 @@ interface StudentRouteChildren {
   StudentSettingsRoute: typeof StudentSettingsRoute
   StudentUniversitiesRoute: typeof StudentUniversitiesRoute
   StudentIndexRoute: typeof StudentIndexRoute
+  StudentAdmitIdRoute: typeof StudentAdmitIdRoute
   StudentInstitutionsChar96institutionIdRoute: typeof StudentInstitutionsChar96institutionIdRoute
   StudentInstitutionsInstitutionIdRoute: typeof StudentInstitutionsInstitutionIdRoute
 }
@@ -927,6 +947,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentSettingsRoute: StudentSettingsRoute,
   StudentUniversitiesRoute: StudentUniversitiesRoute,
   StudentIndexRoute: StudentIndexRoute,
+  StudentAdmitIdRoute: StudentAdmitIdRoute,
   StudentInstitutionsChar96institutionIdRoute:
     StudentInstitutionsChar96institutionIdRoute,
   StudentInstitutionsInstitutionIdRoute: StudentInstitutionsInstitutionIdRoute,

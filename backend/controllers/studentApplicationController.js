@@ -72,7 +72,10 @@ class studentApplicationController {
       const { studentId } = req.user;
       const apps = await prisma.application.findMany({
         where: { studentId },
-        include: { unit: { select: { name: true } }, institution: { select: { name: true } } },
+        include: {
+          unit: { select: { name: true } },
+          institution: { select: { name: true, logoUrl: true } },
+        },
         orderBy: { appliedAt: 'desc' },
       });
       return res.json({ status: 200, applications: apps });

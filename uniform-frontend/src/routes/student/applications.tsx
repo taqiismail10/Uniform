@@ -77,10 +77,15 @@ function RouteComponent() {
                       <TableCell className="text-gray-700">{formatStatus(r)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {/* Details could link to institution unit page if needed */}
-                          <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" asChild>
-                            <Link to="/student/universities">View Details</Link>
-                          </Button>
+                          {r.reviewedAt ? (
+                            <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" asChild>
+                              <Link to="/student/admit/$id" params={{ id: r.id }}>View Admit Card</Link>
+                            </Button>
+                          ) : (
+                            <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" asChild>
+                              <Link to="/student/universities">View Details</Link>
+                            </Button>
+                          )}
                           <Button
                             variant="destructive"
                             disabled={!!r.reviewedAt || deleting === r.id}
@@ -99,9 +104,9 @@ function RouteComponent() {
           </CardContent>
         </Card>
       </main>
+      {null}
     </div>
   )
 }
 
 export default RouteComponent
-

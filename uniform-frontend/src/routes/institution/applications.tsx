@@ -159,7 +159,6 @@ function RouteComponent() {
                       <TableHead>Medium</TableHead>
                       <TableHead>Board</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -172,33 +171,6 @@ function RouteComponent() {
                         <TableCell className="text-gray-700">{r.student.medium || '-'}</TableCell>
                         <TableCell className="text-gray-700">{r.student.sscBoard || r.student.hscBoard || '-'}</TableCell>
                         <TableCell className="text-gray-700">{(r as any).reviewedAt ? 'Approved' : 'Under Review'}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              className="bg-gray-900 hover:bg-gray-800 disabled:opacity-60"
-                              disabled={(r as any).reviewedAt}
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                try {
-                                  const res = await applicationsApi.approve(r.id)
-                                  if (res.status === 200) {
-                                    toast.success('Application approved')
-                                    fetchData()
-                                  } else {
-                                    toast.error(res.message || 'Failed to approve application')
-                                  }
-                                } catch (e: any) {
-                                  const msg = e?.response?.data?.message || 'Failed to approve application'
-                                  toast.error(msg)
-                                }
-                              }}
-                              title={(r as any).reviewedAt ? 'Already approved' : undefined}
-                            >
-                              Approve
-                            </Button>
-                          </div>
-                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
