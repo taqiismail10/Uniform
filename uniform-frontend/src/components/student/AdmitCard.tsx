@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
+import { jsPDF } from 'jspdf'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 import { getEligibleInstitutions, type EligibleInstitution } from '@/api/studentExplore'
 
 import type { MyApplication } from '@/api/studentApplications'
@@ -12,15 +13,15 @@ interface AdmitCardProps {
   student: User
   institutionLogoUrl?: string
   pdfPreview?: boolean
+  autoDownload?: boolean
 }
 
-export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview = false }: AdmitCardProps) {
+export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview = false, autoDownload = false }: AdmitCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null)
   const [resolvedLogo, setResolvedLogo] = useState<string | null>(
     institutionLogoUrl || app?.institution?.logoUrl || null
   )
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
-  const [generating, setGenerating] = useState(false)
 
   const getApiOrigin = () => {
     const API_URL = ((import.meta as unknown as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL) || 'http://localhost:5000/api'
@@ -78,7 +79,7 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
         const fromCache = (cached?.profile || '').trim()
         if (fromCache) return fromCache
       }
-    } catch {}
+    } catch (e) { void e }
     return '/logo.svg'
   }, [student.profile])
   const instLogo = useMemo<string>(() => {
@@ -106,13 +107,52 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
     const node = cardRef.current
     if (!node) throw new Error('Card not ready')
     const sameOrigin = window.location.origin
+    // Measure for potential sizing, but let html2canvas handle element coordinates
+    const rect = node.getBoundingClientRect()
+    const cardW = Math.ceil(rect.width || node.scrollWidth || node.clientWidth)
+    const cardH = Math.ceil(rect.height || node.scrollHeight || node.clientHeight)
     const canvas = await html2canvas(node, {
       scale: 2,
       useCORS: true,
+      foreignObjectRendering: true,
       allowTaint: false,
       backgroundColor: '#ffffff',
       imageTimeout: 15000,
+      width: cardW,
+      height: cardH,
       onclone: (clonedDoc) => {
+        // 1) Sanitize colors to avoid html2canvas oklch() parse errors
+        try {
+          const style = clonedDoc.createElement('style')
+          style.textContent = `
+            html, body { background: #ffffff !important; color: #000000 !important; }
+            * { color: #000000 !important; border-color: #000000 !important; box-shadow: none !important; }
+            [data-admit-root] { background: #ffffff !important; color: #000000 !important; }
+            [data-admit-root] * { color: #000000 !important; background: transparent !important; border-color: #000000 !important; box-shadow: none !important; filter: none !important; }
+          `
+          clonedDoc.head.appendChild(style)
+        } catch (e) { void e }
+
+        // 1b) Inline override every descendant to be extra safe
+        try {
+          const root = clonedDoc.querySelector('[data-admit-root]') as HTMLElement | null
+          if (root) {
+            const all: HTMLElement[] = [root, ...Array.from(root.querySelectorAll('*')) as HTMLElement[]]
+            for (const el of all) {
+              el.style.background = 'transparent'
+              el.style.backgroundImage = 'none'
+              el.style.backgroundColor = 'transparent'
+              el.style.color = '#000'
+              el.style.borderColor = '#000'
+              el.style.boxShadow = 'none'
+              el.style.outlineColor = '#000'
+              el.style.caretColor = '#000'
+              el.style.accentColor = '#000'
+            }
+          }
+        } catch (e) { void e }
+
+        // 2) Replace cross-origin images to safe local assets
         const imgs = clonedDoc.querySelectorAll('img[data-admit-image]') as NodeListOf<HTMLImageElement>
         imgs.forEach((img) => {
           try {
@@ -121,7 +161,6 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
             if (!isData) {
               const allowed = (u.origin === sameOrigin) || (u.origin === API_ORIGIN)
               if (!allowed) {
-                // Fallback to safe local logo for PDF if cross-origin image would taint canvas
                 const kind = img.getAttribute('data-admit-image')
                 if (kind === 'logo') img.src = '/logo.svg'
                 else if (kind === 'photo') img.src = '/logo.svg'
@@ -132,39 +171,70 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
       }
     })
     const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' })
+    const orientation = canvas.width >= canvas.height ? 'landscape' : 'portrait' as const
+    const pdf = new jsPDF({ orientation, unit: 'pt', format: 'a4' })
     const pageWidth = pdf.internal.pageSize.getWidth()
     const pageHeight = pdf.internal.pageSize.getHeight()
-    const margin = 24
-    const imgWidth = pageWidth - margin * 2
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
-    if (imgHeight > pageHeight - margin * 2) {
-      const scale = (pageHeight - margin * 2) / imgHeight
-      const scaledWidth = imgWidth * scale
-      const scaledHeight = imgHeight * scale
-      const centerX = (pageWidth - scaledWidth) / 2
-      const centerY = (pageHeight - scaledHeight) / 2
-      pdf.addImage(imgData, 'PNG', centerX, centerY, scaledWidth, scaledHeight)
-    } else {
-      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight)
-    }
+    const imgW = canvas.width
+    const imgH = canvas.height
+    const scale = Math.min(pageWidth / imgW, pageHeight / imgH)
+    const drawW = Math.floor(imgW * scale)
+    const drawH = Math.floor(imgH * scale)
+    const x = Math.floor((pageWidth - drawW) / 2)
+    const y = Math.floor((pageHeight - drawH) / 2)
+    pdf.addImage(imgData, 'PNG', x, y, drawW, drawH)
     return pdf
   }, [API_ORIGIN])
 
+  const forceDownload = (href: string, filename: string) => {
+    const a = document.createElement('a')
+    a.href = href
+    a.download = filename
+    a.rel = 'noopener'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
+
+  const downloadPngFallback = async (filename: string) => {
+    const node = cardRef.current
+    if (!node) throw new Error('Card not ready')
+    const canvas = await html2canvas(node, { scale: 2, useCORS: true, foreignObjectRendering: true, backgroundColor: '#ffffff' })
+    const dataUrl = canvas.toDataURL('image/png')
+    forceDownload(dataUrl, filename.replace(/\.pdf$/i, '.png'))
+  }
+
   const downloadPdf = async () => {
     try {
+      // Warm-up images (only when CORS-allowed) to reduce html2canvas failures
+      const warmups: Promise<any>[] = []
+      if (isCorsAllowed(instLogo)) warmups.push(preloadImage(instLogo))
+      if (isCorsAllowed(candidatePhoto)) warmups.push(preloadImage(candidatePhoto))
+      if (warmups.length) await Promise.allSettled(warmups)
       const pdf = await buildPdf()
       const safeName = `${student.userName || 'Student'}_${app.unit?.name || 'Unit'}`.replace(/[^a-z0-9_-]+/gi, '_')
       pdf.save(`AdmitCard_${safeName}.pdf`)
+      toast.success('Admit card downloaded')
     } catch (e) {
       console.error('PDF generation failed', e)
-      // Fallback: if preview PDF exists, open in new tab for manual save
+      const safeName = `${student.userName || 'Student'}_${app.unit?.name || 'Unit'}`.replace(/[^a-z0-9_-]+/gi, '_')
+      // Fallback 1: if a preview blob URL exists, force download it
       if (pdfUrl) {
         try {
-          window.open(pdfUrl, '_blank')
+          forceDownload(pdfUrl, `AdmitCard_${safeName}.pdf`)
+          toast.success('Downloaded preview PDF')
           return
         } catch (e2) { void e2 }
       }
+      // Fallback 2: export raster image (PNG)
+      try {
+        await downloadPngFallback(`AdmitCard_${safeName}.pdf`)
+        toast.success('Downloaded PNG as fallback')
+        return
+      } catch (e3) {
+        console.error('PNG fallback failed', e3)
+      }
+      toast.error('Unable to download admit card. See console for details.')
     }
   }
 
@@ -180,35 +250,36 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
     })
   }
 
+  // Preview generation removed per requirements (no preview UI)
+
+  // Optional: auto trigger PDF download when requested
   useEffect(() => {
-    let url: string | null = null
-    const make = async () => {
-      if (!pdfPreview) return
-      setGenerating(true)
-      try {
-        // Warm-up images
-        await Promise.allSettled([preloadImage(instLogo), preloadImage(candidatePhoto)])
-        const pdf = await buildPdf()
-        const blob = pdf.output('blob') as Blob
-        url = URL.createObjectURL(blob)
-        setPdfUrl(url)
-      } catch (e) {
-        console.error('PDF preview failed', e)
-      } finally {
-        setGenerating(false)
-      }
-    }
-    // allow one frame for layout
-    const id = requestAnimationFrame(() => { make() })
-    return () => { cancelAnimationFrame(id); if (url) URL.revokeObjectURL(url) }
-  }, [pdfPreview, instLogo, candidatePhoto, buildPdf])
+    if (!autoDownload) return
+    const id = requestAnimationFrame(() => { downloadPdf().catch(() => void 0) })
+    return () => cancelAnimationFrame(id)
+  }, [autoDownload])
 
   return (
     <div className="w-full">
+      {/* Print-only CSS: hides everything except the card and formats A4 */}
+      <style
+        dangerouslySetInnerHTML={{ __html: `
+@media print {
+  @page { size: A4; margin: 10mm; }
+  html, body { background: #ffffff !important; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body * { visibility: hidden !important; }
+  #admit-card-print, #admit-card-print * { visibility: visible !important; }
+  #admit-card-print { position: absolute; inset: 0 auto auto 0; right: 0; margin: 0 auto; width: auto; max-width: 190mm; }
+}
+        ` }}
+      />
       {/* Visible card (also used for PDF rasterization) */}
       <div
         ref={cardRef}
         className="bg-white border-2 border-black rounded-md p-0 max-w-[1200px] w-full mx-auto shadow-sm"
+        data-admit-root
+        id="admit-card-print"
       >
         {/* Header (black & white) */}
         <div className="bg-white text-black rounded-t-[5px] px-6 py-4 flex items-center justify-between border-b border-black">
@@ -231,23 +302,31 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
           </div>
         </div>
 
-        {/* Top meta strip */}
-        <div className="px-6 py-3 text-xs text-black border-b border-black flex flex-wrap items-center gap-x-6 gap-y-1 justify-between">
+        {/* Top meta strip (keep concise – no SSC/HSC here) */}
+        <div className="px-6 py-2 text-xs text-black border-b border-black flex flex-wrap items-center gap-x-6 gap-y-1 justify-between">
           <div>Application ID: <span className="font-medium">{app.id}</span></div>
           <div>Issued: <span className="font-medium">{new Date().toLocaleDateString()}</span></div>
-          {student?.sscRoll ? (
-            <div>SSC Roll: <span className="font-medium">{safe(student.sscRoll)}</span></div>
-          ) : null}
-          {student?.hscRoll ? (
-            <div>HSC Roll: <span className="font-medium">{safe(student.hscRoll)}</span></div>
-          ) : null}
         </div>
 
         {/* Body */}
-        <div className="p-6 grid grid-cols-3 gap-6">
-          {/* Left details */}
+        <div className="p-4 grid grid-cols-3 gap-4">
+          {/* Candidate photo (left, keep colorful) */}
+          <div className="col-span-1">
+            <div className="border border-black rounded-sm p-2 flex items-center justify-center h-56">
+              <img
+                src={candidatePhoto}
+                alt="Candidate"
+                {...(photoCrossOrigin ? { crossOrigin: 'anonymous' as const, referrerPolicy: 'no-referrer' as const } : {})}
+                data-admit-image="photo"
+                className="h-full object-cover rounded-sm"
+              />
+            </div>
+            <div className="mt-2 text-center text-xs text-gray-600">Candidate Photograph</div>
+          </div>
+
+          {/* Student Information (right) */}
           <div className="col-span-2 border border-black rounded-sm p-4 text-sm">
-            <div className="grid grid-cols-3 gap-x-3 gap-y-2">
+            <div className="grid grid-cols-3 gap-x-3 gap-y-1">
               <div className="text-black">Applicant Name</div>
               <div className="col-span-2 text-black font-medium">{safe(student.userName)}</div>
 
@@ -267,23 +346,41 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
                 <>
                   <div className="text-black">SSC Roll</div>
                   <div className="col-span-2 text-black">{safe(student.sscRoll)}</div>
-                  <div className="text-black">HSC Roll</div>
-                  <div className="col-span-2 text-black">{safe(student.hscRoll)}</div>
+                  <div className="text-black">SSC Registration</div>
+                  <div className="col-span-2 text-black">{safe(student.sscRegistration)}</div>
                   <div className="text-black">SSC Board</div>
                   <div className="col-span-2 text-black">{safe(student.sscBoard)}</div>
+                  <div className="text-black">SSC Year</div>
+                  <div className="col-span-2 text-black">{safe(student.sscYear)}</div>
+
+                  <div className="text-black">HSC Roll</div>
+                  <div className="col-span-2 text-black">{safe(student.hscRoll)}</div>
+                  <div className="text-black">HSC Registration</div>
+                  <div className="col-span-2 text-black">{safe(student.hscRegistration)}</div>
                   <div className="text-black">HSC Board</div>
                   <div className="col-span-2 text-black">{safe(student.hscBoard)}</div>
+                  <div className="text-black">HSC Year</div>
+                  <div className="col-span-2 text-black">{safe(student.hscYear)}</div>
                 </>
               ) : (
                 <>
                   <div className="text-black">Dakhil Roll</div>
                   <div className="col-span-2 text-black">{safe(student.dakhilRoll)}</div>
-                  <div className="text-black">Alim Roll</div>
-                  <div className="col-span-2 text-black">{safe(student.alimRoll)}</div>
+                  <div className="text-black">Dakhil Registration</div>
+                  <div className="col-span-2 text-black">{safe(student.dakhilRegistration)}</div>
                   <div className="text-black">Dakhil Board</div>
                   <div className="col-span-2 text-black">{safe(student.dakhilBoard)}</div>
+                  <div className="text-black">Dakhil Year</div>
+                  <div className="col-span-2 text-black">{safe(student.dakhilYear)}</div>
+
+                  <div className="text-black">Alim Roll</div>
+                  <div className="col-span-2 text-black">{safe(student.alimRoll)}</div>
+                  <div className="text-black">Alim Registration</div>
+                  <div className="col-span-2 text-black">{safe(student.alimRegistration)}</div>
                   <div className="text-black">Alim Board</div>
                   <div className="col-span-2 text-black">{safe(student.alimBoard)}</div>
+                  <div className="text-black">Alim Year</div>
+                  <div className="col-span-2 text-black">{safe(student.alimYear)}</div>
                 </>
               )}
 
@@ -293,20 +390,6 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
               <div className="text-black">Approved On</div>
               <div className="col-span-2 text-black">{app.reviewedAt ? new Date(app.reviewedAt).toLocaleString() : '-'}</div>
             </div>
-          </div>
-
-          {/* Candidate photo (keep colorful) */}
-          <div className="col-span-1">
-            <div className="border border-black rounded-sm p-2 flex items-center justify-center h-56">
-              <img
-                src={candidatePhoto}
-                alt="Candidate"
-                {...(photoCrossOrigin ? { crossOrigin: 'anonymous' as const, referrerPolicy: 'no-referrer' as const } : {})}
-                data-admit-image="photo"
-                className="h-full object-cover rounded-sm"
-              />
-            </div>
-            <div className="mt-2 text-center text-xs text-gray-600">Candidate Photograph</div>
           </div>
         </div>
 
@@ -360,33 +443,19 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
         {/* Branding */}
         <div className="pb-5 flex items-center justify-center gap-2 text-[10px] text-black">
           <img
-            src={candidatePhoto}
-            alt="Candidate"
-            {...(photoCrossOrigin ? { crossOrigin: 'anonymous' as const, referrerPolicy: 'no-referrer' as const } : {})}
-            className="h-3 w-3 rounded-sm object-cover"
+            src="/logo.svg"
+            alt="Uniform Logo"
+            className="h-3 w-3 object-contain"
           />
-          <span>Powered by UniForm</span>
+          <span>Powered by Uniform</span>
         </div>
       </div>
 
-      {pdfPreview ? (
-        <div className="mt-2">
-          {generating ? (
-            <div className="py-8 text-center text-gray-600">Preparing PDF...</div>
-          ) : pdfUrl ? (
-            <iframe src={pdfUrl} className="w-full h-[80vh] border" />
-          ) : (
-            <div className="py-8 text-center text-gray-600">Preview unavailable. You can still download the PDF below.</div>
-          )}
-          <div className="mt-3 flex justify-center">
-            <Button className="bg-black hover:bg-gray-800" onClick={downloadPdf}>Download PDF</Button>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-4 flex justify-center">
-          <Button className="bg-black hover:bg-gray-800" onClick={downloadPdf}>Download PDF</Button>
-        </div>
-      )}
+      <div className="mt-4 flex justify-center">
+        <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={() => window.print()}>
+          Print / Save as PDF
+        </Button>
+      </div>
     </div>
   )
 }
