@@ -161,15 +161,81 @@ class applicationController {
         return res.status(400).json({ status: 400, message: "Application is already approved" });
       }
 
+      // Determine exam center to use for seat assignment
+      let center = req.body?.examCenter || app.examCenter || null
+      if (!center) {
+        // Fallback to unit-level center
+        const unit = await prisma.unit.findUnique({ where: { unitId: app.unitId }, select: { examCenter: true } })
+        center = unit?.examCenter || app.centerPreference || 'GENERAL'
+      }
+      const centerCodeMap = {
+        'Dhaka': 'DHA', 'Chattogram': 'CTG', 'Chittagong': 'CTG', 'Rajshahi': 'RAJ', 'Khulna': 'KHL', 'Barishal': 'BAR', 'Sylhet': 'SYL', 'Rangpur': 'RGP', 'Mymensingh': 'MYM'
+      }
+      const makePrefix = (name) => {
+        if (!name) return 'GEN'
+        const n = String(name).trim()
+        if (centerCodeMap[n]) return centerCodeMap[n]
+        // Build from letters only
+        const letters = n.replace(/[^A-Za-z]/g, '').toUpperCase()
+        if (letters.length >= 3) return letters.slice(0,3)
+        return (letters + 'GEN').slice(0,3)
+      }
+      let seatNo = app.seatNo
+      if (!seatNo) {
+        const prefix = makePrefix(center)
+        const count = await prisma.application.count({ where: { institutionId: app.institutionId, OR: [{ examCenter: center }, { centerPreference: center }], seatNo: { not: null } } })
+        seatNo = `${prefix}${String(count + 1).padStart(5,'0')}`
+      }
       const updated = await prisma.application.update({
         where: { id },
-        data: { reviewedAt: new Date(), notes: req.body?.notes ?? app.notes ?? null },
-        select: { id: true, reviewedAt: true },
+        data: { reviewedAt: new Date(), notes: req.body?.notes ?? app.notes ?? null, examCenter: app.examCenter || center, seatNo },
+        select: { id: true, reviewedAt: true, seatNo: true, examCenter: true },
       });
 
       return res.json({ status: 200, message: "Application approved", application: updated });
     } catch (error) {
       return res.status(500).json({ status: 500, message: "Something went wrong" });
+    }
+  }
+
+  // Set or update exam details for an application (institution admin)
+  static async setExamDetails(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const { id } = req.params;
+      if (!id) return res.status(400).json({ status: 400, message: 'Application id is required' });
+
+      const admin = await prisma.admin.findUnique({ where: { adminId } });
+      if (!admin || !admin.institutionId) {
+        return res.status(403).json({ status: 403, message: 'Not authorized' });
+      }
+
+      const app = await prisma.application.findUnique({ where: { id } });
+      if (!app || app.institutionId !== admin.institutionId) {
+        return res.status(404).json({ status: 404, message: 'Application not found' });
+      }
+
+      const { seatNo, examDate, examTime, examCenter } = req.body || {};
+      let dateVal = null;
+      if (examDate) {
+        const d = new Date(examDate);
+        if (!isNaN(d.getTime())) dateVal = d;
+      }
+
+      const updated = await prisma.application.update({
+        where: { id },
+        data: {
+          seatNo: seatNo ?? app.seatNo ?? null,
+          examDate: dateVal ?? app.examDate ?? null,
+          examTime: examTime ?? app.examTime ?? null,
+          examCenter: examCenter ?? app.examCenter ?? null,
+        },
+        select: { id: true, seatNo: true, examDate: true, examTime: true, examCenter: true },
+      });
+
+      return res.json({ status: 200, message: 'Exam details updated', application: updated });
+    } catch (error) {
+      return res.status(500).json({ status: 500, message: 'Something went wrong' });
     }
   }
 

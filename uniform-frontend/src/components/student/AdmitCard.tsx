@@ -12,16 +12,14 @@ interface AdmitCardProps {
   app: MyApplication
   student: User
   institutionLogoUrl?: string
-  pdfPreview?: boolean
   autoDownload?: boolean
 }
 
-export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview = false, autoDownload = false }: AdmitCardProps) {
+export default function AdmitCard({ app, student, institutionLogoUrl, autoDownload = false }: AdmitCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null)
   const [resolvedLogo, setResolvedLogo] = useState<string | null>(
     institutionLogoUrl || app?.institution?.logoUrl || null
   )
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null)
 
   const getApiOrigin = () => {
     const API_URL = ((import.meta as unknown as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL) || 'http://localhost:5000/api'
@@ -207,7 +205,7 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
   const downloadPdf = async () => {
     try {
       // Warm-up images (only when CORS-allowed) to reduce html2canvas failures
-      const warmups: Promise<any>[] = []
+      const warmups: Promise<unknown>[] = []
       if (isCorsAllowed(instLogo)) warmups.push(preloadImage(instLogo))
       if (isCorsAllowed(candidatePhoto)) warmups.push(preloadImage(candidatePhoto))
       if (warmups.length) await Promise.allSettled(warmups)
@@ -218,15 +216,7 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
     } catch (e) {
       console.error('PDF generation failed', e)
       const safeName = `${student.userName || 'Student'}_${app.unit?.name || 'Unit'}`.replace(/[^a-z0-9_-]+/gi, '_')
-      // Fallback 1: if a preview blob URL exists, force download it
-      if (pdfUrl) {
-        try {
-          forceDownload(pdfUrl, `AdmitCard_${safeName}.pdf`)
-          toast.success('Downloaded preview PDF')
-          return
-        } catch (e2) { void e2 }
-      }
-      // Fallback 2: export raster image (PNG)
+      // Fallback: export raster image (PNG)
       try {
         await downloadPngFallback(`AdmitCard_${safeName}.pdf`)
         toast.success('Downloaded PNG as fallback')
@@ -263,7 +253,8 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
     <div className="w-full">
       {/* Print-only CSS: hides everything except the card and formats A4 */}
       <style
-        dangerouslySetInnerHTML={{ __html: `
+        dangerouslySetInnerHTML={{
+          __html: `
 @media print {
   @page { size: A4; margin: 10mm; }
   html, body { background: #ffffff !important; }
@@ -400,19 +391,19 @@ export default function AdmitCard({ app, student, institutionLogoUrl, pdfPreview
             <div className="grid grid-cols-4 gap-3">
               <div>
                 <div className="text-black text-xs">Seat No.</div>
-                <div className="text-black">-</div>
+                <div className="text-black">{safe(app.seatNo)}</div>
               </div>
               <div>
                 <div className="text-black text-xs">Exam Date</div>
-                <div className="text-black">-</div>
+                <div className="text-black">{app?.examDate ? new Date(app.examDate).toLocaleDateString() : (app?.unit?.examDate ? new Date(app.unit.examDate).toLocaleDateString() : '-')}</div>
               </div>
               <div>
                 <div className="text-black text-xs">Exam Time</div>
-                <div className="text-black">-</div>
+                <div className="text-black">{safe(app.examTime || app.unit?.examTime)}</div>
               </div>
               <div>
                 <div className="text-black text-xs">Center</div>
-                <div className="text-black">-</div>
+                <div className="text-black">{safe(app.examCenter || app.unit?.examCenter || app.centerPreference)}</div>
               </div>
             </div>
           </div>

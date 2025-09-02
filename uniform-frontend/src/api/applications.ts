@@ -7,6 +7,11 @@ export interface ApplicationRow {
   reviewedAt?: string | null
   student: { studentId: string; fullName: string; email: string; examPath?: 'NATIONAL' | 'MADRASHA'; medium?: 'Bangla' | 'English' | 'Arabic'; sscBoard?: string | null; hscBoard?: string | null }
   unit: { unitId: string; name: string }
+  seatNo?: string | null
+  examDate?: string | null
+  examTime?: string | null
+  examCenter?: string | null
+  centerPreference?: string | null
 }
 
 export const applicationsApi = {
@@ -20,6 +25,10 @@ export const applicationsApi = {
   },
   approve: async (id: string, notes?: string) => {
     const res = await api.put(`/admin/applications/${id}/approve`, notes ? { notes } : undefined)
+    return res.data as { status: number; message?: string }
+  },
+  setExamDetails: async (id: string, payload: { seatNo?: string; examDate?: string | Date | null; examTime?: string | null; examCenter?: string | null }) => {
+    const res = await api.put(`/admin/applications/${id}/exam`, payload)
     return res.data as { status: number; message?: string }
   },
   remove: async (id: string) => {

@@ -85,6 +85,7 @@ function RouteComponent() {
             const eligibleData = await getEligibleInstitutions();
             setEligible(eligibleData || []);
           } catch (e) {
+            void e;
             setEligible([]);
           }
         } else {
@@ -200,25 +201,6 @@ function RouteComponent() {
             onLogout={handleLogout}
             onUpdate={handleProfileUpdate}
           />
-          {(userData?.sscStream || userData?.hscStream) && (
-            <div className="mt-4 bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-3 sm:px-6 border-b border-gray-200">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">Academic Background</h3>
-              </div>
-              <div className="px-4 py-4 sm:p-6 flex flex-wrap gap-2 text-sm">
-                {userData?.sscStream && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
-                    SSC Stream: {userData.sscStream.charAt(0) + userData.sscStream.slice(1).toLowerCase()}
-                  </span>
-                )}
-                {userData?.hscStream && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
-                    HSC Stream: {userData.hscStream.charAt(0) + userData.hscStream.slice(1).toLowerCase()}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
         </div>
         <div className="lg:col-span-3">
           {dataLoading.applications ? (

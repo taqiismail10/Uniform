@@ -1,4 +1,5 @@
 import { type Application } from './types';
+import { Link } from '@tanstack/react-router'
 
 interface ApplicationStatusProps {
   applications: Application[];
@@ -44,6 +45,9 @@ export default function ApplicationStatus({ applications }: ApplicationStatusPro
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -62,6 +66,20 @@ export default function ApplicationStatus({ applications }: ApplicationStatusPro
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(application.status)}`}>
                         {application.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      {application.status === 'Approved' ? (
+                        <Link
+                          to="/student/admit/$id"
+                          params={{ id: application.id }}
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50"
+                          title="View / Download Admit Card"
+                        >
+                          Admit Card
+                        </Link>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

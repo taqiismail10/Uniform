@@ -1,6 +1,7 @@
 import { createFileRoute, useParams, useNavigate, Outlet, useRouterState } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { unitsApi } from '@/api/units'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -46,12 +47,22 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [openDelete, setOpenDelete] = useState(false)
+  const [examDate, setExamDate] = useState('')
+  const [examTime, setExamTime] = useState('')
+  const [examCenter, setExamCenter] = useState('')
+  const [savingExam, setSavingExam] = useState(false)
 
   useEffect(() => {
     (async () => {
       try {
         const res = await unitsApi.getById(unitId)
-        setUnit(res?.data ?? null)
+        const u = res?.data ?? null
+        setUnit(u)
+        if (u) {
+          setExamDate(u.examDate ? new Date(u.examDate).toISOString().substring(0,10) : '')
+          setExamTime(u.examTime || '')
+          setExamCenter(u.examCenter || '')
+        }
       } catch {
         toast.error('Unable to load unit')
       } finally {
@@ -146,6 +157,48 @@ function RouteComponent() {
                   <div className="space-y-1">
                     <div className="text-sm text-gray-500">Auto Close After Deadline</div>
                     <div className="text-gray-800">{unit.autoCloseAfterDeadline ? 'Yes' : 'No'}</div>
+                  </div>
+                </div>
+
+                {/* Unit Exam Schedule */}
+                <div className="pt-2">
+                  <h2 className="text-base font-semibold text-gray-900 mb-2">Exam Schedule (Unit-wise)</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-xs text-gray-600">Exam Date</label>
+                      <Input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600">Exam Time</label>
+                      <Input value={examTime} onChange={(e) => setExamTime(e.target.value)} placeholder="e.g., 10:00 AM - 11:30 AM" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600">Center</label>
+                      <Input value={examCenter} onChange={(e) => setExamCenter(e.target.value)} placeholder="e.g., Dhaka College" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <Button className="bg-gray-900 hover:bg-gray-800" disabled={savingExam} onClick={async () => {
+                      if (!unit) return
+                      setSavingExam(true)
+                      try {
+                        const payload: any = {
+                          examDate: examDate || undefined,
+                          examTime: examTime || undefined,
+                          examCenter: examCenter || undefined,
+                        }
+                        const res = await unitsApi.setExamDetails(unit.unitId, payload)
+                        if (res?.status === 200) {
+                          toast.success('Unit exam details saved')
+                        } else {
+                          toast.error(res?.message || 'Failed to save exam details')
+                        }
+                      } catch (e: any) {
+                        toast.error(e?.response?.data?.message || 'Failed to save exam details')
+                      } finally {
+                        setSavingExam(false)
+                      }
+                    }}>{savingExam ? 'Saving...' : 'Save Exam Details'}</Button>
                   </div>
                 </div>
 

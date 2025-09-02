@@ -4,7 +4,7 @@ class studentApplicationController {
   static async create(req, res) {
     try {
       const { studentId } = req.user;
-      const { unitId } = req.body || {};
+      const { unitId, centerPreference } = req.body || {};
       if (!unitId) {
         return res.status(400).json({ status: 400, message: "unitId is required" });
       }
@@ -58,7 +58,7 @@ class studentApplicationController {
         return res.status(400).json({ status: 400, message: "You have already applied to this unit" });
       }
       const app = await prisma.application.create({
-        data: { studentId, unitId, institutionId: unit.institutionId },
+        data: { studentId, unitId, institutionId: unit.institutionId, centerPreference: centerPreference || null },
         select: { id: true, unitId: true, institutionId: true, appliedAt: true },
       });
       return res.status(201).json({ status: 201, message: "Application submitted", application: app });
@@ -73,7 +73,7 @@ class studentApplicationController {
       const apps = await prisma.application.findMany({
         where: { studentId },
         include: {
-          unit: { select: { name: true } },
+          unit: { select: { name: true, examDate: true, examTime: true, examCenter: true } },
           institution: { select: { name: true, logoUrl: true } },
         },
         orderBy: { appliedAt: 'desc' },

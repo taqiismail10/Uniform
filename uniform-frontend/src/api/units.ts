@@ -22,6 +22,10 @@ export interface CreateUnitInput {
   applicationDeadline?: string | null // ISO string
   maxApplications?: number | null
   autoCloseAfterDeadline?: boolean
+  // Unit-level exam details
+  examDate?: string | null
+  examTime?: string | null
+  examCenter?: string | null
   requirements?: UnitRequirementInput[]
 }
 
@@ -45,6 +49,9 @@ export interface UnitDetail {
   applicationDeadline?: string | null
   maxApplications?: number | null
   autoCloseAfterDeadline?: boolean
+  examDate?: string | null
+  examTime?: string | null
+  examCenter?: string | null
   requirements?: UnitRequirement[]
   _count?: { applications?: number }
 }
@@ -64,6 +71,10 @@ export const unitsApi = {
   },
   update: async (unitId: string, payload: Partial<CreateUnitInput>) => {
     const res = await api.put(`/admin/units/${unitId}`, payload)
+    return res.data
+  },
+  setExamDetails: async (unitId: string, payload: { examDate?: string | Date | null; examTime?: string | null; examCenter?: string | null }) => {
+    const res = await api.put(`/admin/units/${unitId}/exam`, payload)
     return res.data
   },
   remove: async (unitId: string) => {

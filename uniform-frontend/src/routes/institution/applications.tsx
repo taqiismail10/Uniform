@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { toast } from 'sonner'
 // Layout and protection are provided by parent /institution route
 
 export const Route = createFileRoute('/institution/applications')({
@@ -29,6 +30,10 @@ function RouteComponent() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detail, setDetail] = useState<any | null>(null)
+  const [seatNo, setSeatNo] = useState('')
+  const [examDate, setExamDate] = useState('')
+  const [examTime, setExamTime] = useState('')
+  const [examCenter, setExamCenter] = useState('')
 
   const boardOptions = ['Dhaka','Rajshahi','Chittagong','Jessore','Comilla','Sylhet','Barisal','Dinajpur','Madrasha','Technical']
 
@@ -58,7 +63,12 @@ function RouteComponent() {
     setDetailLoading(true)
     try {
       const res = await applicationsApi.getById(id)
-      setDetail(res?.data || null)
+      const d = res?.data || null
+      setDetail(d)
+      setSeatNo(d?.seatNo || '')
+      setExamDate(d?.examDate ? new Date(d.examDate).toISOString().substring(0,10) : '')
+      setExamTime(d?.examTime || '')
+      setExamCenter(d?.examCenter || d?.centerPreference || '')
     } finally {
       setDetailLoading(false)
     }

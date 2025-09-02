@@ -1,6 +1,6 @@
 import ProtectedRoutes from '@/utils/ProtectedRoutes'
 import { ROLES } from '@/utils/role'
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { listMyApplications, type MyApplication } from '@/api/studentApplications'
 import { getUserProfile, getAcademicDetails } from '@/api'
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/student/admit/$id')({
 
 function RouteComponent() {
   const { id } = useParams({ from: '/student/admit/$id' })
+  const search = useSearch({ from: '/student/admit/$id' }) as { download?: string | number | boolean }
   const navigate = useNavigate()
   const [rows, setRows] = useState<MyApplication[] | null>(null)
   const [profile, setProfile] = useState<any | null>(null)
@@ -33,8 +34,11 @@ function RouteComponent() {
           getAcademicDetails(),
         ])
         setRows(apps)
-        // Prefer academic details for rolls/boards; merge onto profile
-        const merged = p && a ? { ...p, ...a } : (p || a)
+        // Merge with preference for non-empty values and keep name from profile
+        let merged: any = p && a ? { ...p, ...a } : (p || a)
+        if (p?.userName && (!merged?.userName || String(merged.userName).trim() === '')) {
+          merged = { ...merged, userName: p.userName }
+        }
         setProfile(merged)
       } finally { setLoading(false) }
     })()
@@ -61,7 +65,12 @@ function RouteComponent() {
           <div className="py-12 text-center text-gray-600">Unable to load profile.</div>
         ) : (
           <div className="bg-white shadow rounded-md p-4">
-            <AdmitCard app={app} student={profile} institutionLogoUrl={app?.institution?.logoUrl || undefined} pdfPreview />
+            <AdmitCard
+              app={app}
+              student={profile}
+              institutionLogoUrl={app?.institution?.logoUrl || undefined}
+              autoDownload={!!search?.download}
+            />
           </div>
         )}
       </main>

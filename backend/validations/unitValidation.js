@@ -21,6 +21,11 @@ export const createUnitSchema = vine.object({
   maxApplications: vine.number().min(1).max(10000000).optional().nullable(),
   autoCloseAfterDeadline: vine.boolean().optional(), // Add this line
 
+  // Unit-level exam details
+  examDate: vine.date({ formats: { utc: true } }).optional().nullable(),
+  examTime: vine.string().maxLength(50).optional().nullable(),
+  examCenter: vine.string().maxLength(100).optional().nullable(),
+
   requirements: vine
     .array(
       vine.object({
@@ -59,6 +64,10 @@ export const updateUnitSchema = vine.object({
   maxApplications: vine.number().min(1).max(10000000).optional().nullable(),
 
   autoCloseAfterDeadline: vine.boolean().optional(),
+  // Unit-level exam details
+  examDate: vine.date({ formats: { utc: true } }).optional().nullable(),
+  examTime: vine.string().maxLength(50).optional().nullable(),
+  examCenter: vine.string().maxLength(100).optional().nullable(),
   requirements: vine
     .array(
       vine.object({

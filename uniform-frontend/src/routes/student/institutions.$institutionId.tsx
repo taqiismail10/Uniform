@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { applyToUnit } from '@/api/studentApplications'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import { getUserProfile } from '@/api'
+import { getUserProfile, getAcademicDetails } from '@/api'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 // Header is rendered by parent /student layout
 
 export const Route = createFileRoute('/student/institutions/$institutionId')({
@@ -29,6 +30,10 @@ function RouteComponent() {
   const [profile, setProfile] = useState<any | null>(null)
   const [missingOpen, setMissingOpen] = useState(false)
   const [missingFields, setMissingFields] = useState<string[]>([])
+  // Center selection modal
+  const [centerOpen, setCenterOpen] = useState(false)
+  const [center, setCenter] = useState<string>('Dhaka')
+  const [pendingUnit, setPendingUnit] = useState<EligibleUnit | null>(null)
 
   useEffect(() => {
     (async () => {
@@ -36,61 +41,62 @@ function RouteComponent() {
       try {
         const data = await getEligibleInstitutionById(institutionId)
         setInst(data)
-        try { const p = await getUserProfile(); setProfile(p) } catch {}
+        try {
+          const [p, a] = await Promise.all([getUserProfile(), getAcademicDetails()])
+          const merged = p && a ? { ...p, ...a } : (p || a)
+          setProfile(merged)
+        } catch { /* ignore */ }
       } finally { setLoading(false) }
     })()
   }, [institutionId])
 
   const getRequiredMissing = (p: any | null): string[] => {
     const missing: string[] = []
+    const has = (v: any): boolean => {
+      if (v === null || v === undefined) return false
+      if (typeof v === 'string') return v.trim().length > 0
+      if (typeof v === 'number') return !Number.isNaN(v)
+      return !!v
+    }
     if (!p) return ['Profile information not loaded']
-    if (!p.profile) missing.push('Profile Image')
-    if (!p.examPath) missing.push('Exam Path')
-    if (!p.medium) missing.push('Medium')
+    // Profile photo is optional for applying; do not block on it
+    if (!has(p.examPath)) missing.push('Exam Path')
+    if (!has(p.medium)) missing.push('Medium')
     if (p.examPath === 'NATIONAL') {
-      if (!p.sscStream) missing.push('SSC Stream')
-      if (!p.hscStream) missing.push('HSC Stream')
-      if (!p.sscRoll) missing.push('SSC Roll')
-      if (!p.sscRegistration) missing.push('SSC Registration')
-      if (!p.sscGpa) missing.push('SSC GPA')
-      if (!p.sscYear) missing.push('SSC Year')
-      if (!p.sscBoard) missing.push('SSC Board')
-      if (!p.hscRoll) missing.push('HSC Roll')
-      if (!p.hscRegistration) missing.push('HSC Registration')
-      if (!p.hscGpa) missing.push('HSC GPA')
-      if (!p.hscYear) missing.push('HSC Year')
-      if (!p.hscBoard) missing.push('HSC Board')
+      if (!has(p.sscRoll)) missing.push('SSC Roll')
+      if (!has(p.sscRegistration)) missing.push('SSC Registration')
+      if (!has(p.sscGpa)) missing.push('SSC GPA')
+      if (!has(p.sscYear)) missing.push('SSC Year')
+      if (!has(p.sscBoard)) missing.push('SSC Board')
+      if (!has(p.hscRoll)) missing.push('HSC Roll')
+      if (!has(p.hscRegistration)) missing.push('HSC Registration')
+      if (!has(p.hscGpa)) missing.push('HSC GPA')
+      if (!has(p.hscYear)) missing.push('HSC Year')
+      if (!has(p.hscBoard)) missing.push('HSC Board')
     } else if (p.examPath === 'MADRASHA') {
-      if (!p.dakhilRoll) missing.push('Dakhil Roll')
-      if (!p.dakhilRegistration) missing.push('Dakhil Registration')
-      if (!p.dakhilGpa) missing.push('Dakhil GPA')
-      if (!p.dakhilYear) missing.push('Dakhil Year')
-      if (!p.dakhilBoard) missing.push('Dakhil Board')
-      if (!p.alimRoll) missing.push('Alim Roll')
-      if (!p.alimRegistration) missing.push('Alim Registration')
-      if (!p.alimGpa) missing.push('Alim GPA')
-      if (!p.alimYear) missing.push('Alim Year')
-      if (!p.alimBoard) missing.push('Alim Board')
+      if (!has(p.dakhilRoll)) missing.push('Dakhil Roll')
+      if (!has(p.dakhilRegistration)) missing.push('Dakhil Registration')
+      if (!has(p.dakhilGpa)) missing.push('Dakhil GPA')
+      if (!has(p.dakhilYear)) missing.push('Dakhil Year')
+      if (!has(p.dakhilBoard)) missing.push('Dakhil Board')
+      if (!has(p.alimRoll)) missing.push('Alim Roll')
+      if (!has(p.alimRegistration)) missing.push('Alim Registration')
+      if (!has(p.alimGpa)) missing.push('Alim GPA')
+      if (!has(p.alimYear)) missing.push('Alim Year')
+      if (!has(p.alimBoard)) missing.push('Alim Board')
     }
     return missing
   }
 
   const doApply = async (unit: EligibleUnit) => {
-    setApplying(unit.unitId)
-    try {
-      const missing = getRequiredMissing(profile)
-      if (missing.length > 0) {
-        setMissingFields(missing)
-        setMissingOpen(true)
-        return
-      }
-      await applyToUnit(unit.unitId)
-      toast.success('Application submitted', { description: `${unit.name}` })
-    } catch (e: unknown) {
-      const err = e as { response?: { data?: { message?: string } } }
-      const msg = err?.response?.data?.message || 'Failed to submit application'
-      toast.error(msg)
-    } finally { setApplying(null) }
+    const missing = getRequiredMissing(profile)
+    if (missing.length > 0) {
+      setMissingFields(missing)
+      setMissingOpen(true)
+      return
+    }
+    setPendingUnit(unit)
+    setCenterOpen(true)
   }
 
   return (
@@ -208,9 +214,47 @@ function RouteComponent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Choose exam center dialog */}
+      <Dialog open={centerOpen} onOpenChange={(open) => { setCenterOpen(open); if (!open) setPendingUnit(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Choose Exam Center</DialogTitle>
+            <DialogDescription>Select your preferred division for the exam center.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-xs text-gray-600">Division</label>
+            <Select value={center} onValueChange={(v) => setCenter(v)}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Select division" /></SelectTrigger>
+              <SelectContent>
+                {['Dhaka','Chattogram','Rajshahi','Khulna','Barishal','Sylhet','Rangpur','Mymensingh'].map((d) => (
+                  <SelectItem key={d} value={d}>{d}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => { setCenterOpen(false); setPendingUnit(null) }}>Cancel</Button>
+            <Button className="bg-gray-900 hover:bg-gray-800" disabled={applying === pendingUnit?.unitId} onClick={async () => {
+              if (!pendingUnit) return
+              setApplying(pendingUnit.unitId)
+              try {
+                await applyToUnit(pendingUnit.unitId, center)
+                toast.success('Application submitted', { description: `${pendingUnit.name}` })
+                setCenterOpen(false)
+                setPendingUnit(null)
+              } catch (e: any) {
+                const msg = e?.response?.data?.message || 'Failed to submit application'
+                toast.error(msg)
+              } finally {
+                setApplying(null)
+              }
+            }}>{applying === pendingUnit?.unitId ? 'Applying...' : 'Apply'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
 export default RouteComponent
-
