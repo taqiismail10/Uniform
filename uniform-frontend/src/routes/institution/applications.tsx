@@ -25,6 +25,7 @@ function RouteComponent() {
   const [medium, setMedium] = useState<'' | 'Bangla' | 'English' | 'Arabic'>('')
   const [board, setBoard] = useState<string>('')
   const [status, setStatus] = useState<'' | 'approved' | 'under_review'>('')
+  const [center, setCenter] = useState<string>('')
   const [confirmAction, setConfirmAction] = useState<{ type: 'approve' | 'cancel'; id: string | null } | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
@@ -34,13 +35,17 @@ function RouteComponent() {
   const [examDate, setExamDate] = useState('')
   const [examTime, setExamTime] = useState('')
   const [examCenter, setExamCenter] = useState('')
+  const [centerOptions, setCenterOptions] = useState<string[]>([])
+
+  // Fixed division list for exam centers
+  const divisionOptions = ['Dhaka','Chattogram','Rajshahi','Khulna','Barishal','Sylhet','Rangpur','Mymensingh']
 
   const boardOptions = ['Dhaka','Rajshahi','Chittagong','Jessore','Comilla','Sylhet','Barisal','Dinajpur','Madrasha','Technical']
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const res = await applicationsApi.list({ page: 1, limit: 50, search, unitId: unitId || undefined, examPath: examPath || undefined, medium: medium || undefined, board: board || undefined, status: status || undefined })
+      const res = await applicationsApi.list({ page: 1, limit: 50, search, unitId: unitId || undefined, examPath: examPath || undefined, medium: medium || undefined, board: board || undefined, status: status || undefined, center: center || undefined })
       setRows(res.data)
     } finally {
       setLoading(false)
@@ -53,6 +58,8 @@ function RouteComponent() {
         const res = await unitsApi.list({ page: 1, limit: 100 })
         const list = (res?.data || []).map((u: any) => ({ unitId: u.unitId, name: u.name }))
         setUnits(list)
+        // Use fixed division options for exam center filter
+        setCenterOptions(divisionOptions)
       } catch { /* ignore */ }
       fetchData()
     })()
@@ -84,7 +91,7 @@ function RouteComponent() {
             <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={fetchData}>Search</Button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
           <div>
             <label className="text-xs text-gray-600">Unit</label>
             <Select value={unitId || 'ALL'} onValueChange={(v) => setUnitId(v === 'ALL' ? '' : v)}>
@@ -136,6 +143,18 @@ function RouteComponent() {
               <SelectContent>
                 <SelectItem value="ALL">All</SelectItem>
                 {boardOptions.map(b => (<SelectItem key={b} value={b}>{b}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-600">Exam Center</label>
+            <Select value={center || 'ALL'} onValueChange={(v: any) => setCenter(v === 'ALL' ? '' : v)}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="All" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All</SelectItem>
+                {centerOptions.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

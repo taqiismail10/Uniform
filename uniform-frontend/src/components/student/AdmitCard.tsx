@@ -21,11 +21,10 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
     institutionLogoUrl || app?.institution?.logoUrl || null
   )
 
-  const getApiOrigin = () => {
+  const API_ORIGIN = useMemo(() => {
     const API_URL = ((import.meta as unknown as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL) || 'http://localhost:5000/api'
     return API_URL.replace(/\/api\/?$/, '')
-  }
-  const API_ORIGIN = useMemo(() => getApiOrigin(), [])
+  }, [])
   const appLogoUrl = app?.institution?.logoUrl || null
 
   // Keep resolvedLogo in sync when logo props arrive later
@@ -194,15 +193,27 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
     a.remove()
   }
 
-  const downloadPngFallback = async (filename: string) => {
+  const downloadPngFallback = useCallback(async (filename: string) => {
     const node = cardRef.current
     if (!node) throw new Error('Card not ready')
     const canvas = await html2canvas(node, { scale: 2, useCORS: true, foreignObjectRendering: true, backgroundColor: '#ffffff' })
     const dataUrl = canvas.toDataURL('image/png')
     forceDownload(dataUrl, filename.replace(/\.pdf$/i, '.png'))
-  }
+  }, [])
 
-  const downloadPdf = async () => {
+  // Preload images to improve PDF reliability (stable)
+  const preloadImage = useCallback(async (src?: string | null) => {
+    return new Promise<void>((resolve) => {
+      if (!src) return resolve()
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => resolve()
+      img.onerror = () => resolve()
+      img.src = src
+    })
+  }, [])
+
+  const downloadPdf = useCallback(async () => {
     try {
       // Warm-up images (only when CORS-allowed) to reduce html2canvas failures
       const warmups: Promise<unknown>[] = []
@@ -226,28 +237,30 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
       }
       toast.error('Unable to download admit card. See console for details.')
     }
-  }
-
-  // Preload images to improve PDF reliability
-  const preloadImage = async (src?: string | null) => {
-    return new Promise<void>((resolve) => {
-      if (!src) return resolve()
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = () => resolve()
-      img.onerror = () => resolve()
-      img.src = src
-    })
-  }
+  }, [
+    app.unit?.name,
+    buildPdf,
+    candidatePhoto,
+    downloadPngFallback,
+    instLogo,
+    isCorsAllowed,
+    preloadImage,
+    student.userName,
+  ])
 
   // Preview generation removed per requirements (no preview UI)
 
   // Optional: auto trigger PDF download when requested
+  // Guard to prevent duplicate downloads as dependencies change
+  const lastAutoKeyRef = useRef<string | null>(null)
+  const autoKey = useMemo(() => (autoDownload ? String(app.id) : null), [autoDownload, app.id])
   useEffect(() => {
-    if (!autoDownload) return
+    if (!autoKey) return
+    if (lastAutoKeyRef.current === autoKey) return
+    lastAutoKeyRef.current = autoKey
     const id = requestAnimationFrame(() => { downloadPdf().catch(() => void 0) })
     return () => cancelAnimationFrame(id)
-  }, [autoDownload])
+  }, [autoKey, downloadPdf])
 
   return (
     <div className="w-full">

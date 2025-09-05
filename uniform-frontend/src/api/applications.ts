@@ -15,7 +15,7 @@ export interface ApplicationRow {
 }
 
 export const applicationsApi = {
-  list: async (params?: { page?: number; limit?: number; search?: string; unitId?: string; examPath?: 'NATIONAL' | 'MADRASHA'; medium?: 'Bangla' | 'English' | 'Arabic'; board?: string; status?: 'approved' | 'under_review' }) => {
+  list: async (params?: { page?: number; limit?: number; search?: string; unitId?: string; examPath?: 'NATIONAL' | 'MADRASHA'; medium?: 'Bangla' | 'English' | 'Arabic'; board?: string; status?: 'approved' | 'under_review'; center?: string }) => {
     const res = await api.get('/admin/applications', { params })
     return res.data as { status: number; data: ApplicationRow[]; metadata: { total: number; totalPages: number; currentPage: number; currentLimit: number } }
   },

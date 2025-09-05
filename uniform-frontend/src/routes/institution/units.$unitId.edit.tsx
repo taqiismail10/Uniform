@@ -33,6 +33,12 @@ function RouteComponent() {
         const res = await unitsApi.getById(unitId)
         const u = res?.data
         if (!u) throw new Error('Not found')
+        const toNum = (v: unknown) => {
+          if (v === null || v === undefined) return null
+          const n = typeof v === 'string' ? parseInt(v, 10) : typeof v === 'number' ? v : NaN
+          return Number.isFinite(n) ? (n as number) : null
+        }
+
         const init: UnitFormInitial = {
           name: u.name ?? '',
           description: u.description ?? '',
@@ -40,17 +46,27 @@ function RouteComponent() {
           maxApplications: typeof u.maxApplications === 'number' ? u.maxApplications : null,
           isActive: !!u.isActive,
           autoCloseAfterDeadline: !!u.autoCloseAfterDeadline,
-          requirements: (u.requirements ?? []).map((r) => ({
-            sscStream: r.sscStream ?? 'SCIENCE',
-            hscStream: r.hscStream ?? 'SCIENCE',
-            minSscGPA: r.minSscGPA ?? null,
-            minHscGPA: r.minHscGPA ?? null,
-            minCombinedGPA: r.minCombinedGPA ?? null,
-            minSscYear: (r as any).minSscYear ?? null,
-            maxSscYear: (r as any).maxSscYear ?? null,
-            minHscYear: (r as any).minHscYear ?? null,
-            maxHscYear: (r as any).maxHscYear ?? null,
-          })),
+          requirements: (u.requirements ?? []).map((r) => {
+            // Support legacy single-year fields (sscYear/hscYear) by hydrating min/max
+            const rawSscSingle = (r as any).sscYear
+            const rawHscSingle = (r as any).hscYear
+            const rawMinSsc = (r as any).minSscYear ?? rawSscSingle
+            const rawMaxSsc = (r as any).maxSscYear ?? rawSscSingle
+            const rawMinHsc = (r as any).minHscYear ?? rawHscSingle
+            const rawMaxHsc = (r as any).maxHscYear ?? rawHscSingle
+
+            return {
+              sscStream: r.sscStream ?? 'SCIENCE',
+              hscStream: r.hscStream ?? 'SCIENCE',
+              minSscGPA: r.minSscGPA ?? null,
+              minHscGPA: r.minHscGPA ?? null,
+              minCombinedGPA: r.minCombinedGPA ?? null,
+              minSscYear: toNum(rawMinSsc),
+              maxSscYear: toNum(rawMaxSsc),
+              minHscYear: toNum(rawMinHsc),
+              maxHscYear: toNum(rawMaxHsc),
+            }
+          }),
         }
         setInitial(init)
       } catch {

@@ -220,19 +220,27 @@ function RouteComponent() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {unit.requirements.map((r, i) => (
-                          <TableRow key={i}>
-                            <TableCell>{r.sscStream ?? '—'}</TableCell>
-                            <TableCell>{r.hscStream ?? '—'}</TableCell>
-                            <TableCell>{r.minSscGPA ?? '—'}</TableCell>
-                            <TableCell>{r.minHscGPA ?? '—'}</TableCell>
-                            <TableCell>{r.minCombinedGPA ?? '—'}</TableCell>
-                            <TableCell>{(r as any).minSscYear ?? '—'}</TableCell>
-                            <TableCell>{(r as any).maxSscYear ?? '—'}</TableCell>
-                            <TableCell>{(r as any).minHscYear ?? '—'}</TableCell>
-                            <TableCell>{(r as any).maxHscYear ?? '—'}</TableCell>
-                          </TableRow>
-                        ))}
+                        {unit.requirements.map((r, i) => {
+                          const getYear = (minKey: string, maxKey: string, singleKey: string, which: 'min' | 'max') => {
+                            const anyR = r as any
+                            const single = anyR[singleKey]
+                            if (which === 'min') return anyR[minKey] ?? single ?? '—'
+                            return anyR[maxKey] ?? single ?? '—'
+                          }
+                          return (
+                            <TableRow key={i}>
+                              <TableCell>{r.sscStream ?? '—'}</TableCell>
+                              <TableCell>{r.hscStream ?? '—'}</TableCell>
+                              <TableCell>{r.minSscGPA ?? '—'}</TableCell>
+                              <TableCell>{r.minHscGPA ?? '—'}</TableCell>
+                              <TableCell>{r.minCombinedGPA ?? '—'}</TableCell>
+                              <TableCell>{getYear('minSscYear', 'maxSscYear', 'sscYear', 'min')}</TableCell>
+                              <TableCell>{getYear('minSscYear', 'maxSscYear', 'sscYear', 'max')}</TableCell>
+                              <TableCell>{getYear('minHscYear', 'maxHscYear', 'hscYear', 'min')}</TableCell>
+                              <TableCell>{getYear('minHscYear', 'maxHscYear', 'hscYear', 'max')}</TableCell>
+                            </TableRow>
+                          )
+                        })}
                       </TableBody>
                     </Table>
                   ) : (

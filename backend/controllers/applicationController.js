@@ -12,6 +12,7 @@ class applicationController {
       const medium = req.query.medium ? String(req.query.medium) : undefined; // 'Bangla' | 'English' | 'Arabic'
       const board = req.query.board ? String(req.query.board) : undefined; // e.g., 'Dhaka'
       const status = req.query.status ? String(req.query.status).toLowerCase() : undefined; // 'approved' | 'under_review'
+      const center = req.query.center ? String(req.query.center).trim() : undefined; // exam center contains
       if (page <= 0) page = 1;
       if (limit <= 0 || limit > 100) limit = 20;
       const skip = (page - 1) * limit;
@@ -22,39 +23,58 @@ class applicationController {
         return res.status(403).json({ status: 403, message: "Not authorized" });
       }
 
+      // Build composable filters to avoid clobbering OR conditions
+      const andClauses = []
+      if (unitId) andClauses.push({ unitId })
+      if (search) {
+        andClauses.push({
+          OR: [
+            { student: { fullName: { contains: search, mode: 'insensitive' } } },
+            { student: { email: { contains: search, mode: 'insensitive' } } },
+            { unit: { name: { contains: search, mode: 'insensitive' } } },
+          ],
+        })
+      }
+      if (status === 'approved') andClauses.push({ reviewedAt: { not: null } })
+      else if (status === 'under_review') andClauses.push({ reviewedAt: null })
+
+      if (center) {
+        // Handle common synonyms for divisions (e.g., Chittagong/Chattogram, Barisal/Barishal)
+        const synonyms = {
+          Chattogram: ['Chittagong'],
+          Chittagong: ['Chattogram'],
+          Barishal: ['Barisal'],
+          Barisal: ['Barishal'],
+        }
+        const terms = Array.from(new Set([center, ...(synonyms[center] || [])]))
+        andClauses.push({
+          OR: terms.flatMap((term) => [
+            { examCenter: { contains: term, mode: 'insensitive' } },
+            { centerPreference: { contains: term, mode: 'insensitive' } },
+          ]),
+        })
+      }
+
+      if (examPath || medium || board) {
+        andClauses.push({
+          student: {
+            ...(examPath ? { examPath } : {}),
+            ...(medium ? { medium } : {}),
+            ...(board
+              ? {
+                  OR: [
+                    { sscBoard: { equals: board } },
+                    { hscBoard: { equals: board } },
+                  ],
+                }
+              : {}),
+          },
+        })
+      }
+
       const where = {
         institutionId: admin.institutionId,
-        ...(unitId ? { unitId } : {}),
-        ...(search
-          ? {
-              OR: [
-                { student: { fullName: { contains: search, mode: "insensitive" } } },
-                { student: { email: { contains: search, mode: "insensitive" } } },
-                { unit: { name: { contains: search, mode: "insensitive" } } },
-              ],
-            }
-          : {}),
-        ...(status === 'approved'
-          ? { reviewedAt: { not: null } }
-          : status === 'under_review'
-          ? { reviewedAt: null }
-          : {}),
-        ...(examPath || medium || board
-          ? {
-              student: {
-                ...(examPath ? { examPath } : {}),
-                ...(medium ? { medium } : {}),
-                ...(board
-                  ? {
-                      OR: [
-                        { sscBoard: { equals: board } },
-                        { hscBoard: { equals: board } },
-                      ],
-                    }
-                  : {}),
-              },
-            }
-          : {}),
+        ...(andClauses.length ? { AND: andClauses } : {}),
       };
 
       const [rows, total] = await Promise.all([

@@ -42,6 +42,11 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
   // derive initial state from props
   useEffect(() => {
     if (!initial) return
+    const toNum = (v: unknown): number | null => {
+      if (v === null || v === undefined) return null
+      const n = typeof v === 'string' ? parseInt(v, 10) : typeof v === 'number' ? v : NaN
+      return Number.isFinite(n) ? (n as number) : null
+    }
     setName(initial.name ?? '')
     setDescription(initial.description ?? '')
     setDeadline(initial.applicationDeadline ? new Date(initial.applicationDeadline).toISOString().slice(0, 16) : '')
@@ -58,10 +63,11 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
       minSscGPA: r.minSscGPA ?? null,
       minHscGPA: r.minHscGPA ?? null,
       minCombinedGPA: r.minCombinedGPA ?? null,
-      minSscYear: r.minSscYear ?? null,
-      maxSscYear: r.maxSscYear ?? null,
-      minHscYear: r.minHscYear ?? null,
-      maxHscYear: r.maxHscYear ?? null,
+      // Ensure years are numeric if provided as strings (from older data)
+      minSscYear: toNum((r as any).minSscYear ?? (r as any).sscYear ?? null),
+      maxSscYear: toNum((r as any).maxSscYear ?? (r as any).sscYear ?? null),
+      minHscYear: toNum((r as any).minHscYear ?? (r as any).hscYear ?? null),
+      maxHscYear: toNum((r as any).maxHscYear ?? (r as any).hscYear ?? null),
     }))
     setRequirements(reqs.length ? reqs : [{ sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null }])
   }, [initial])
@@ -231,11 +237,11 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="text-xs text-gray-600">Min Passing Year</label>
-                        <Input type="number" min={1990} max={2100} value={req.minSscYear ?? ''} onChange={(e) => updateReq(idx, { minSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                        <Input type="number" min={1990} max={2100} value={req.minSscYear != null ? String(req.minSscYear) : ''} onChange={(e) => updateReq(idx, { minSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
                       </div>
                       <div>
                         <label className="text-xs text-gray-600">Max Passing Year</label>
-                        <Input type="number" min={1990} max={2100} value={req.maxSscYear ?? ''} onChange={(e) => updateReq(idx, { maxSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                        <Input type="number" min={1990} max={2100} value={req.maxSscYear != null ? String(req.maxSscYear) : ''} onChange={(e) => updateReq(idx, { maxSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
                       </div>
                     </div>
                   </div>
@@ -256,11 +262,11 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="text-xs text-gray-600">Min Passing Year</label>
-                        <Input type="number" min={1990} max={2100} value={req.minHscYear ?? ''} onChange={(e) => updateReq(idx, { minHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                        <Input type="number" min={1990} max={2100} value={req.minHscYear != null ? String(req.minHscYear) : ''} onChange={(e) => updateReq(idx, { minHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
                       </div>
                       <div>
                         <label className="text-xs text-gray-600">Max Passing Year</label>
-                        <Input type="number" min={1990} max={2100} value={req.maxHscYear ?? ''} onChange={(e) => updateReq(idx, { maxHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                        <Input type="number" min={1990} max={2100} value={req.maxHscYear != null ? String(req.maxHscYear) : ''} onChange={(e) => updateReq(idx, { maxHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
                       </div>
                     </div>
                   </div>
