@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { getEligibleInstitutionById, type EligibleInstitution, type EligibleUnit } from '@/api/studentExplore'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { applyToUnit } from '@/api/studentApplications'
+import { applyToUnit, listMyApplications, type MyApplication } from '@/api/studentApplications'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { getUserProfile, getAcademicDetails } from '@/api'
@@ -34,6 +34,7 @@ function RouteComponent() {
   const [centerOpen, setCenterOpen] = useState(false)
   const [center, setCenter] = useState<string>('Dhaka')
   const [pendingUnit, setPendingUnit] = useState<EligibleUnit | null>(null)
+  const [appliedUnits, setAppliedUnits] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     (async () => {
@@ -42,9 +43,12 @@ function RouteComponent() {
         const data = await getEligibleInstitutionById(institutionId)
         setInst(data)
         try {
-          const [p, a] = await Promise.all([getUserProfile(), getAcademicDetails()])
+          const [p, a, apps] = await Promise.all([getUserProfile(), getAcademicDetails(), listMyApplications()])
           const merged = p && a ? { ...p, ...a } : (p || a)
           setProfile(merged)
+          const ids = new Set<string>()
+          ;(apps || []).forEach((app: MyApplication) => { if (app.unitId) ids.add(app.unitId) })
+          setAppliedUnits(ids)
         } catch { /* ignore */ }
       } finally { setLoading(false) }
     })()
@@ -89,6 +93,10 @@ function RouteComponent() {
   }
 
   const doApply = async (unit: EligibleUnit) => {
+    if (appliedUnits.has(unit.unitId)) {
+      toast.info('You have already applied to this unit')
+      return
+    }
     const missing = getRequiredMissing(profile)
     if (missing.length > 0) {
       setMissingFields(missing)
@@ -174,8 +182,12 @@ function RouteComponent() {
                   <div key={u.unitId} className="border border-gray-200 rounded-md p-4">
                     <div className="flex items-center justify-between">
                       <div className="text-gray-900 font-medium">{u.name}</div>
-                      <Button size="sm" className="bg-gray-900 hover:bg-gray-800" disabled={applying === u.unitId || u.eligible === false} onClick={() => doApply(u)} title={u.eligible === false ? 'You are not eligible for this unit' : undefined}>
-                        {applying === u.unitId ? 'Applying...' : (u.eligible === false ? 'Not Eligible' : 'Apply')}
+                      <Button size="sm" className="bg-gray-900 hover:bg-gray-800" disabled={applying === u.unitId || u.eligible === false || appliedUnits.has(u.unitId)} onClick={() => doApply(u)} title={appliedUnits.has(u.unitId) ? 'Already applied' : (u.eligible === false ? 'You are not eligible for this unit' : undefined)}>
+                        {applying === u.unitId
+                          ? 'Applying...'
+                          : appliedUnits.has(u.unitId)
+                          ? 'Applied'
+                          : (u.eligible === false ? 'Not Eligible' : 'Apply')}
                       </Button>
                     </div>
                     {u.description ? (
@@ -241,6 +253,7 @@ function RouteComponent() {
               try {
                 await applyToUnit(pendingUnit.unitId, center)
                 toast.success('Application submitted', { description: `${pendingUnit.name}` })
+                setAppliedUnits((prev) => new Set(prev).add(pendingUnit.unitId))
                 setCenterOpen(false)
                 setPendingUnit(null)
               } catch (e: any) {

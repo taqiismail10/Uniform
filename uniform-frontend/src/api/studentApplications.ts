@@ -9,6 +9,7 @@ export const applyToUnit = async (unitId: string, centerPreference?: string) => 
 
 export type MyApplication = {
   id: string
+  unitId?: string
   appliedAt: string
   reviewedAt?: string | null
   unit: { name: string; examDate?: string | null; examTime?: string | null; examCenter?: string | null }
