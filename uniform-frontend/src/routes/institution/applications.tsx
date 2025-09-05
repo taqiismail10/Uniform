@@ -184,9 +184,7 @@ function RouteComponent() {
                       <TableHead>Applied At</TableHead>
                       <TableHead>Student</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Curriculum</TableHead>
-                      <TableHead>Medium</TableHead>
-                      <TableHead>Board</TableHead>
+                      <TableHead>Exam Center</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -196,9 +194,7 @@ function RouteComponent() {
                         <TableCell className="text-gray-700">{new Date(r.appliedAt).toLocaleString()}</TableCell>
                         <TableCell className="text-gray-900 font-medium">{r.student.fullName}</TableCell>
                         <TableCell className="text-gray-700">{r.student.email}</TableCell>
-                        <TableCell className="text-gray-700">{r.student.examPath || '-'}</TableCell>
-                        <TableCell className="text-gray-700">{r.student.medium || '-'}</TableCell>
-                        <TableCell className="text-gray-700">{r.student.sscBoard || r.student.hscBoard || '-'}</TableCell>
+                        <TableCell className="text-gray-700">{(r as any).examCenter || (r as any).centerPreference || '-'}</TableCell>
                         <TableCell className="text-gray-700">{(r as any).reviewedAt ? 'Approved' : 'Under Review'}</TableCell>
                       </TableRow>
                     ))}
