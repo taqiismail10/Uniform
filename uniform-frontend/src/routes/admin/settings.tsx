@@ -81,7 +81,8 @@ function RouteComponent() {
                     await adminApi.updateSystemAdminEmail(email)
                     toast.success('Email updated')
                   } catch (e: unknown) {
-                    const msg = (e as any)?.response?.data?.message || 'Failed to update email'
+                    const err = e as { response?: { data?: { message?: string } } }
+                    const msg = err?.response?.data?.message || 'Failed to update email'
                     toast.error(msg)
                   } finally { setSavingEmail(false) }
                 }}
@@ -120,7 +121,8 @@ function RouteComponent() {
                       setOldPassword(''); setNewPassword(''); setConfirmPassword('')
                       toast.success('Password updated')
                     } catch (e: unknown) {
-                      const msg = (e as any)?.response?.data?.message || 'Failed to update password'
+                      const err = e as { response?: { data?: { message?: string } } }
+                      const msg = err?.response?.data?.message || 'Failed to update password'
                       toast.error(msg)
                     } finally { setSavingPassword(false) }
                   }}

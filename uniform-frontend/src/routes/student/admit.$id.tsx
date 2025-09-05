@@ -4,6 +4,7 @@ import { createFileRoute, useNavigate, useParams, useSearch } from '@tanstack/re
 import { useEffect, useMemo, useState } from 'react'
 import { listMyApplications, type MyApplication } from '@/api/studentApplications'
 import { getUserProfile, getAcademicDetails } from '@/api'
+import type { User } from '@/context/student/AuthContext'
 import AdmitCard from '@/components/student/AdmitCard'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -21,7 +22,7 @@ function RouteComponent() {
   const search = useSearch({ from: '/student/admit/$id' }) as { download?: string | number | boolean }
   const navigate = useNavigate()
   const [rows, setRows] = useState<MyApplication[] | null>(null)
-  const [profile, setProfile] = useState<any | null>(null)
+  const [profile, setProfile] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -35,9 +36,11 @@ function RouteComponent() {
         ])
         setRows(apps)
         // Merge with preference for non-empty values and keep name from profile
-        let merged: any = p && a ? { ...p, ...a } : (p || a)
+        let merged: User | null = null
+        if (p && a) merged = { ...p, ...a }
+        else merged = p || a
         if (p?.userName && (!merged?.userName || String(merged.userName).trim() === '')) {
-          merged = { ...merged, userName: p.userName }
+          merged = { ...(merged as User), userName: p.userName }
         }
         setProfile(merged)
       } finally { setLoading(false) }

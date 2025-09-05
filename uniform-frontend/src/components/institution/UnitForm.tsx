@@ -22,8 +22,8 @@ type UnitFormProps = {
   initial?: UnitFormInitial
   submitLabel?: string
   submittingLabel?: string
-  onSubmit: (payload: CreateUnitInput) => Promise<{ status: number; message?: string; data?: any }>
-  onSuccess?: (res: { status: number; message?: string; data?: any }) => void
+  onSubmit: (payload: CreateUnitInput) => Promise<{ status: number; message?: string; data?: unknown }>
+  onSuccess?: (res: { status: number; message?: string; data?: unknown }) => void
 }
 
 export default function UnitForm({ mode, initial, submitLabel, submittingLabel, onSubmit, onSuccess }: UnitFormProps) {
@@ -57,18 +57,21 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
     )
     setIsActive(initial.isActive ?? true)
     setAutoClose(initial.autoCloseAfterDeadline ?? true)
-    const reqs: UnitRequirementInput[] = (initial.requirements || []).map((r: UnitRequirementInput) => ({
+    const reqs: UnitRequirementInput[] = (initial.requirements || []).map((r) => {
+      const rLegacy = r as UnitRequirementInput & { sscYear?: number | string; hscYear?: number | string }
+      return {
       sscStream: r.sscStream ?? 'SCIENCE',
       hscStream: r.hscStream ?? 'SCIENCE',
       minSscGPA: r.minSscGPA ?? null,
       minHscGPA: r.minHscGPA ?? null,
       minCombinedGPA: r.minCombinedGPA ?? null,
       // Ensure years are numeric if provided as strings (from older data)
-      minSscYear: toNum((r as any).minSscYear ?? (r as any).sscYear ?? null),
-      maxSscYear: toNum((r as any).maxSscYear ?? (r as any).sscYear ?? null),
-      minHscYear: toNum((r as any).minHscYear ?? (r as any).hscYear ?? null),
-      maxHscYear: toNum((r as any).maxHscYear ?? (r as any).hscYear ?? null),
-    }))
+      minSscYear: toNum(rLegacy.minSscYear ?? rLegacy.sscYear ?? null),
+      maxSscYear: toNum(rLegacy.maxSscYear ?? rLegacy.sscYear ?? null),
+      minHscYear: toNum(rLegacy.minHscYear ?? rLegacy.hscYear ?? null),
+      maxHscYear: toNum(rLegacy.maxHscYear ?? rLegacy.hscYear ?? null),
+    }
+    })
     setRequirements(reqs.length ? reqs : [{ sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null }])
   }, [initial])
 
@@ -143,8 +146,7 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
       } else {
         const fallback = mode === 'create' ? 'Failed to create unit' : 'Update failed'
         // Try to surface validation errors if present
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const maybeErrors = (res as any)?.errors
+        const maybeErrors = (res as { errors?: unknown } | undefined)?.errors
         const msg = res?.message || (Array.isArray(maybeErrors) ? maybeErrors.join(', ') : fallback)
         toast.error(msg)
       }

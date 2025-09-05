@@ -2,16 +2,31 @@
 import api from "./axios";
 import type { Application } from "@/components/student/types";
 
+type BackendApplicationRow = {
+  id?: string;
+  applicationId?: string;
+  unitId?: string;
+  institutionId?: string;
+  appliedAt?: string;
+  appliedDate?: string;
+  studentId?: string;
+  unit?: { name?: string } | null;
+  institution?: { name?: string } | null;
+  status?: Application['status'] | string;
+  institutionName?: string;
+  unitName?: string;
+};
+
 // Get Applications by User ID
 export const getApplications = async (
   _userId: string
 ): Promise<Application[]> => {
   try {
     // Backend uses auth context; userId query is ignored
-    const response = await api.get<{ applications: any[] }>(`/applications`);
+    const response = await api.get<{ applications: BackendApplicationRow[] }>(`/applications`);
     const raw = response.data.applications || [];
     // Normalize server payload to Application shape expected by UI
-    return raw.map((a: any) => ({
+    return raw.map((a) => ({
       id: a.id ?? a.applicationId ?? `${a.unitId || ''}-${a.institutionId || ''}-${a.appliedAt || ''}`,
       userId: a.studentId ?? '',
       university: a.institution?.name ?? a.institutionName ?? '-',

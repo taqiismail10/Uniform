@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import UnitForm, { type UnitFormInitial } from '@/components/institution/UnitForm'
+import type { UnitRequirement } from '@/api/units'
 // Layout and protection are provided by parent /institution route
 
 export const Route = createFileRoute('/institution/units/$unitId/edit')({
@@ -48,12 +49,13 @@ function RouteComponent() {
           autoCloseAfterDeadline: !!u.autoCloseAfterDeadline,
           requirements: (u.requirements ?? []).map((r) => {
             // Support legacy single-year fields (sscYear/hscYear) by hydrating min/max
-            const rawSscSingle = (r as any).sscYear
-            const rawHscSingle = (r as any).hscYear
-            const rawMinSsc = (r as any).minSscYear ?? rawSscSingle
-            const rawMaxSsc = (r as any).maxSscYear ?? rawSscSingle
-            const rawMinHsc = (r as any).minHscYear ?? rawHscSingle
-            const rawMaxHsc = (r as any).maxHscYear ?? rawHscSingle
+            const rLegacy = r as UnitRequirement & { sscYear?: number | string; hscYear?: number | string }
+            const rawSscSingle = rLegacy.sscYear
+            const rawHscSingle = rLegacy.hscYear
+            const rawMinSsc = rLegacy.minSscYear ?? rawSscSingle
+            const rawMaxSsc = rLegacy.maxSscYear ?? rawSscSingle
+            const rawMinHsc = rLegacy.minHscYear ?? rawHscSingle
+            const rawMaxHsc = rLegacy.maxHscYear ?? rawHscSingle
 
             return {
               sscStream: r.sscStream ?? 'SCIENCE',

@@ -182,7 +182,7 @@ function RouteComponent() {
                       if (!unit) return
                       setSavingExam(true)
                       try {
-                        const payload: any = {
+                        const payload: { examDate?: string; examTime?: string; examCenter?: string } = {
                           examDate: examDate || undefined,
                           examTime: examTime || undefined,
                           examCenter: examCenter || undefined,
@@ -193,8 +193,9 @@ function RouteComponent() {
                         } else {
                           toast.error(res?.message || 'Failed to save exam details')
                         }
-                      } catch (e: any) {
-                        toast.error(e?.response?.data?.message || 'Failed to save exam details')
+                      } catch (e: unknown) {
+                        const err = e as { response?: { data?: { message?: string } } }
+                        toast.error(err?.response?.data?.message || 'Failed to save exam details')
                       } finally {
                         setSavingExam(false)
                       }
@@ -221,11 +222,16 @@ function RouteComponent() {
                       </TableHeader>
                       <TableBody>
                         {unit.requirements.map((r, i) => {
-                          const getYear = (minKey: string, maxKey: string, singleKey: string, which: 'min' | 'max') => {
-                            const anyR = r as any
-                            const single = anyR[singleKey]
-                            if (which === 'min') return anyR[minKey] ?? single ?? '—'
-                            return anyR[maxKey] ?? single ?? '—'
+                          const getYear = (
+                            minKey: keyof typeof r,
+                            maxKey: keyof typeof r,
+                            singleKey: 'sscYear' | 'hscYear',
+                            which: 'min' | 'max',
+                          ) => {
+                            const yr = r as Partial<{ minSscYear: number; maxSscYear: number; minHscYear: number; maxHscYear: number }>
+                            const legacy = (r as unknown as Partial<{ sscYear: number; hscYear: number }>)[singleKey]
+                            if (which === 'min') return (yr[minKey as 'minSscYear' | 'minHscYear'] ?? legacy ?? '—')
+                            return (yr[maxKey as 'maxSscYear' | 'maxHscYear'] ?? legacy ?? '—')
                           }
                           return (
                             <TableRow key={i}>

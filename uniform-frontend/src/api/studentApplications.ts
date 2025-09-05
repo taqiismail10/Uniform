@@ -1,10 +1,10 @@
 import api from '@/api/axios'
 
 export const applyToUnit = async (unitId: string, centerPreference?: string) => {
-  const payload: any = { unitId }
+  const payload: { unitId: string; centerPreference?: string } = { unitId }
   if (centerPreference) payload.centerPreference = centerPreference
   const res = await api.post('/applications', payload)
-  return res.data
+  return res.data as { status: number; message?: string; application?: { id: string } }
 }
 
 export type MyApplication = {
@@ -24,7 +24,8 @@ export type MyApplication = {
 
 export const listMyApplications = async (): Promise<MyApplication[]> => {
   const res = await api.get('/applications')
-  if (res.data?.status === 200) return res.data.applications as MyApplication[]
+  const data = res.data as { status: number; applications?: MyApplication[] }
+  if (data?.status === 200 && Array.isArray(data.applications)) return data.applications
   return []
 }
 

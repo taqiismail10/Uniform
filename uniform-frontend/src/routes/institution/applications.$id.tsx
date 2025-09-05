@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { applicationsApi } from '@/api/applications'
+import { applicationsApi, type ApplicationDetail } from '@/api/applications'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -21,7 +21,7 @@ function Row({ label, value }: { label: string; value?: string | number | null }
 function RouteComponent() {
   const { id } = useParams({ from: '/institution/applications/$id' })
   const navigate = useNavigate()
-  const [data, setData] = useState<any | null>(null)
+  const [data, setData] = useState<ApplicationDetail | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

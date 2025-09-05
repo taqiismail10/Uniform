@@ -39,8 +39,9 @@ function RouteComponent() {
       } else {
         toast.error('Unable to delete application')
       }
-    } catch (e: any) {
-      const msg = e?.response?.data?.message || 'Unable to delete application'
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } }
+      const msg = err?.response?.data?.message || 'Unable to delete application'
       toast.error(msg)
     } finally { setDeleting(null) }
   }

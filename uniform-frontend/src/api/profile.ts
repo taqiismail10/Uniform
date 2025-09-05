@@ -150,6 +150,9 @@ export interface ProfileData {
   alimGpa?: string;
   alimYear?: string;
   alimBoard?: string;
+  // Streams (optional)
+  sscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  hscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
 }
 
 // Update User Profile
@@ -220,8 +223,8 @@ export const updateUserProfile = async (
         formData.append("alimBoard", profileData.alimBoard);
     }
     // Add streams if provided
-    if ((profileData as any).sscStream) formData.append('sscStream', (profileData as any).sscStream)
-    if ((profileData as any).hscStream) formData.append('hscStream', (profileData as any).hscStream)
+    if (profileData.sscStream) formData.append('sscStream', profileData.sscStream)
+    if (profileData.hscStream) formData.append('hscStream', profileData.hscStream)
     // Debug log
     console.log("FormData:\n");
     for (const [key, value] of formData.entries()) {

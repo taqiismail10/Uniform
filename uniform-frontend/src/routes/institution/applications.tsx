@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { applicationsApi, type ApplicationRow } from '@/api/applications'
+import { applicationsApi, type ApplicationRow, type ApplicationDetail } from '@/api/applications'
 import { unitsApi } from '@/api/units'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
@@ -30,7 +30,7 @@ function RouteComponent() {
   const [actionLoading, setActionLoading] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
-  const [detail, setDetail] = useState<any | null>(null)
+  const [detail, setDetail] = useState<ApplicationDetail | null>(null)
   const [seatNo, setSeatNo] = useState('')
   const [examDate, setExamDate] = useState('')
   const [examTime, setExamTime] = useState('')
@@ -56,7 +56,7 @@ function RouteComponent() {
     (async () => {
       try {
         const res = await unitsApi.list({ page: 1, limit: 100 })
-        const list = (res?.data || []).map((u: any) => ({ unitId: u.unitId, name: u.name }))
+        const list = (res?.data || []).map((u: { unitId: string; name: string }) => ({ unitId: u.unitId, name: u.name }))
         setUnits(list)
         // Use fixed division options for exam center filter
         setCenterOptions(divisionOptions)
@@ -104,7 +104,7 @@ function RouteComponent() {
           </div>
           <div>
             <label className="text-xs text-gray-600">Status</label>
-            <Select value={status || 'ALL'} onValueChange={(v: any) => setStatus(v === 'ALL' ? '' : v)}>
+            <Select value={status || 'ALL'} onValueChange={(v: string) => setStatus(v === 'ALL' ? '' : (v as 'approved' | 'under_review'))}>
               <SelectTrigger className="w-full"><SelectValue placeholder="All" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All</SelectItem>
@@ -115,7 +115,7 @@ function RouteComponent() {
           </div>
           <div>
             <label className="text-xs text-gray-600">Curriculum</label>
-            <Select value={examPath || 'ALL'} onValueChange={(v: any) => setExamPath(v === 'ALL' ? '' : v)}>
+            <Select value={examPath || 'ALL'} onValueChange={(v: string) => setExamPath(v === 'ALL' ? '' : (v as 'NATIONAL' | 'MADRASHA'))}>
               <SelectTrigger className="w-full"><SelectValue placeholder="All" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All</SelectItem>
@@ -126,7 +126,7 @@ function RouteComponent() {
           </div>
           <div>
             <label className="text-xs text-gray-600">Medium</label>
-            <Select value={medium || 'ALL'} onValueChange={(v: any) => setMedium(v === 'ALL' ? '' : v)}>
+            <Select value={medium || 'ALL'} onValueChange={(v: string) => setMedium(v === 'ALL' ? '' : (v as 'Bangla' | 'English' | 'Arabic'))}>
               <SelectTrigger className="w-full"><SelectValue placeholder="All" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All</SelectItem>
@@ -148,7 +148,7 @@ function RouteComponent() {
           </div>
           <div>
             <label className="text-xs text-gray-600">Exam Center</label>
-            <Select value={center || 'ALL'} onValueChange={(v: any) => setCenter(v === 'ALL' ? '' : v)}>
+            <Select value={center || 'ALL'} onValueChange={(v: string) => setCenter(v === 'ALL' ? '' : v)}>
               <SelectTrigger className="w-full"><SelectValue placeholder="All" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All</SelectItem>
@@ -170,12 +170,17 @@ function RouteComponent() {
           <div className="py-12 text-center text-gray-600">No applications found.</div>
         ) : (
           <div className="divide-y">
-            {Object.values(rows.reduce((acc: any, r) => {
-              const key = r.unit.unitId
-              if (!acc[key]) acc[key] = { unit: r.unit, items: [] as ApplicationRow[] }
-              acc[key].items.push(r)
-              return acc
-            }, {})).map((group: { unit: { unitId: string; name: string }, items: ApplicationRow[] }) => (
+            {Object.values(
+              rows.reduce(
+                (acc: Record<string, { unit: { unitId: string; name: string }; items: ApplicationRow[] }>, r) => {
+                  const key = r.unit.unitId
+                  if (!acc[key]) acc[key] = { unit: r.unit, items: [] }
+                  acc[key].items.push(r)
+                  return acc
+                },
+                {}
+              )
+            ).map((group: { unit: { unitId: string; name: string }; items: ApplicationRow[] }) => (
               <div key={group.unit.unitId} className="py-4">
                 <div className="px-4 pb-2 text-gray-900 font-semibold">{group.unit.name}</div>
                 <Table>
@@ -194,8 +199,8 @@ function RouteComponent() {
                         <TableCell className="text-gray-700">{new Date(r.appliedAt).toLocaleString()}</TableCell>
                         <TableCell className="text-gray-900 font-medium">{r.student.fullName}</TableCell>
                         <TableCell className="text-gray-700">{r.student.email}</TableCell>
-                        <TableCell className="text-gray-700">{(r as any).examCenter || (r as any).centerPreference || '-'}</TableCell>
-                        <TableCell className="text-gray-700">{(r as any).reviewedAt ? 'Approved' : 'Under Review'}</TableCell>
+                        <TableCell className="text-gray-700">{r.examCenter || r.centerPreference || '-'}</TableCell>
+                        <TableCell className="text-gray-700">{r.reviewedAt ? 'Approved' : 'Under Review'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -348,7 +353,7 @@ function RouteComponent() {
                     const res = await applicationsApi.approve(confirmAction.id);
                     if (res.status === 200) {
                       toast.success('Application approved');
-                      setDetail((d: any) => d ? { ...d, reviewedAt: new Date().toISOString() } : d);
+                      setDetail((d) => (d ? { ...d, reviewedAt: new Date().toISOString() } : d));
                       fetchData();
                     } else {
                       toast.error(res.message || 'Failed to approve application');
@@ -363,8 +368,9 @@ function RouteComponent() {
                       toast.error(res.message || 'Failed to cancel application');
                     }
                   }
-                } catch (e: any) {
-                  const msg = e?.response?.data?.message || 'Action failed';
+                } catch (e: unknown) {
+                  const err = e as { response?: { data?: { message?: string } } }
+                  const msg = err?.response?.data?.message || 'Action failed';
                   toast.error(msg);
                 } finally {
                   setActionLoading(false);

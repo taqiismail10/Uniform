@@ -9,6 +9,7 @@ import { applyToUnit, listMyApplications, type MyApplication } from '@/api/stude
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { getUserProfile, getAcademicDetails } from '@/api'
+import type { User } from '@/context/student/AuthContext'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 // Header is rendered by parent /student layout
@@ -27,7 +28,7 @@ function RouteComponent() {
   const [inst, setInst] = useState<EligibleInstitution | null>(null)
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState<string | null>(null)
-  const [profile, setProfile] = useState<any | null>(null)
+  const [profile, setProfile] = useState<User | null>(null)
   const [missingOpen, setMissingOpen] = useState(false)
   const [missingFields, setMissingFields] = useState<string[]>([])
   // Center selection modal
@@ -44,7 +45,7 @@ function RouteComponent() {
         setInst(data)
         try {
           const [p, a, apps] = await Promise.all([getUserProfile(), getAcademicDetails(), listMyApplications()])
-          const merged = p && a ? { ...p, ...a } : (p || a)
+          const merged: User | null = p && a ? { ...p, ...a } : (p || a)
           setProfile(merged)
           const ids = new Set<string>()
           ;(apps || []).forEach((app: MyApplication) => { if (app.unitId) ids.add(app.unitId) })
@@ -54,9 +55,9 @@ function RouteComponent() {
     })()
   }, [institutionId])
 
-  const getRequiredMissing = (p: any | null): string[] => {
+  const getRequiredMissing = (p: User | null): string[] => {
     const missing: string[] = []
-    const has = (v: any): boolean => {
+    const has = (v: unknown): boolean => {
       if (v === null || v === undefined) return false
       if (typeof v === 'string') return v.trim().length > 0
       if (typeof v === 'number') return !Number.isNaN(v)
@@ -256,8 +257,9 @@ function RouteComponent() {
                 setAppliedUnits((prev) => new Set(prev).add(pendingUnit.unitId))
                 setCenterOpen(false)
                 setPendingUnit(null)
-              } catch (e: any) {
-                const msg = e?.response?.data?.message || 'Failed to submit application'
+              } catch (e: unknown) {
+                const err = e as { response?: { data?: { message?: string } } }
+                const msg = err?.response?.data?.message || 'Failed to submit application'
                 toast.error(msg)
               } finally {
                 setApplying(null)

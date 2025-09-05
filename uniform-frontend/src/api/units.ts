@@ -59,7 +59,7 @@ export interface UnitDetail {
 export const unitsApi = {
   list: async (params?: { page?: number; limit?: number }) => {
     const res = await api.get('/admin/units', { params })
-    return res.data as { status: number; data: any[]; metadata?: any }
+    return res.data as { status: number; data: Array<{ unitId: string; name: string; examCenter?: string | null }>; metadata?: { totalUnits?: number; totalPages?: number; currentPage?: number; currentLimit?: number } }
   },
   getById: async (unitId: string) => {
     const res = await api.get(`/admin/units/${unitId}`)
