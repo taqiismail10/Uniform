@@ -3,6 +3,7 @@
 export interface Institution {
   institutionId: string;
   name: string;
+  shortName?: string | null;
   description?: string;
   address?: string;
   phone?: string;
@@ -67,6 +68,7 @@ export interface InstitutionCategory {
 export interface Institution {
   institutionId: string;
   name: string;
+  shortName?: string | null;
   description?: string;
   address?: string;
   phone?: string;

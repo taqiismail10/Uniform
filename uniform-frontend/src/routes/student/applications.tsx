@@ -57,7 +57,7 @@ function RouteComponent() {
             {loading ? (
               <div className="py-8 text-gray-600">Loading...</div>
             ) : rows.length === 0 ? (
-              <div className="py-8 text-gray-600">No applications yet. Visit <Link to="/student/universities" className="text-blue-600 hover:underline">Universities</Link> to apply.</div>
+              <div className="py-8 text-gray-600">No applications yet. Visit <Link to="/student/institutions" className="text-blue-600 hover:underline">Universities</Link> to apply.</div>
             ) : (
               <Table>
                 <TableHeader>
@@ -84,7 +84,7 @@ function RouteComponent() {
                             </Button>
                           ) : (
                             <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" asChild>
-                              <Link to="/student/universities">View Details</Link>
+                              <Link to="/student/institutions">View Details</Link>
                             </Button>
                           )}
                           <Button

@@ -43,31 +43,11 @@ export default function UniversitiesSection() {
             </TableHeader>
             <TableBody>
               {rows.map((inst) => (
-                <TableRow
-                  key={inst.institutionId}
-                  className="cursor-pointer"
-                  onClick={() =>
-                    navigate({
-                      to: '/student/institutions/$institutionId',
-                      params: { institutionId: inst.institutionId },
-                    })
-                  }
-                >
-                  <TableCell className="text-gray-900 font-medium">
-                    {inst.name}
-                    {inst.shortName ? ` (${inst.shortName})` : ''}
-                  </TableCell>
+                <TableRow key={inst.institutionId} className="cursor-pointer" onClick={() => navigate({ to: '/student/institutions/$institutionId', params: { institutionId: inst.institutionId } })}>
+                  <TableCell className="text-gray-900 font-medium">{inst.name}{inst.shortName ? ` (${inst.shortName})` : ''}</TableCell>
                   <TableCell>
                     {inst.website ? (
-                      <a
-                        className="text-black hover:underline"
-                        href={inst.website.startsWith('http') ? inst.website : `https://${inst.website}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {inst.website}
-                      </a>
+                      <a className="text-black hover:underline" href={inst.website.startsWith('http') ? inst.website : `https://${inst.website}`} target="_blank" rel="noreferrer">{inst.website}</a>
                     ) : '—'}
                   </TableCell>
                   <TableCell className="text-gray-700">{inst.type ?? '—'}</TableCell>
@@ -82,3 +62,5 @@ export default function UniversitiesSection() {
     </div>
   )
 }
+
+

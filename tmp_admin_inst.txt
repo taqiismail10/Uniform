@@ -104,7 +104,6 @@ function RouteComponent() {
       const rawCategory = institution.InstitutionCategory?.name ?? ''
       setForm({
         name: institution.name ?? '',
-        shortName: institution.shortName ?? '',
         categoryName: normalizeCategory(rawCategory),
         ownership: (institution.ownership as 'PUBLIC' | 'PRIVATE' | null) ?? (rawCategory.toLowerCase().includes('national') ? 'PUBLIC' : ''),
         type: (institution.type as 'GENERAL' | 'ENGINEERING' | null) ?? deriveTypeFromCategory(rawCategory),
@@ -517,3 +516,4 @@ const getCategoryBadgeColor = (categoryName: string) => {
     </div>
   )
 }
+

@@ -115,14 +115,15 @@ class systemAdminAuthController {
 			// Create institution with optional fields
 			const ownership = payload.ownership ? String(payload.ownership).toUpperCase() : undefined;
 			const instType = payload.type ? String(payload.type).toUpperCase() : undefined;
-			const institution = await prisma.institution.create({
-				data: {
-					name: payload.name.trim(),
-					description: payload.description ?? null,
-					address: payload.address ?? null,
-					phone: payload.phone ?? null,
-					email: payload.email ?? null,
-					website: payload.website ?? null,
+            const institution = await prisma.institution.create({
+                data: {
+                    name: payload.name.trim(),
+                    shortName: payload.shortName ?? null,
+                    description: payload.description ?? null,
+                    address: payload.address ?? null,
+                    phone: payload.phone ?? null,
+                    email: payload.email ?? null,
+                    website: payload.website ?? null,
 					establishedYear: payload.establishedYear ?? null,
 					logoUrl: payload.logoUrl ?? null,
 					ownership: ownership ?? null,
@@ -554,15 +555,16 @@ class systemAdminAuthController {
 
 			const ownership = payload.ownership !== undefined ? String(payload.ownership).toUpperCase() : undefined;
 			const instType = payload.type !== undefined ? String(payload.type).toUpperCase() : undefined;
-			const updated = await prisma.institution.update({
-				where: { institutionId },
-				data: {
-					name: payload.name.trim(),
-					description: payload.description ?? null,
-					address: payload.address ?? null,
-					phone: payload.phone ?? null,
-					email: payload.email ?? null,
-					website: payload.website ?? null,
+            const updated = await prisma.institution.update({
+                where: { institutionId },
+                data: {
+                    name: payload.name.trim(),
+                    ...(payload.shortName !== undefined ? { shortName: payload.shortName } : {}),
+                    description: payload.description ?? null,
+                    address: payload.address ?? null,
+                    phone: payload.phone ?? null,
+                    email: payload.email ?? null,
+                    website: payload.website ?? null,
 					establishedYear: payload.establishedYear ?? null,
 					logoUrl: payload.logoUrl ?? null,
 					// Only set category if provided in payload; otherwise leave unchanged

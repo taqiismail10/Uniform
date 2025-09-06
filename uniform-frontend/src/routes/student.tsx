@@ -42,7 +42,7 @@ function RouteComponent() {
   const setActiveSection = (section: string) => {
     const map: Record<string, string> = {
       dashboard: '/student/dashboard',
-      universities: '/student/universities',
+      universities: '/student/institutions',
       'academic-info': '/student/academic-info',
       applications: '/student/applications',
       settings: '/student/settings',
