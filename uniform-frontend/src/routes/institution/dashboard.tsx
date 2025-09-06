@@ -1,19 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
-import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
-import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
 import { getInstitutionStats, type InstitutionStats } from '@/api/admin/institutionStats'
 import { getMyInstitution, type InstitutionInfo } from '@/api/institutionAdmin'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Link } from '@tanstack/react-router'
+// Layout and protection are provided by parent /institution route
 
 export const Route = createFileRoute('/institution/dashboard')({
-  component: () => (
-    <InstitutionProtectedRoutes>
-      <RouteComponent />
-    </InstitutionProtectedRoutes>
-  ),
+  component: () => <RouteComponent />,
 })
 
 function RouteComponent() {
@@ -32,9 +27,7 @@ function RouteComponent() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InstitutionNavbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Institution Dashboard</h1>
           <div className="flex items-center gap-2">
@@ -130,7 +123,6 @@ function RouteComponent() {
             )}
           </CardContent>
         </Card>
-      </main>
     </div>
   )
 }

@@ -37,7 +37,7 @@ const formatDate = (dateString: string) => {
     day: 'numeric'
   });
 };
-export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
+export default function ProfileInfo({ userData, onLogout, onUpdate }: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null); // preview
   const [profileFile, setProfileFile] = useState<File | null>(null); // actual file to upload
@@ -139,40 +139,43 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
     return Object.keys(newErrors).length === 0;
   };
   const handleSaveClick = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
     setIsLoading(true);
+    const payload: Partial<UserData> = {
+      profileImage: profileFile ?? undefined,
+      fullName: formData.userName,
+      phone: formData.phone,
+      address: formData.address,
+      dob: formData.dob,
+      examPath: formData.examPath,
+      medium: formData.medium,
+      sscStream: formData.sscStream,
+      hscStream: formData.hscStream,
+    }
     try {
-      const updateResponse = await updateUserProfile(userData.userId, {
-        profileImage: profileFile ?? undefined,
-        fullName: formData.userName,
-        phone: formData.phone,
-        address: formData.address,
-        dob: formData.dob,
-        examPath: formData.examPath,
-        medium: formData.medium
-      });
-      if (updateResponse) {
-        toast.success("Profile Updated", {
-          description: "Your profile has been updated successfully."
-        });
-        // Update the userData to reflect changes immediately
-        Object.assign(userData, formData);
-        setIsEditing(false);
+      if (onUpdate) {
+        // Delegate update + toasts to parent handler to avoid duplicates
+        await onUpdate(payload)
+        setIsEditing(false)
       } else {
-        toast.error("Update Failed", {
-          description: "Failed to update your profile. Please try again."
-        });
+        // Fallback: perform update locally and toast here
+        const ok = await updateUserProfile(userData.userId, payload)
+        if (ok) {
+          toast.success('Profile Updated', { description: 'Your profile has been updated successfully.' })
+          Object.assign(userData, formData)
+          try { localStorage.setItem('user', JSON.stringify(userData)) } catch {}
+          setIsEditing(false)
+        } else {
+          toast.error('Update Failed', { description: 'Failed to update your profile. Please try again.' })
+        }
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      // Show error toast
-      toast.error("Update Failed", {
-        description: "Failed to update your profile. Please try again."
-      });
+      console.error('Error updating profile:', error)
+      if (!onUpdate) {
+        toast.error('Update Failed', { description: 'Failed to update your profile. Please try again.' })
+      }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   };
   const triggerFileInput = () => {
@@ -424,6 +427,34 @@ export default function ProfileInfo({ userData, onLogout }: ProfileInfoProps) {
                 {errors.medium && (
                   <p className="text-red-500 text-xs mt-1">{errors.medium}</p>
                 )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">SSC Stream</Label>
+                  <Select value={formData.sscStream || ''} onValueChange={(value) => handleSelectChange('sscStream', value)} disabled={isLoading}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select SSC Stream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SCIENCE">Science</SelectItem>
+                      <SelectItem value="ARTS">Arts</SelectItem>
+                      <SelectItem value="COMMERCE">Commerce</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">HSC Stream</Label>
+                  <Select value={formData.hscStream || ''} onValueChange={(value) => handleSelectChange('hscStream', value)} disabled={isLoading}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select HSC Stream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SCIENCE">Science</SelectItem>
+                      <SelectItem value="ARTS">Arts</SelectItem>
+                      <SelectItem value="COMMERCE">Commerce</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
             <DialogFooter>

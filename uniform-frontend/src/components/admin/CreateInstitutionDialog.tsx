@@ -33,6 +33,7 @@ const INSTITUTION_TYPE_OPTIONS = ['GENERAL', 'ENGINEERING'] as const;
 // Define a proper type for the payload
 interface CreateInstitutionPayload {
   name: string;
+  shortName?: string;
   categoryName?: string;
   ownership?: 'PUBLIC' | 'PRIVATE';
   type?: 'GENERAL' | 'ENGINEERING';
@@ -53,6 +54,7 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
   const [isOpen, setIsOpen] = useState(false);
   const [newInstitution, setNewInstitution] = useState({
     name: '',
+    shortName: '',
     categoryName: '',
     ownership: '',
     type: '',
@@ -80,6 +82,7 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       // We include other optional fields for future compatibility.
       const payload: CreateInstitutionPayload = {
         name: newInstitution.name.trim(),
+        shortName: newInstitution.shortName?.trim() || undefined,
         categoryName: newInstitution.categoryName?.trim() || undefined,
         ownership: (newInstitution.ownership as 'PUBLIC' | 'PRIVATE') || undefined,
         type: (newInstitution.type as 'GENERAL' | 'ENGINEERING') || undefined,
@@ -101,6 +104,7 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       setIsOpen(false);
       setNewInstitution({
         name: '',
+        shortName: '',
         categoryName: '',
         ownership: '',
         type: '',
@@ -127,6 +131,7 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
       // Reset form when dialog is closed
       setNewInstitution({
         name: '',
+        shortName: '',
         categoryName: '',
         ownership: '',
         type: '',
@@ -158,20 +163,35 @@ export function CreateInstitutionDialog({ onInstitutionCreated }: CreateInstitut
         </DialogHeader>
         {/* Form body */}
         <div className="grid gap-4 py-4">
-          {/* Name */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name <span className="text-gray-700">*</span>
-            </Label>
-            <Input
-              id="name"
-              value={newInstitution.name}
-              onChange={(e) => setNewInstitution({ ...newInstitution, name: e.target.value })}
-              className="col-span-3"
-              placeholder="Enter institution name"
-              required
-            />
-          </div>
+        {/* Name */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="name" className="text-right">
+            Name <span className="text-gray-700">*</span>
+          </Label>
+          <Input
+            id="name"
+            value={newInstitution.name}
+            onChange={(e) => setNewInstitution({ ...newInstitution, name: e.target.value })}
+            className="col-span-3"
+            placeholder="Enter institution name"
+            required
+          />
+        </div>
+
+        {/* Short Name */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="shortName" className="text-right">
+            Short Name
+          </Label>
+          <Input
+            id="shortName"
+            value={newInstitution.shortName}
+            onChange={(e) => setNewInstitution({ ...newInstitution, shortName: e.target.value })}
+            className="col-span-3"
+            placeholder="e.g., DU, BUET"
+            maxLength={20}
+          />
+        </div>
 
           {/* Category */}
           <div className="grid grid-cols-4 items-center gap-4">

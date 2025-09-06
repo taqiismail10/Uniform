@@ -1,15 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
-import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
 import { getInstitutionAdminProfile, type InstitutionAdminProfile } from '@/api/institutionAdmin'
+// Layout and protection are provided by parent /institution route
 
 export const Route = createFileRoute('/institution/profile')({
-  component: () => (
-    <InstitutionProtectedRoutes>
-      <RouteComponent />
-    </InstitutionProtectedRoutes>
-  ),
+  component: () => <RouteComponent />,
 })
 
 function RouteComponent() {
@@ -23,11 +18,9 @@ function RouteComponent() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InstitutionNavbar />
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <h1 className="text-2xl font-bold">Profile</h1>
-        {loading ? (
+    <div className="max-w-3xl mx-auto py-0 space-y-6">
+      <h1 className="text-2xl font-bold">Profile</h1>
+      {loading ? (
           <div className="py-12 text-center text-gray-600">Loading...</div>
         ) : !profile ? (
           <div className="py-12 text-center text-gray-600">Failed to load profile</div>
@@ -40,8 +33,6 @@ function RouteComponent() {
             <div><span className="text-gray-500 text-sm">Updated:</span> <span className="ml-2">{new Date(profile.updatedAt).toLocaleString()}</span></div>
           </div>
         )}
-      </main>
     </div>
   )
 }
-

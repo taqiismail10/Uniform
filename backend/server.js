@@ -27,7 +27,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload());
 app.use(helmet());
-app.use(limiter); // Apply rate limiting to all requests
+// Apply rate limiting only when not explicitly disabled (e.g., during local dev)
+if (process.env.DISABLE_RATE_LIMIT !== "true") {
+  app.use(limiter);
+}
 // Serve uploaded images and public assets
 import path from "path";
 app.use("/public", express.static(path.join(process.cwd(), "public")));

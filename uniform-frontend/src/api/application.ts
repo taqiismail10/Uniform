@@ -2,15 +2,38 @@
 import api from "./axios";
 import type { Application } from "@/components/student/types";
 
+type BackendApplicationRow = {
+  id?: string;
+  applicationId?: string;
+  unitId?: string;
+  institutionId?: string;
+  appliedAt?: string;
+  appliedDate?: string;
+  studentId?: string;
+  unit?: { name?: string } | null;
+  institution?: { name?: string } | null;
+  status?: Application['status'] | string;
+  institutionName?: string;
+  unitName?: string;
+};
+
 // Get Applications by User ID
 export const getApplications = async (
-  userId: string
+  _userId: string
 ): Promise<Application[]> => {
   try {
-    const response = await api.get<Application[]>(
-      `/applications?userId=${userId}`
-    );
-    return response.data;
+    // Backend uses auth context; userId query is ignored
+    const response = await api.get<{ applications: BackendApplicationRow[] }>(`/applications`);
+    const raw = response.data.applications || [];
+    // Normalize server payload to Application shape expected by UI
+    return raw.map((a) => ({
+      id: a.id ?? a.applicationId ?? `${a.unitId || ''}-${a.institutionId || ''}-${a.appliedAt || ''}`,
+      userId: a.studentId ?? '',
+      university: a.institution?.name ?? a.institutionName ?? '-',
+      unit: a.unit?.name ?? a.unitName ?? '-',
+      appliedDate: a.appliedAt ?? a.appliedDate ?? '',
+      status: (a.status as Application['status']) ?? 'Pending',
+    })) as Application[];
   } catch (error) {
     console.error("Get Applications Failed:", error);
     return [];
@@ -22,8 +45,8 @@ export const submitApplication = async (
   application: Omit<Application, "id">
 ): Promise<Application | null> => {
   try {
-    const response = await api.post<Application>("/applications", application);
-    return response.data;
+    const response = await api.post<{ application: Application }>("/applications", application);
+    return response.data.application;
   } catch (error) {
     console.error("Submit Application Failed:", error);
     return null;
@@ -36,11 +59,11 @@ export const updateApplicationStatus = async (
   status: Application["status"]
 ): Promise<Application | null> => {
   try {
-    const response = await api.patch<Application>(
+    const response = await api.patch<{ application: Application }>(
       `/applications/${applicationId}`,
       { status }
     );
-    return response.data;
+    return response.data.application;
   } catch (error) {
     console.error("Update Application Status Failed:", error);
     return null;

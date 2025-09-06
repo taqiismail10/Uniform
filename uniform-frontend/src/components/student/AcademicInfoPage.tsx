@@ -5,11 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface AcademicInfoPageProps {
   academicInfo: AcademicInfo | null;
   loading?: boolean;
+  sscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  hscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
 }
 
 export default function AcademicInfoPage({
   academicInfo,
-  loading = false
+  loading = false,
+  sscStream,
+  hscStream,
 }: AcademicInfoPageProps) {
   if (loading) {
     return (
@@ -44,14 +48,34 @@ export default function AcademicInfoPage({
           </CardHeader>
           <CardContent>
             <div className="mb-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
                 {academicInfo.examPath === 'NATIONAL' ? 'National Curriculum' : 'Madrasha Curriculum'}
               </span>
+            </div>
+            <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 text-gray-700 text-xs px-3 py-2">
+              Eligibility for applications is determined by your GPA and, where applicable, your SSC/HSC stream(s).
+              Units must meet minimum GPA and stream requirements to appear as available to apply.
             </div>
 
             {academicInfo.examPath === 'NATIONAL' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {academicInfo.sscRoll && (
+                {(sscStream || hscStream) && (
+                  <div className="md:col-span-2 -mt-2">
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      {sscStream && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                          SSC Stream: {sscStream.charAt(0) + sscStream.slice(1).toLowerCase()}
+                        </span>
+                      )}
+                      {hscStream && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                          HSC Stream: {hscStream.charAt(0) + hscStream.slice(1).toLowerCase()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {(academicInfo.sscRoll || sscStream) && (
                   <div className="border border-gray-200 rounded-lg p-4">
                     <h4 className="text-md font-medium text-gray-900 mb-3">SSC</h4>
                     <dl className="space-y-2">
@@ -63,6 +87,12 @@ export default function AcademicInfoPage({
                         <dt className="text-sm text-gray-500">Board</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.sscBoard}</dd>
                       </div>
+                      {sscStream && (
+                        <div className="flex justify-between">
+                          <dt className="text-sm text-gray-500">Stream</dt>
+                          <dd className="text-sm font-medium text-gray-900">{sscStream.charAt(0) + sscStream.slice(1).toLowerCase()}</dd>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <dt className="text-sm text-gray-500">Passing Year</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.sscYear}</dd>
@@ -78,7 +108,7 @@ export default function AcademicInfoPage({
                     </dl>
                   </div>
                 )}
-                {academicInfo.hscRoll && (
+                {(academicInfo.hscRoll || hscStream) && (
                   <div className="border border-gray-200 rounded-lg p-4">
                     <h4 className="text-md font-medium text-gray-900 mb-3">HSC</h4>
                     <dl className="space-y-2">
@@ -90,6 +120,12 @@ export default function AcademicInfoPage({
                         <dt className="text-sm text-gray-500">Board</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.hscBoard}</dd>
                       </div>
+                      {hscStream && (
+                        <div className="flex justify-between">
+                          <dt className="text-sm text-gray-500">Stream</dt>
+                          <dd className="text-sm font-medium text-gray-900">{hscStream.charAt(0) + hscStream.slice(1).toLowerCase()}</dd>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <dt className="text-sm text-gray-500">Passing Year</dt>
                         <dd className="text-sm font-medium text-gray-900">{academicInfo.hscYear}</dd>

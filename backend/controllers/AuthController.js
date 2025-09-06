@@ -26,6 +26,50 @@ class authController {
 			const body = req.body;
 			const validator = vine.compile(registerSchema);
 			const payload = await validator.validate(body);
+
+			// Enforce minimum 2-year gap between SSC and HSC passing years (for National curriculum)
+			if (
+				payload?.examPath === 'NATIONAL' &&
+				payload?.sscYear != null &&
+				payload?.hscYear != null &&
+				Number.isFinite(payload.sscYear) &&
+				Number.isFinite(payload.hscYear)
+			) {
+				if (payload.hscYear < payload.sscYear + 2) {
+					return res.status(400).json({
+						errors: [
+							{
+								field: 'hscYear',
+								rule: 'min_gap',
+								message:
+									'HSC passing year must be at least 2 years after SSC passing year',
+							},
+						],
+					});
+				}
+			}
+
+			// Enforce minimum 2-year gap between Dakhil and Alim passing years (for Madrasha curriculum)
+			if (
+				payload?.examPath === 'MADRASHA' &&
+				payload?.dakhilYear != null &&
+				payload?.alimYear != null &&
+				Number.isFinite(payload.dakhilYear) &&
+				Number.isFinite(payload.alimYear)
+			) {
+				if (payload.alimYear < payload.dakhilYear + 2) {
+					return res.status(400).json({
+						errors: [
+							{
+								field: 'alimYear',
+								rule: 'min_gap',
+								message:
+									'Alim passing year must be at least 2 years after Dakhil passing year',
+							},
+						],
+					});
+				}
+			}
 			const findUser = await prisma.student.findUnique({
 				where: {
 					email: payload.email,
@@ -139,11 +183,14 @@ class authController {
 					message: "Invalid password",
 				});
 			}
-			// Delete the user account
-			await prisma.student.delete({
-				where: {
-					studentId: studentId,
-				},
+			// Delete the user account and dependent records in a transaction to satisfy FKs
+			await prisma.$transaction(async (tx) => {
+				// Remove dependent application records first
+				await tx.application.deleteMany({ where: { studentId } });
+				await tx.appliedUnit.deleteMany({ where: { studentId } });
+				await tx.form.deleteMany({ where: { studentId } });
+				// Finally remove the student
+				await tx.student.delete({ where: { studentId } });
 			});
 			// Return success response
 			return res.status(200).json({

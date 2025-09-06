@@ -48,6 +48,8 @@ export const getUserProfile = async (): Promise<User | null> => {
         alimGpa: backendProfile.alimGpa?.toString(),
         alimYear: backendProfile.alimYear?.toString(),
         alimBoard: backendProfile.alimBoard,
+        sscStream: backendProfile.sscStream,
+        hscStream: backendProfile.hscStream,
       };
       return frontendUser;
     }
@@ -61,7 +63,7 @@ export const getUserProfile = async (): Promise<User | null> => {
 // Get Academic Details
 export const getAcademicDetails = async (): Promise<User | null> => {
   try {
-    const response = await api.get("/profile/academic");
+    const response = await api.get("/academicInfo");
     if (response.data.status === 200) {
       const academicDetails = response.data.academicDetails;
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -103,6 +105,9 @@ export const getAcademicDetails = async (): Promise<User | null> => {
         alimGpa: academicDetails.alimGpa?.toString(),
         alimYear: academicDetails.alimYear?.toString(),
         alimBoard: academicDetails.alimBoard,
+        // Streams
+        sscStream: academicDetails.sscStream,
+        hscStream: academicDetails.hscStream,
       };
       return frontendUser;
     }
@@ -145,6 +150,9 @@ export interface ProfileData {
   alimGpa?: string;
   alimYear?: string;
   alimBoard?: string;
+  // Streams (optional)
+  sscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  hscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
 }
 
 // Update User Profile
@@ -176,8 +184,8 @@ export const updateUserProfile = async (
     }
     if (profileData.examPath) formData.append("examPath", profileData.examPath);
     if (profileData.medium) formData.append("medium", profileData.medium);
-    // Add academic details based on examPath
-    if (profileData.examPath === "NATIONAL") {
+  // Add academic details based on examPath
+  if (profileData.examPath === "NATIONAL") {
       if (profileData.sscRoll) formData.append("sscRoll", profileData.sscRoll);
       if (profileData.sscRegistration)
         formData.append("sscRegistration", profileData.sscRegistration);
@@ -192,7 +200,7 @@ export const updateUserProfile = async (
       if (profileData.hscYear) formData.append("hscYear", profileData.hscYear);
       if (profileData.hscBoard)
         formData.append("hscBoard", profileData.hscBoard);
-    }
+  }
     if (profileData.examPath === "MADRASHA") {
       if (profileData.dakhilRoll)
         formData.append("dakhilRoll", profileData.dakhilRoll);
@@ -214,6 +222,9 @@ export const updateUserProfile = async (
       if (profileData.alimBoard)
         formData.append("alimBoard", profileData.alimBoard);
     }
+    // Add streams if provided
+    if (profileData.sscStream) formData.append('sscStream', profileData.sscStream)
+    if (profileData.hscStream) formData.append('hscStream', profileData.hscStream)
     // Debug log
     console.log("FormData:\n");
     for (const [key, value] of formData.entries()) {

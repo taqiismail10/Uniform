@@ -28,6 +28,7 @@ export const registerSchema = vine.object({
 	medium: vine.enum(["Bangla", "English", "Arabic"]).optional(),
 
 	// SSC
+	sscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]).optional(),
 	sscRoll: vine.string().maxLength(50).optional(),
 	sscRegistration: vine.string().maxLength(50).optional(),
 	sscGpa: vine.number().min(0).max(5).optional(),
@@ -35,6 +36,7 @@ export const registerSchema = vine.object({
 	sscBoard: vine.string().maxLength(50).optional(),
 
 	// HSC
+	hscStream: vine.enum(["SCIENCE", "ARTS", "COMMERCE"]).optional(),
 	hscRoll: vine.string().maxLength(50).optional(),
 	hscRegistration: vine.string().maxLength(50).optional(),
 	hscGpa: vine.number().min(0).max(5).optional(),

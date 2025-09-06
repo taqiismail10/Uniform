@@ -5,16 +5,16 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/context/student/useAuth';
 import { toast } from 'sonner';
 import { useEffect, useState, useCallback } from 'react';
-import { getInstitutions, getAcademicInfo, getApplications, getUserProfile, updateUserProfile } from '@/api';
-import type { Application, UserData, AcademicInfo } from '@/components/student/types';
-import Header from '@/components/student/Header';
+import { getInstitutions, getApplications, getUserProfile, updateUserProfile } from '@/api';
+import { getEligibleInstitutions, type EligibleInstitution } from '@/api/studentExplore';
+import type { Application, UserData } from '@/components/student/types';
+// Header is rendered by parent /student layout
 import DashboardStats from '@/components/student/DashboardStats';
 import ApplicationStatus from '@/components/student/ApplicationStatus';
 import QuickActions from '@/components/student/QuickActions';
-// import UniversitiesSection from '@/components/student/UniversitiesSection';
 import ProfileInfo from '@/components/student/ProfileInfo';
-import AcademicInfoPage from '@/components/student/AcademicInfoPage';
-import StudentSettings from '@/components/student/StudentSettings'; // Import the Settings component
+// import AcademicInfoPage from '@/components/student/AcademicInfoPage';
+// Other sections moved to their own routes
 
 export const Route = createFileRoute('/student/dashboard')({
   component: () => (
@@ -36,14 +36,13 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [academicInfo, setAcademicInfo] = useState<AcademicInfo | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [eligible, setEligible] = useState<EligibleInstitution[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState({
-    academicInfo: true,
     applications: true
   });
-  const [activeSection, setActiveSection] = useState('dashboard');
+  // activeSection handled by parent layout
   // const institutions = Route.useLoaderData() as Institution[];
 
   // Memoize handleLogout to prevent unnecessary re-renders
@@ -67,31 +66,27 @@ function RouteComponent() {
         const userProfile = await getUserProfile();
         if (userProfile) {
           setUserData(userProfile);
-          // Fetch academic info
-          try {
-            const academicData = await getAcademicInfo(userProfile.userId);
-            if (academicData) {
-              setAcademicInfo(academicData);
-            }
-          } catch (error) {
-            console.error("Error fetching academic info:", error);
-            toast.error("Data Error", {
-              description: "Could not load academic information."
-            });
-          } finally {
-            setDataLoading(prev => ({ ...prev, academicInfo: false }));
-          }
+          // Academic info is shown in its own route now
           // Fetch applications
           try {
             const applicationsData = await getApplications(userProfile.userId);
-            setApplications(applicationsData);
+            setApplications(applicationsData || []); // Ensure we always set an array
           } catch (error) {
             console.error("Error fetching applications:", error);
+            setApplications([]); // Set empty array on error
             toast.error("Data Error", {
               description: "Could not load applications."
             });
           } finally {
             setDataLoading(prev => ({ ...prev, applications: false }));
+          }
+          // Fetch eligible institutions (with units & deadlines) for dynamic dashboard
+          try {
+            const eligibleData = await getEligibleInstitutions();
+            setEligible(eligibleData || []);
+          } catch (e) {
+            void e;
+            setEligible([]);
           }
         } else {
           toast.error("Authentication Error", {
@@ -175,70 +170,57 @@ function RouteComponent() {
     );
   }
 
-  // Calculate dashboard stats
+  // Calculate next deadline from eligible units
+  const nextDeadlineDate = (() => {
+    const allDeadlines: Date[] = [];
+    (eligible || []).forEach((inst) => {
+      (inst.units || []).forEach((u) => {
+        if (u.applicationDeadline) {
+          const d = new Date(u.applicationDeadline);
+          if (!isNaN(d.getTime()) && d.getTime() >= Date.now()) allDeadlines.push(d);
+        }
+      });
+    });
+    if (allDeadlines.length === 0) return null;
+    return allDeadlines.sort((a, b) => a.getTime() - b.getTime())[0];
+  })();
+
   const dashboardStats = {
-    applications: applications.length,
-    paymentStatus: applications.some(app => app.status === 'Approved') ? 'Completed' : 'Pending',
-    nextDeadline: applications.length > 0 ? 'Jun 15, 2023' : 'N/A'
+    applications: applications?.length || 0,
+    paymentStatus: (applications && applications.length > 0 && applications.some((app: Application) => app.status === 'Approved')) ? 'Completed' : 'Pending',
+    nextDeadline: nextDeadlineDate ? nextDeadlineDate.toLocaleDateString() : 'N/A'
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header
-        userData={userData}
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-      />
-      <main className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-        {activeSection === 'dashboard' && (
-          <>
-            <DashboardStats stats={dashboardStats} />
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-2">
-                <ProfileInfo
-                  userData={userData}
-                  onLogout={handleLogout}
-                  onUpdate={handleProfileUpdate}
-                />
-              </div>
-              <div className="lg:col-span-3">
-                {dataLoading.applications ? (
-                  <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
-                    <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-                      <h3 className="text-lg leading-6 font-medium text-gray-900">Application Status</h3>
-                    </div>
-                    <div className="px-4 py-5 sm:p-6 flex justify-center items-center h-64">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                        <p className="mt-2 text-gray-600">Loading applications...</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <ApplicationStatus applications={applications} />
-                )}
-                <QuickActions />
-              </div>
-            </div>
-          </>
-        )}
-        {/* {activeSection === 'universities' && (
-          <UniversitiesSection institutions={institutions} />
-        )} */}
-        {activeSection === 'academic-info' && (
-          <AcademicInfoPage
-            academicInfo={academicInfo}
-            loading={dataLoading.academicInfo}
-          />
-        )}
-        {/* Add Settings section */}
-        {activeSection === 'settings' && (
-          <StudentSettings
+    <>
+      <DashboardStats stats={dashboardStats} />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-2">
+          <ProfileInfo
             userData={userData}
             onLogout={handleLogout}
+            onUpdate={handleProfileUpdate}
           />
-        )}
-      </main>
-    </div>
+        </div>
+        <div className="lg:col-span-3">
+          {dataLoading.applications ? (
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+              <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">Application Status</h3>
+              </div>
+              <div className="px-4 py-5 sm:p-6 flex justify-center items-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">Loading applications...</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <ApplicationStatus applications={applications} />
+          )}
+          <QuickActions />
+        </div>
+      </div>
+    </>
   );
 }

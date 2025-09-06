@@ -35,6 +35,7 @@ function RouteComponent() {
   // Edit form state
   const [form, setForm] = useState({
     name: '',
+    shortName: '',
     categoryName: '',
     ownership: '',
     type: '',
@@ -75,6 +76,7 @@ function RouteComponent() {
 
         setForm({
           name: data.name ?? '',
+          shortName: data.shortName ?? '',
           categoryName: normalizedCategory,
           ownership: initialOwnership || '',
           type: initialType || '',
@@ -102,6 +104,7 @@ function RouteComponent() {
       const rawCategory = institution.InstitutionCategory?.name ?? ''
       setForm({
         name: institution.name ?? '',
+        shortName: institution.shortName ?? '',
         categoryName: normalizeCategory(rawCategory),
         ownership: (institution.ownership as 'PUBLIC' | 'PRIVATE' | null) ?? (rawCategory.toLowerCase().includes('national') ? 'PUBLIC' : ''),
         type: (institution.type as 'GENERAL' | 'ENGINEERING' | null) ?? deriveTypeFromCategory(rawCategory),
@@ -126,6 +129,7 @@ function RouteComponent() {
       setSaving(true)
       const payload = {
         name: form.name.trim(),
+        shortName: form.shortName?.trim() || undefined,
         categoryName: form.categoryName?.trim() || undefined,
         ownership: (form.ownership as 'PUBLIC' | 'PRIVATE') || undefined,
         type: (form.type as 'GENERAL' | 'ENGINEERING') || undefined,
@@ -249,6 +253,13 @@ const getCategoryBadgeColor = (categoryName: string) => {
                     </div>
                   </div>
                   <div>
+                    <div className="text-xs uppercase text-gray-500">Short Name</div>
+                    <div className="mt-1 text-gray-900 flex items-center gap-2">
+                      <TagIcon className="h-4 w-4 text-gray-500" />
+                      {display(institution?.shortName ?? undefined)}
+                    </div>
+                  </div>
+                  <div>
                     <div className="text-xs uppercase text-gray-500">Category</div>
                     <div className="mt-1 text-gray-900 flex items-center gap-2">
                       <TagIcon className="h-4 w-4 text-gray-500" />
@@ -355,6 +366,17 @@ const getCategoryBadgeColor = (categoryName: string) => {
                       value={form.name}
                       onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                       required
+                    />
+                  </div>
+                  {/* Short Name */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="shortName" className="text-right">Short Name</Label>
+                    <Input
+                      id="shortName"
+                      className="col-span-3"
+                      maxLength={20}
+                      value={form.shortName}
+                      onChange={(e) => setForm((f) => ({ ...f, shortName: e.target.value }))}
                     />
                   </div>
                   {/* Category */}

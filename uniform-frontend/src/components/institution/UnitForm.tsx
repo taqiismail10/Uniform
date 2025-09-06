@@ -22,8 +22,8 @@ type UnitFormProps = {
   initial?: UnitFormInitial
   submitLabel?: string
   submittingLabel?: string
-  onSubmit: (payload: CreateUnitInput) => Promise<{ status: number; message?: string; data?: any }>
-  onSuccess?: (res: { status: number; message?: string; data?: any }) => void
+  onSubmit: (payload: CreateUnitInput) => Promise<{ status: number; message?: string; data?: unknown }>
+  onSuccess?: (res: { status: number; message?: string; data?: unknown }) => void
 }
 
 export default function UnitForm({ mode, initial, submitLabel, submittingLabel, onSubmit, onSuccess }: UnitFormProps) {
@@ -36,12 +36,17 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
   const [saving, setSaving] = useState<boolean>(false)
 
   const [requirements, setRequirements] = useState<UnitRequirementInput[]>([
-    { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0 },
+    { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null },
   ])
 
   // derive initial state from props
   useEffect(() => {
     if (!initial) return
+    const toNum = (v: unknown): number | null => {
+      if (v === null || v === undefined) return null
+      const n = typeof v === 'string' ? parseInt(v, 10) : typeof v === 'number' ? v : NaN
+      return Number.isFinite(n) ? (n as number) : null
+    }
     setName(initial.name ?? '')
     setDescription(initial.description ?? '')
     setDeadline(initial.applicationDeadline ? new Date(initial.applicationDeadline).toISOString().slice(0, 16) : '')
@@ -52,20 +57,28 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
     )
     setIsActive(initial.isActive ?? true)
     setAutoClose(initial.autoCloseAfterDeadline ?? true)
-    const reqs: UnitRequirementInput[] = (initial.requirements || []).map((r: UnitRequirementInput) => ({
+    const reqs: UnitRequirementInput[] = (initial.requirements || []).map((r) => {
+      const rLegacy = r as UnitRequirementInput & { sscYear?: number | string; hscYear?: number | string }
+      return {
       sscStream: r.sscStream ?? 'SCIENCE',
       hscStream: r.hscStream ?? 'SCIENCE',
       minSscGPA: r.minSscGPA ?? null,
       minHscGPA: r.minHscGPA ?? null,
       minCombinedGPA: r.minCombinedGPA ?? null,
-    }))
-    setRequirements(reqs.length ? reqs : [{ sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0 }])
+      // Ensure years are numeric if provided as strings (from older data)
+      minSscYear: toNum(rLegacy.minSscYear ?? rLegacy.sscYear ?? null),
+      maxSscYear: toNum(rLegacy.maxSscYear ?? rLegacy.sscYear ?? null),
+      minHscYear: toNum(rLegacy.minHscYear ?? rLegacy.hscYear ?? null),
+      maxHscYear: toNum(rLegacy.maxHscYear ?? rLegacy.hscYear ?? null),
+    }
+    })
+    setRequirements(reqs.length ? reqs : [{ sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null }])
   }, [initial])
 
   const addRequirement = () => {
     setRequirements((prev) => [
       ...prev,
-      { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0 },
+      { sscStream: 'SCIENCE', hscStream: 'SCIENCE', minSscGPA: 0, minHscGPA: 0, minCombinedGPA: 0, minSscYear: null, maxSscYear: null, minHscYear: null, maxHscYear: null },
     ])
   }
 
@@ -120,6 +133,10 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
           minSscGPA: r.minSscGPA === undefined || r.minSscGPA === null ? undefined : Number(r.minSscGPA),
           minHscGPA: r.minHscGPA === undefined || r.minHscGPA === null ? undefined : Number(r.minHscGPA),
           minCombinedGPA: r.minCombinedGPA === undefined || r.minCombinedGPA === null ? undefined : Number(r.minCombinedGPA),
+          minSscYear: r.minSscYear === undefined || r.minSscYear === null ? undefined : Number(r.minSscYear),
+          maxSscYear: r.maxSscYear === undefined || r.maxSscYear === null ? undefined : Number(r.maxSscYear),
+          minHscYear: r.minHscYear === undefined || r.minHscYear === null ? undefined : Number(r.minHscYear),
+          maxHscYear: r.maxHscYear === undefined || r.maxHscYear === null ? undefined : Number(r.maxHscYear),
         })),
       }
       const res = await onSubmit(payload)
@@ -129,8 +146,7 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
       } else {
         const fallback = mode === 'create' ? 'Failed to create unit' : 'Update failed'
         // Try to surface validation errors if present
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const maybeErrors = (res as any)?.errors
+        const maybeErrors = (res as { errors?: unknown } | undefined)?.errors
         const msg = res?.message || (Array.isArray(maybeErrors) ? maybeErrors.join(', ') : fallback)
         toast.error(msg)
       }
@@ -196,9 +212,6 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-gray-900">Eligibility Requirements</h2>
-          <Button type="button" variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={addRequirement}>
-            <Plus className="h-4 w-4 mr-1" /> Add requirement
-          </Button>
         </div>
 
         <div className="space-y-3">
@@ -223,6 +236,16 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
                     </Select>
                     <label className="text-xs text-gray-600">Min GPA</label>
                     <Input type="number" min={0} max={5} step={0.01} value={req.minSscGPA ?? ''} onChange={(e) => updateReq(idx, { minSscGPA: e.target.value === '' ? null : Number(e.target.value) })} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-600">Min Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.minSscYear != null ? String(req.minSscYear) : ''} onChange={(e) => updateReq(idx, { minSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-600">Max Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.maxSscYear != null ? String(req.maxSscYear) : ''} onChange={(e) => updateReq(idx, { maxSscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -238,6 +261,16 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
                     </Select>
                     <label className="text-xs text-gray-600">Min GPA</label>
                     <Input type="number" min={0} max={5} step={0.01} value={req.minHscGPA ?? ''} onChange={(e) => updateReq(idx, { minHscGPA: e.target.value === '' ? null : Number(e.target.value) })} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-600">Min Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.minHscYear != null ? String(req.minHscYear) : ''} onChange={(e) => updateReq(idx, { minHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-600">Max Passing Year</label>
+                        <Input type="number" min={1990} max={2100} value={req.maxHscYear != null ? String(req.maxHscYear) : ''} onChange={(e) => updateReq(idx, { maxHscYear: e.target.value === '' ? null : Number(e.target.value) })} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -251,6 +284,12 @@ export default function UnitForm({ mode, initial, submitLabel, submittingLabel, 
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="pt-1">
+          <Button type="button" variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={addRequirement}>
+            <Plus className="h-4 w-4 mr-1" /> Add requirement
+          </Button>
         </div>
       </div>
 

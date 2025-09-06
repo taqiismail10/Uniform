@@ -58,6 +58,9 @@ class unitController {
             applicationDeadline: payload.applicationDeadline,
             maxApplications: payload.maxApplications,
             autoCloseAfterDeadline: payload.autoCloseAfterDeadline ?? true,
+            examDate: payload.examDate ?? null,
+            examTime: payload.examTime ?? null,
+            examCenter: payload.examCenter ?? null,
             institutionId: admin.institutionId,
           },
         });
@@ -71,6 +74,10 @@ class unitController {
             minSscGPA: req.minSscGPA,
             minHscGPA: req.minHscGPA,
             minCombinedGPA: req.minCombinedGPA,
+            minSscYear: req.minSscYear,
+            maxSscYear: req.maxSscYear,
+            minHscYear: req.minHscYear,
+            maxHscYear: req.maxHscYear,
           }));
 
           await tx.unitRequirement.createMany({
@@ -272,6 +279,10 @@ class unitController {
               minSscGPA: req.minSscGPA,
               minHscGPA: req.minHscGPA,
               minCombinedGPA: req.minCombinedGPA,
+              minSscYear: req.minSscYear,
+              maxSscYear: req.maxSscYear,
+              minHscYear: req.minHscYear,
+              maxHscYear: req.maxHscYear,
             }));
 
             await tx.unitRequirement.createMany({
@@ -403,6 +414,10 @@ class unitController {
         minSscGPA: req.minSscGPA,
         minHscGPA: req.minHscGPA,
         minCombinedGPA: req.minCombinedGPA,
+        minSscYear: req.minSscYear,
+        maxSscYear: req.maxSscYear,
+        minHscYear: req.minHscYear,
+        maxHscYear: req.maxHscYear,
       }));
 
       await prisma.unitRequirement.createMany({
@@ -620,6 +635,38 @@ class unitController {
       return res.json({ status: 200, data: unit });
     } catch (error) {
       return res.status(500).json({ status: 500, message: "Something went wrong" });
+    }
+  }
+
+  // Update only exam details for a unit
+  static async setUnitExamDetails(req, res) {
+    try {
+      const { adminId } = req.admin;
+      const { unitId } = req.params;
+      const admin = await prisma.admin.findUnique({ where: { adminId } });
+      if (!admin || !admin.institutionId) {
+        return res.status(403).json({ status: 403, message: 'Not authorized' });
+      }
+      const unit = await prisma.unit.findFirst({ where: { unitId, institutionId: admin.institutionId } });
+      if (!unit) return res.status(404).json({ status: 404, message: 'Unit not found' });
+      const { examDate, examTime, examCenter } = req.body || {};
+      let dateVal = null;
+      if (examDate) {
+        const d = new Date(examDate);
+        if (!isNaN(d.getTime())) dateVal = d;
+      }
+      const updated = await prisma.unit.update({
+        where: { unitId },
+        data: {
+          examDate: examDate === undefined ? unit.examDate : dateVal,
+          examTime: examTime === undefined ? unit.examTime : examTime,
+          examCenter: examCenter === undefined ? unit.examCenter : examCenter,
+        },
+        select: { unitId: true, examDate: true, examTime: true, examCenter: true },
+      });
+      return res.json({ status: 200, message: 'Unit exam details updated', data: updated });
+    } catch (error) {
+      return res.status(500).json({ status: 500, message: 'Something went wrong' });
     }
   }
 

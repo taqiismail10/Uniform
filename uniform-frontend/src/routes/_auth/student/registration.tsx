@@ -89,12 +89,14 @@ function RouteComponent() {
     medium: '',
     examPath: '',
     // SSC Details
+    sscStream: '',
     sscRoll: '',
     sscRegistration: '',
     sscGpa: '',
     sscYear: '',
     sscBoard: '',
     // HSC Details
+    hscStream: '',
     hscRoll: '',
     hscRegistration: '',
     hscGpa: '',
@@ -135,6 +137,10 @@ function RouteComponent() {
         return value ? '' : 'Please select a medium';
       case 'examPath':
         return value ? '' : 'Please select an exam path';
+      case 'sscStream':
+        return formData.examPath === 'NATIONAL' && !value ? 'Please select SSC stream' : '';
+      case 'hscStream':
+        return formData.examPath === 'NATIONAL' && !value ? 'Please select HSC stream' : '';
       case 'sscRoll':
         return formData.examPath === 'NATIONAL' && !value.trim() ? 'SSC roll number is required' : '';
       case 'sscRegistration':
@@ -151,8 +157,23 @@ function RouteComponent() {
         return formData.examPath === 'NATIONAL' && !value.trim() ? 'HSC registration number is required' : '';
       case 'hscGpa':
         return formData.examPath === 'NATIONAL' && !validateGPA(value) ? 'Please enter a valid HSC GPA (0-5)' : '';
-      case 'hscYear':
-        return formData.examPath === 'NATIONAL' && !validateYear(value) ? 'Please enter a valid HSC year' : '';
+      case 'hscYear': {
+        if (formData.examPath === 'NATIONAL') {
+          // Basic year validity
+          if (!validateYear(value)) {
+            return 'Please enter a valid HSC year';
+          }
+          // Enforce minimum 2-year gap between SSC and HSC passing years
+          const sscYearVal = parseInt(formData.sscYear);
+          const hscYearVal = parseInt(value);
+          if (!isNaN(sscYearVal) && !isNaN(hscYearVal)) {
+            if (hscYearVal < sscYearVal + 2) {
+              return 'HSC passing year must be at least 2 years after SSC passing year';
+            }
+          }
+        }
+        return '';
+      }
       case 'hscBoard':
         return formData.examPath === 'NATIONAL' && !value ? 'Please select HSC board' : '';
       case 'dakhilRoll':
@@ -171,8 +192,21 @@ function RouteComponent() {
         return formData.examPath === 'MADRASHA' && !value.trim() ? 'Alim registration number is required' : '';
       case 'alimGpa':
         return formData.examPath === 'MADRASHA' && !validateGPA(value) ? 'Please enter a valid Alim GPA (0-5)' : '';
-      case 'alimYear':
-        return formData.examPath === 'MADRASHA' && !validateYear(value) ? 'Please enter a valid Alim year' : '';
+      case 'alimYear': {
+        if (formData.examPath === 'MADRASHA') {
+          if (!validateYear(value)) {
+            return 'Please enter a valid Alim year';
+          }
+          const dakhilYearVal = parseInt(formData.dakhilYear);
+          const alimYearVal = parseInt(value);
+          if (!isNaN(dakhilYearVal) && !isNaN(alimYearVal)) {
+            if (alimYearVal < dakhilYearVal + 2) {
+              return 'Alim passing year must be at least 2 years after Dakhil passing year';
+            }
+          }
+        }
+        return '';
+      }
       case 'alimBoard':
         return formData.examPath === 'MADRASHA' && !value ? 'Please select Alim board' : '';
       default:
@@ -205,12 +239,64 @@ function RouteComponent() {
       [name]: value
     }))
 
-    // Clear error when user starts typing
-    if (errors[name]) {
+    // Field-level error handling on change
+    if (name === 'hscYear' || name === 'alimYear') {
+      // Proactively validate year including 2-year gap rule for respective path
+      const error = validateField(name, value)
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        [name]: error
       }))
+    } else {
+      // Clear error when user starts typing
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }))
+      }
+
+      // If SSC year changes, re-evaluate HSC gap rule
+      if (name === 'sscYear' && formData.hscYear) {
+        const sscYearVal = parseInt(value)
+        const hscYearVal = parseInt(formData.hscYear)
+        let hscError = ''
+        if (
+          formData.examPath === 'NATIONAL' &&
+          !isNaN(sscYearVal) &&
+          !isNaN(hscYearVal) &&
+          validateYear(value) &&
+          validateYear(formData.hscYear) &&
+          hscYearVal < sscYearVal + 2
+        ) {
+          hscError = 'HSC passing year must be at least 2 years after SSC passing year'
+        }
+        setErrors(prev => ({
+          ...prev,
+          hscYear: hscError
+        }))
+      }
+
+      // If Dakhil year changes, re-evaluate Alim gap rule
+      if (name === 'dakhilYear' && formData.alimYear) {
+        const dakhilYearVal = parseInt(value)
+        const alimYearVal = parseInt(formData.alimYear)
+        let alimError = ''
+        if (
+          formData.examPath === 'MADRASHA' &&
+          !isNaN(dakhilYearVal) &&
+          !isNaN(alimYearVal) &&
+          validateYear(value) &&
+          validateYear(formData.alimYear) &&
+          alimYearVal < dakhilYearVal + 2
+        ) {
+          alimError = 'Alim passing year must be at least 2 years after Dakhil passing year'
+        }
+        setErrors(prev => ({
+          ...prev,
+          alimYear: alimError
+        }))
+      }
     }
   }
 
@@ -572,6 +658,20 @@ function RouteComponent() {
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">SSC Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 font-medium">SSC Stream</Label>
+                    <Select value={formData.sscStream} onValueChange={(v) => handleSelectChange("sscStream", v)} disabled={isLoading}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select SSC Stream" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SCIENCE">Science</SelectItem>
+                        <SelectItem value="ARTS">Arts</SelectItem>
+                        <SelectItem value="COMMERCE">Commerce</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                     <div className="space-y-2">
                       <Label htmlFor="sscRoll" className="text-gray-700 font-medium">
                         Roll Number
@@ -712,6 +812,20 @@ function RouteComponent() {
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">HSC Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 font-medium">HSC Stream</Label>
+                    <Select value={formData.hscStream} onValueChange={(v) => handleSelectChange("hscStream", v)} disabled={isLoading}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select HSC Stream" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SCIENCE">Science</SelectItem>
+                        <SelectItem value="ARTS">Arts</SelectItem>
+                        <SelectItem value="COMMERCE">Commerce</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                     <div className="space-y-2">
                       <Label htmlFor="hscRoll" className="text-gray-700 font-medium">
                         Roll Number

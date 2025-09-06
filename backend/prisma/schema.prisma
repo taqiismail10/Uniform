@@ -36,6 +36,8 @@ model Student {
   role      String   @default("STUDENT")
   dob       DateTime
   profile   String?
+  sscStream Stream?
+  hscStream Stream?
   // New fields from frontend
   examPath    String?   // NATIONAL or MADRASHA
   medium      String?   // Bangla, English, Arabic
@@ -150,6 +152,11 @@ model Unit {
   maxApplications        Int?      // Maximum number of applications allowed
   autoCloseAfterDeadline Boolean   @default(true) // Auto close after deadline
 
+  // Unit-level exam schedule (applies to all applications of this unit by default)
+  examDate     DateTime?
+  examTime     String?   @db.VarChar(50)
+  examCenter   String?   @db.VarChar(100)
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
 
@@ -171,6 +178,11 @@ model UnitRequirement {
   minSscGPA Float?
   minHscGPA Float?
   minCombinedGPA Float?
+  // Eligibility by passing year (Bangladesh admission style)
+  minSscYear Int?
+  maxSscYear Int?
+  minHscYear Int?
+  maxHscYear Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -215,6 +227,14 @@ model Application {
   appliedAt     DateTime  @default(now())
   reviewedAt    DateTime?
   notes         String?   @db.Text
+
+  // Exam details (set by institution)
+  seatNo        String?   @db.VarChar(50)
+  examDate      DateTime?
+  examTime      String?   @db.VarChar(50) // human-readable time slot
+  examCenter    String?   @db.VarChar(100)
+  // Student preferred center (division-wise) captured during apply
+  centerPreference String? @db.VarChar(100)
 
   student     Student     @relation(fields: [studentId], references: [studentId])
   unit        Unit        @relation(fields: [unitId], references: [unitId])

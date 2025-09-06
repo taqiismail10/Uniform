@@ -8,6 +8,7 @@ vine.errorReporter = () => new CustomErrorReporter();
 
 export const institutionSystemSchema = vine.object({
   name: vine.string().trim().minLength(3).maxLength(150),
+  shortName: vine.string().trim().maxLength(50).optional(),
   categoryName: vine.string().trim().optional(),
   ownership: vine.enum(["PUBLIC", "PRIVATE"]).optional(),
   type: vine.enum(["GENERAL", "ENGINEERING"]).optional(),

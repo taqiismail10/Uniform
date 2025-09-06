@@ -15,6 +15,8 @@ export const registerUser = async (userData: {
   examPath: string;
   medium: string;
   // Academic details
+  sscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
+  hscStream?: 'SCIENCE' | 'ARTS' | 'COMMERCE';
   sscRoll?: string;
   sscRegistration?: string;
   sscGpa?: string;
@@ -51,6 +53,8 @@ export const registerUser = async (userData: {
       medium: userData.medium,
       // Include academic details based on examPath
       ...(userData.examPath === "NATIONAL" && {
+        sscStream: userData.sscStream,
+        hscStream: userData.hscStream,
         sscRoll: userData.sscRoll,
         sscRegistration: userData.sscRegistration,
         sscGpa: userData.sscGpa ? parseFloat(userData.sscGpa) : undefined,

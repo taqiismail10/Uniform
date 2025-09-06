@@ -49,6 +49,8 @@ router.post("/units", adminMiddleware, unitController.createUnit); // Create uni
 router.put("/units/:unitId", adminMiddleware, unitController.updateUnit);
 router.get("/units/:unitId", adminMiddleware, unitController.getUnitById);
 router.delete("/units/:unitId", adminMiddleware, unitController.deleteUnit);
+// Update unit-level exam details
+router.put("/units/:unitId/exam", adminMiddleware, unitController.setUnitExamDetails);
 
 // Add these routes to your adminRoute.js
 router.post(
@@ -88,6 +90,26 @@ router.get(
   "/applications",
   adminMiddleware,
   applicationController.list
+);
+router.get(
+  "/applications/:id",
+  adminMiddleware,
+  applicationController.getById
+);
+router.put(
+  "/applications/:id/approve",
+  adminMiddleware,
+  applicationController.approve
+);
+router.put(
+  "/applications/:id/exam",
+  adminMiddleware,
+  applicationController.setExamDetails
+);
+router.delete(
+  "/applications/:id",
+  adminMiddleware,
+  applicationController.remove
 );
 
 // Institution Management

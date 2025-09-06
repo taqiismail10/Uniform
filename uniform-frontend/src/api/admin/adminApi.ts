@@ -33,6 +33,7 @@ export const adminApi = {
   createInstitution: async (
     institutionData: {
       name: string;
+      shortName?: string;
       description?: string;
       address?: string;
       phone?: string;
@@ -68,6 +69,7 @@ export const adminApi = {
     institutionId: string,
     data: {
       name: string;
+      shortName?: string;
       description?: string;
       address?: string;
       phone?: string;

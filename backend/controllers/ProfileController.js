@@ -20,6 +20,8 @@ class ProfileController {
 					dob: true,
 					examPath: true, // Added
 					medium: true, // Added
+					sscStream: true,
+					hscStream: true,
 					profile: true,
 					// Academic details based on examPath
 					...(req.user.examPath === "NATIONAL" && {
@@ -119,15 +121,15 @@ class ProfileController {
                         return res.status(400).json({ status: 400, message: "Invalid image payload" });
                     }
                     const dataUrl = `data:${mime};base64,${base64}`;
-                    updateData.profile = dataUrl;
-                } catch (err) {
+				updateData.profile = dataUrl;
+				} catch (err) {
                     console.error("Image processing error:", err);
                     return res.status(500).json({ status: 500, message: "Failed to process image" });
                 }
             }
 
 			// Handle basic profile fields
-			const { fullName, email, phone, address, dob, examPath, medium } =
+			const { fullName, email, phone, address, dob, examPath, medium, sscStream, hscStream } =
 				req.body;
 
 			if (fullName) updateData.fullName = fullName;
@@ -149,11 +151,11 @@ class ProfileController {
 
 				updateData.email = email;
 			}
-			if (phone) updateData.phone = phone;
-			if (address) updateData.address = address;
-			if (dob) updateData.dob = new Date(dob);
-			if (examPath) updateData.examPath = examPath;
-			if (medium) updateData.medium = medium;
+
+
+			// Streams (optional)
+			if (sscStream) updateData.sscStream = sscStream;
+			if (hscStream) updateData.hscStream = hscStream;
 
 			// Handle academic details based on examPath
 			if (examPath === "NATIONAL") {
@@ -285,6 +287,8 @@ class ProfileController {
 				where: { studentId },
 				select: {
 					studentId: true,
+					sscStream: true,
+					hscStream: true,
 					examPath: true,
 					medium: true,
 					// Academic details based on examPath

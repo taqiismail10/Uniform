@@ -9,6 +9,10 @@ export interface UnitRequirementInput {
   minSscGPA?: number | null
   minHscGPA?: number | null
   minCombinedGPA?: number | null
+  minSscYear?: number | null
+  maxSscYear?: number | null
+  minHscYear?: number | null
+  maxHscYear?: number | null
 }
 
 export interface CreateUnitInput {
@@ -18,6 +22,10 @@ export interface CreateUnitInput {
   applicationDeadline?: string | null // ISO string
   maxApplications?: number | null
   autoCloseAfterDeadline?: boolean
+  // Unit-level exam details
+  examDate?: string | null
+  examTime?: string | null
+  examCenter?: string | null
   requirements?: UnitRequirementInput[]
 }
 
@@ -27,6 +35,10 @@ export interface UnitRequirement {
   minSscGPA?: number | null
   minHscGPA?: number | null
   minCombinedGPA?: number | null
+  minSscYear?: number | null
+  maxSscYear?: number | null
+  minHscYear?: number | null
+  maxHscYear?: number | null
 }
 
 export interface UnitDetail {
@@ -37,6 +49,9 @@ export interface UnitDetail {
   applicationDeadline?: string | null
   maxApplications?: number | null
   autoCloseAfterDeadline?: boolean
+  examDate?: string | null
+  examTime?: string | null
+  examCenter?: string | null
   requirements?: UnitRequirement[]
   _count?: { applications?: number }
 }
@@ -44,7 +59,7 @@ export interface UnitDetail {
 export const unitsApi = {
   list: async (params?: { page?: number; limit?: number }) => {
     const res = await api.get('/admin/units', { params })
-    return res.data as { status: number; data: any[]; metadata?: any }
+    return res.data as { status: number; data: Array<{ unitId: string; name: string; examCenter?: string | null }>; metadata?: { totalUnits?: number; totalPages?: number; currentPage?: number; currentLimit?: number } }
   },
   getById: async (unitId: string) => {
     const res = await api.get(`/admin/units/${unitId}`)
@@ -56,6 +71,10 @@ export const unitsApi = {
   },
   update: async (unitId: string, payload: Partial<CreateUnitInput>) => {
     const res = await api.put(`/admin/units/${unitId}`, payload)
+    return res.data
+  },
+  setExamDetails: async (unitId: string, payload: { examDate?: string | Date | null; examTime?: string | null; examCenter?: string | null }) => {
+    const res = await api.put(`/admin/units/${unitId}/exam`, payload)
     return res.data
   },
   remove: async (unitId: string) => {

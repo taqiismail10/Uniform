@@ -1,14 +1,14 @@
 import { createFileRoute, useParams, useNavigate, Outlet, useRouterState } from '@tanstack/react-router'
-import InstitutionProtectedRoutes from '@/utils/InstitutionProtectedRoutes'
-import { InstitutionNavbar } from '@/components/institution/InstitutionNavbar'
 import { useEffect, useState } from 'react'
 import { unitsApi } from '@/api/units'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Edit, Trash2, ArrowLeft } from 'lucide-react'
+// Layout and protection are provided by parent /institution route
 
 type UnitDetail = {
   unitId: string
@@ -24,16 +24,16 @@ type UnitDetail = {
     minSscGPA?: number | null
     minHscGPA?: number | null
     minCombinedGPA?: number | null
+    minSscYear?: number | null
+    maxSscYear?: number | null
+    minHscYear?: number | null
+    maxHscYear?: number | null
   }>
   _count?: { applications?: number }
 }
 
 export const Route = createFileRoute('/institution/units/$unitId')({
-  component: () => (
-    <InstitutionProtectedRoutes>
-      <RouteComponent />
-    </InstitutionProtectedRoutes>
-  ),
+  component: () => <RouteComponent />,
 })
 
 function RouteComponent() {
@@ -47,12 +47,22 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [openDelete, setOpenDelete] = useState(false)
+  const [examDate, setExamDate] = useState('')
+  const [examTime, setExamTime] = useState('')
+  const [examCenter, setExamCenter] = useState('')
+  const [savingExam, setSavingExam] = useState(false)
 
   useEffect(() => {
     (async () => {
       try {
         const res = await unitsApi.getById(unitId)
-        setUnit(res?.data ?? null)
+        const u = res?.data ?? null
+        setUnit(u)
+        if (u) {
+          setExamDate(u.examDate ? new Date(u.examDate).toISOString().substring(0,10) : '')
+          setExamTime(u.examTime || '')
+          setExamCenter(u.examCenter || '')
+        }
       } catch {
         toast.error('Unable to load unit')
       } finally {
@@ -86,9 +96,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InstitutionNavbar />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-5xl mx-auto py-0 px-4 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" className="text-gray-700" onClick={() => navigate({ to: '/institution/units' })}>
@@ -152,6 +160,49 @@ function RouteComponent() {
                   </div>
                 </div>
 
+                {/* Unit Exam Schedule */}
+                <div className="pt-2">
+                  <h2 className="text-base font-semibold text-gray-900 mb-2">Exam Schedule (Unit-wise)</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-xs text-gray-600">Exam Date</label>
+                      <Input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600">Exam Time</label>
+                      <Input value={examTime} onChange={(e) => setExamTime(e.target.value)} placeholder="e.g., 10:00 AM - 11:30 AM" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-600">Center</label>
+                      <Input value={examCenter} onChange={(e) => setExamCenter(e.target.value)} placeholder="e.g., Dhaka College" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <Button className="bg-gray-900 hover:bg-gray-800" disabled={savingExam} onClick={async () => {
+                      if (!unit) return
+                      setSavingExam(true)
+                      try {
+                        const payload: { examDate?: string; examTime?: string; examCenter?: string } = {
+                          examDate: examDate || undefined,
+                          examTime: examTime || undefined,
+                          examCenter: examCenter || undefined,
+                        }
+                        const res = await unitsApi.setExamDetails(unit.unitId, payload)
+                        if (res?.status === 200) {
+                          toast.success('Unit exam details saved')
+                        } else {
+                          toast.error(res?.message || 'Failed to save exam details')
+                        }
+                      } catch (e: unknown) {
+                        const err = e as { response?: { data?: { message?: string } } }
+                        toast.error(err?.response?.data?.message || 'Failed to save exam details')
+                      } finally {
+                        setSavingExam(false)
+                      }
+                    }}>{savingExam ? 'Saving...' : 'Save Exam Details'}</Button>
+                  </div>
+                </div>
+
                 <div className="pt-2">
                   <h2 className="text-base font-semibold text-gray-900 mb-2">Eligibility Requirements</h2>
                   {unit.requirements && unit.requirements.length > 0 ? (
@@ -163,18 +214,39 @@ function RouteComponent() {
                           <TableHead>Min SSC GPA</TableHead>
                           <TableHead>Min HSC GPA</TableHead>
                           <TableHead>Min Combined GPA</TableHead>
+                          <TableHead>Min SSC Year</TableHead>
+                          <TableHead>Max SSC Year</TableHead>
+                          <TableHead>Min HSC Year</TableHead>
+                          <TableHead>Max HSC Year</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {unit.requirements.map((r, i) => (
-                          <TableRow key={i}>
-                            <TableCell>{r.sscStream ?? '—'}</TableCell>
-                            <TableCell>{r.hscStream ?? '—'}</TableCell>
-                            <TableCell>{r.minSscGPA ?? '—'}</TableCell>
-                            <TableCell>{r.minHscGPA ?? '—'}</TableCell>
-                            <TableCell>{r.minCombinedGPA ?? '—'}</TableCell>
-                          </TableRow>
-                        ))}
+                        {unit.requirements.map((r, i) => {
+                          const getYear = (
+                            minKey: keyof typeof r,
+                            maxKey: keyof typeof r,
+                            singleKey: 'sscYear' | 'hscYear',
+                            which: 'min' | 'max',
+                          ) => {
+                            const yr = r as Partial<{ minSscYear: number; maxSscYear: number; minHscYear: number; maxHscYear: number }>
+                            const legacy = (r as unknown as Partial<{ sscYear: number; hscYear: number }>)[singleKey]
+                            if (which === 'min') return (yr[minKey as 'minSscYear' | 'minHscYear'] ?? legacy ?? '—')
+                            return (yr[maxKey as 'maxSscYear' | 'maxHscYear'] ?? legacy ?? '—')
+                          }
+                          return (
+                            <TableRow key={i}>
+                              <TableCell>{r.sscStream ?? '—'}</TableCell>
+                              <TableCell>{r.hscStream ?? '—'}</TableCell>
+                              <TableCell>{r.minSscGPA ?? '—'}</TableCell>
+                              <TableCell>{r.minHscGPA ?? '—'}</TableCell>
+                              <TableCell>{r.minCombinedGPA ?? '—'}</TableCell>
+                              <TableCell>{getYear('minSscYear', 'maxSscYear', 'sscYear', 'min')}</TableCell>
+                              <TableCell>{getYear('minSscYear', 'maxSscYear', 'sscYear', 'max')}</TableCell>
+                              <TableCell>{getYear('minHscYear', 'maxHscYear', 'hscYear', 'min')}</TableCell>
+                              <TableCell>{getYear('minHscYear', 'maxHscYear', 'hscYear', 'max')}</TableCell>
+                            </TableRow>
+                          )
+                        })}
                       </TableBody>
                     </Table>
                   ) : (
@@ -185,7 +257,6 @@ function RouteComponent() {
             )}
           </CardContent>
         </Card>
-      </main>
 
       <Dialog open={openDelete} onOpenChange={setOpenDelete}>
         <DialogContent>
