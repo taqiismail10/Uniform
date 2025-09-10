@@ -81,7 +81,25 @@ class applicationController {
         prisma.application.findMany({
           where,
           include: {
-            student: { select: { studentId: true, fullName: true, email: true, examPath: true, medium: true, sscBoard: true, hscBoard: true } },
+            student: {
+              select: {
+                studentId: true,
+                fullName: true,
+                email: true,
+                phone: true,
+                examPath: true,
+                medium: true,
+                // Add registration and roll details for export needs
+                sscRoll: true,
+                sscRegistration: true,
+                hscRoll: true,
+                hscRegistration: true,
+                sscBoard: true,
+                hscBoard: true,
+                sscYear: true,
+                hscYear: true,
+              },
+            },
             unit: { select: { unitId: true, name: true } },
           },
           orderBy: { appliedAt: "desc" },

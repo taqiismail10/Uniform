@@ -5,7 +5,22 @@ export interface ApplicationRow {
   id: string
   appliedAt: string
   reviewedAt?: string | null
-  student: { studentId: string; fullName: string; email: string; examPath?: 'NATIONAL' | 'MADRASHA'; medium?: 'Bangla' | 'English' | 'Arabic'; sscBoard?: string | null; hscBoard?: string | null }
+  student: {
+    studentId: string;
+    fullName: string;
+    email: string;
+    phone?: string | null;
+    examPath?: 'NATIONAL' | 'MADRASHA';
+    medium?: 'Bangla' | 'English' | 'Arabic';
+    sscRoll?: string | null;
+    sscRegistration?: string | null;
+    hscRoll?: string | null;
+    hscRegistration?: string | null;
+    sscBoard?: string | null;
+    hscBoard?: string | null;
+    sscYear?: number | null;
+    hscYear?: number | null;
+  }
   unit: { unitId: string; name: string }
   seatNo?: string | null
   examDate?: string | null

@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { applicationsApi, type ApplicationRow, type ApplicationDetail } from '@/api/applications'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { unitsApi } from '@/api/units'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
@@ -36,6 +38,7 @@ function RouteComponent() {
   const [examTime, setExamTime] = useState('')
   const [examCenter, setExamCenter] = useState('')
   const [centerOptions, setCenterOptions] = useState<string[]>([])
+  const [exporting, setExporting] = useState(false)
 
   // Fixed division list for exam centers
   const divisionOptions = ['Dhaka','Chattogram','Rajshahi','Khulna','Barishal','Sylhet','Rangpur','Mymensingh']
@@ -81,6 +84,133 @@ function RouteComponent() {
     }
   }
 
+  const handleExportPdf = async () => {
+    try {
+      setExporting(true)
+      // Fetch all pages respecting current filters
+      const allRows: ApplicationRow[] = []
+      let page = 1
+      let totalPages = 1
+      do {
+        const res = await applicationsApi.list({
+          page,
+          limit: 100,
+          search,
+          unitId: unitId || undefined,
+          examPath: (examPath || undefined) as any,
+          medium: (medium || undefined) as any,
+          board: board || undefined,
+          status: (status || undefined) as any,
+          center: center || undefined,
+        })
+        allRows.push(...(res?.data || []))
+        totalPages = res?.metadata?.totalPages || 1
+        page += 1
+      } while (page <= totalPages)
+
+      if (allRows.length === 0) {
+        toast.info('No data to export', { description: 'Try adjusting filters.' })
+        return
+      }
+
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' })
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const marginX = 36
+      const Title = 'Institution Applications Report'
+      doc.setFontSize(16)
+      doc.text(Title, marginX, 36)
+      doc.setFontSize(10)
+      const metaLines = [
+        `Exported: ${new Date().toLocaleString()}`,
+        `Filters: Unit=${unitId ? (units.find(u => u.unitId === unitId)?.name || unitId) : 'All'} | Status=${status || 'All'} | Curriculum=${examPath || 'All'} | Medium=${medium || 'All'} | Board=${board || 'All'} | Center=${center || 'All'} | Search=${search || '-'}`,
+        `Total Records: ${allRows.length}`,
+      ]
+      let y = 56
+      for (const line of metaLines) {
+        doc.text(line, marginX, y)
+        y += 14
+      }
+
+      // Define columns and build rows
+      const head = [[
+        'Application ID',
+        'Unit',
+        'Student Name',
+        'Email',
+        'Phone',
+        'Exam Center',
+        'Seat No',
+        'SSC Reg',
+        'SSC Roll',
+        'HSC Reg',
+        'HSC Roll',
+        'Curriculum',
+        'Medium',
+        'SSC Board',
+        'SSC Year',
+        'HSC Board',
+        'HSC Year',
+        'Status',
+      ]]
+
+      const body = allRows.map((r) => [
+        r.id,
+        r.unit?.name || '-',
+        r.student?.fullName || '-',
+        r.student?.email || '-',
+        r.student?.phone || '-',
+        (r.examCenter || r.centerPreference || '-') as string,
+        r.seatNo || '-',
+        r.student?.sscRegistration || '-',
+        r.student?.sscRoll || '-',
+        r.student?.hscRegistration || '-',
+        r.student?.hscRoll || '-',
+        r.student?.examPath || '-',
+        r.student?.medium || '-',
+        r.student?.sscBoard || '-',
+        (r.student?.sscYear ?? '-') as any,
+        r.student?.hscBoard || '-',
+        (r.student?.hscYear ?? '-') as any,
+        r.reviewedAt ? 'Approved' : 'Under Review',
+      ])
+
+      autoTable(doc, {
+        head,
+        body,
+        startY: y + 6,
+        styles: { fontSize: 8, cellPadding: 4, overflow: 'linebreak' },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        columnStyles: {
+          0: { cellWidth: 110 }, // Application ID
+          1: { cellWidth: 100 }, // Unit
+          2: { cellWidth: 120 }, // Student
+          3: { cellWidth: 140 }, // Email
+          4: { cellWidth: 90 },  // Phone
+          5: { cellWidth: 90 },  // Exam Center
+          6: { cellWidth: 70 },  // Seat No
+        },
+      })
+
+      // Add footer page numbers in a second pass
+      const total = doc.getNumberOfPages()
+      doc.setFontSize(9)
+      for (let i = 1; i <= total; i++) {
+        doc.setPage(i)
+        const footer = `Page ${i} of ${total}`
+        const textWidth = doc.getTextWidth(footer)
+        doc.text(footer, pageWidth - marginX - textWidth, doc.internal.pageSize.getHeight() - 18)
+      }
+
+      const dateStr = new Date().toISOString().substring(0,10)
+      doc.save(`applications_report_${dateStr}.pdf`)
+    } catch (e) {
+      const err = e as { message?: string }
+      toast.error('Failed to export PDF', { description: err?.message || 'Please try again.' })
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3">
@@ -89,6 +219,9 @@ function RouteComponent() {
           <div className="flex items-center gap-2">
             <Input placeholder="Search student or unit" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={fetchData}>Search</Button>
+            <Button onClick={handleExportPdf} disabled={exporting} className="bg-gray-900 hover:bg-gray-800">
+              {exporting ? 'Exporting...' : 'Download PDF'}
+            </Button>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
