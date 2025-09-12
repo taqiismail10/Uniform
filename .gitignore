@@ -1,2 +1,6 @@
 # Project-level ignores
 PULL_REQUEST.md
+
+# IDE files
+.vscode/
+.idea/

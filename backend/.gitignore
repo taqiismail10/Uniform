@@ -21,7 +21,7 @@ dist/
 build/
 
 # IDE files
-.vscode/]
+.vscode/
 .idea/
 
 # Coverage
