@@ -1,15 +1,19 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState, useCallback } from 'react'
 import { applicationsApi, type ApplicationRow, type ApplicationDetail } from '@/api/applications'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { unitsApi } from '@/api/units'
+import { getMyInstitution, type InstitutionInfo } from '@/api/institutionAdmin'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+
+// Stable constants (outside component) so hooks don't depend on array identity
+const DIVISION_OPTIONS = ['Dhaka', 'Chattogram', 'Rajshahi', 'Khulna', 'Barishal', 'Sylhet', 'Rangpur', 'Mymensingh'] as const
 // Layout and protection are provided by parent /institution route
 
 export const Route = createFileRoute('/institution/applications')({
@@ -17,7 +21,6 @@ export const Route = createFileRoute('/institution/applications')({
 })
 
 function RouteComponent() {
-  const navigate = useNavigate()
   const [rows, setRows] = useState<ApplicationRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -33,40 +36,55 @@ function RouteComponent() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detail, setDetail] = useState<ApplicationDetail | null>(null)
-  const [seatNo, setSeatNo] = useState('')
-  const [examDate, setExamDate] = useState('')
-  const [examTime, setExamTime] = useState('')
-  const [examCenter, setExamCenter] = useState('')
+  // Local editing state removed as unused
   const [centerOptions, setCenterOptions] = useState<string[]>([])
   const [exporting, setExporting] = useState(false)
+  const [institution, setInstitution] = useState<InstitutionInfo | null>(null)
 
-  // Fixed division list for exam centers
-  const divisionOptions = ['Dhaka','Chattogram','Rajshahi','Khulna','Barishal','Sylhet','Rangpur','Mymensingh']
+  const boardOptions = ['Dhaka', 'Rajshahi', 'Chittagong', 'Jessore', 'Comilla', 'Sylhet', 'Barisal', 'Dinajpur', 'Madrasha', 'Technical']
 
-  const boardOptions = ['Dhaka','Rajshahi','Chittagong','Jessore','Comilla','Sylhet','Barisal','Dinajpur','Madrasha','Technical']
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await applicationsApi.list({ page: 1, limit: 50, search, unitId: unitId || undefined, examPath: examPath || undefined, medium: medium || undefined, board: board || undefined, status: status || undefined, center: center || undefined })
+      // Narrow optional union filters to their exact types to avoid widening to string
+      const examPathParam = (examPath || undefined) as undefined | 'NATIONAL' | 'MADRASHA'
+      const mediumParam = (medium || undefined) as undefined | 'Bangla' | 'English' | 'Arabic'
+      const statusParam = (status || undefined) as undefined | 'approved' | 'under_review'
+
+      const res = await applicationsApi.list({
+        page: 1,
+        limit: 50,
+        search,
+        unitId: unitId || undefined,
+        examPath: examPathParam,
+        medium: mediumParam,
+        board: board || undefined,
+        status: statusParam,
+        center: center || undefined,
+      })
       setRows(res.data)
     } finally {
       setLoading(false)
     }
-  }
+  }, [search, unitId, examPath, medium, board, status, center])
 
   useEffect(() => {
     (async () => {
       try {
+        // Load current institution info for PDF header
+        try {
+          const inst = await getMyInstitution()
+          setInstitution(inst)
+        } catch { /* non-fatal */ }
         const res = await unitsApi.list({ page: 1, limit: 100 })
         const list = (res?.data || []).map((u: { unitId: string; name: string }) => ({ unitId: u.unitId, name: u.name }))
         setUnits(list)
         // Use fixed division options for exam center filter
-        setCenterOptions(divisionOptions)
+        setCenterOptions([...DIVISION_OPTIONS])
       } catch { /* ignore */ }
       fetchData()
     })()
-  }, [])
+  }, [fetchData])
 
   const openDetail = async (id: string) => {
     setDetailOpen(true)
@@ -75,12 +93,24 @@ function RouteComponent() {
       const res = await applicationsApi.getById(id)
       const d = res?.data || null
       setDetail(d)
-      setSeatNo(d?.seatNo || '')
-      setExamDate(d?.examDate ? new Date(d.examDate).toISOString().substring(0,10) : '')
-      setExamTime(d?.examTime || '')
-      setExamCenter(d?.examCenter || d?.centerPreference || '')
+      // Using detail-only view; no local edit state to set
     } finally {
       setDetailLoading(false)
+    }
+  }
+
+  const fetchImageAsDataUrl = async (url: string): Promise<string | null> => {
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      return await new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = () => resolve(null)
+        reader.readAsDataURL(blob)
+      })
+    } catch {
+      return null
     }
   }
 
@@ -97,10 +127,10 @@ function RouteComponent() {
           limit: 100,
           search,
           unitId: unitId || undefined,
-          examPath: (examPath || undefined) as any,
-          medium: (medium || undefined) as any,
+          examPath: (examPath || undefined) as undefined | 'NATIONAL' | 'MADRASHA',
+          medium: (medium || undefined) as undefined | 'Bangla' | 'English' | 'Arabic',
           board: board || undefined,
-          status: (status || undefined) as any,
+          status: (status || undefined) as undefined | 'approved' | 'under_review',
           center: center || undefined,
         })
         allRows.push(...(res?.data || []))
@@ -114,81 +144,117 @@ function RouteComponent() {
       }
 
       const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' })
+      doc.setProperties({
+        title: 'Institution Applications Report',
+        subject: 'Applications export',
+        author: institution?.name ? `${institution.name} - UniForm` : 'UniForm',
+        creator: 'UniForm',
+      })
       const pageWidth = doc.internal.pageSize.getWidth()
-      const marginX = 36
-      const Title = 'Institution Applications Report'
-      doc.setFontSize(16)
-      doc.text(Title, marginX, 36)
-      doc.setFontSize(10)
-      const metaLines = [
-        `Exported: ${new Date().toLocaleString()}`,
-        `Filters: Unit=${unitId ? (units.find(u => u.unitId === unitId)?.name || unitId) : 'All'} | Status=${status || 'All'} | Curriculum=${examPath || 'All'} | Medium=${medium || 'All'} | Board=${board || 'All'} | Center=${center || 'All'} | Search=${search || '-'}`,
-        `Total Records: ${allRows.length}`,
-      ]
-      let y = 56
-      for (const line of metaLines) {
-        doc.text(line, marginX, y)
-        y += 14
+      const marginX = 32
+      const Title = institution?.name ? `${institution.name} - Applications Report` : 'Institution Applications Report'
+      let titleX = marginX
+      // Try to draw logo if available
+      if (institution?.logoUrl) {
+        try {
+          const dataUrl = await fetchImageAsDataUrl(institution.logoUrl)
+          if (dataUrl) {
+            const fmt: 'JPEG' | 'PNG' = (dataUrl.startsWith('data:image/jpeg') || dataUrl.startsWith('data:image/jpg')) ? 'JPEG' : 'PNG'
+            doc.addImage(dataUrl, fmt, marginX, 20, 40, 40)
+            titleX = marginX + 52
+          }
+        } catch { /* ignore logo errors */ }
       }
+      doc.setFontSize(16)
+      doc.text(Title, titleX, 34)
 
-      // Define columns and build rows
-      const head = [[
-        'Application ID',
-        'Unit',
-        'Student Name',
-        'Email',
-        'Phone',
-        'Exam Center',
-        'Seat No',
-        'SSC Reg',
-        'SSC Roll',
-        'HSC Reg',
-        'HSC Roll',
-        'Curriculum',
-        'Medium',
-        'SSC Board',
-        'SSC Year',
-        'HSC Board',
-        'HSC Year',
-        'Status',
-      ]]
+      // Organized meta panel
+      const approvedCount = allRows.filter(r => !!r.reviewedAt).length
+      const pendingCount = allRows.length - approvedCount
+      const metaRows: Array<[string, string, string, string]> = [
+        ['Exported', new Date().toLocaleString(), 'Totals', `${allRows.length} total • ${approvedCount} approved • ${pendingCount} pending`],
+        ['Unit', unitId ? (units.find(u => u.unitId === unitId)?.name || unitId) : 'All', 'Status', status || 'All'],
+        ['Curriculum', examPath || 'All', 'Medium', medium || 'All'],
+        ['Board', board || 'All', 'Center', center || 'All'],
+        ['Search', search || '-', 'Institution', institution?.shortName || institution?.name || '-'],
+      ]
 
-      const body = allRows.map((r) => [
-        r.id,
-        r.unit?.name || '-',
-        r.student?.fullName || '-',
-        r.student?.email || '-',
-        r.student?.phone || '-',
-        (r.examCenter || r.centerPreference || '-') as string,
-        r.seatNo || '-',
-        r.student?.sscRegistration || '-',
-        r.student?.sscRoll || '-',
-        r.student?.hscRegistration || '-',
-        r.student?.hscRoll || '-',
-        r.student?.examPath || '-',
-        r.student?.medium || '-',
-        r.student?.sscBoard || '-',
-        (r.student?.sscYear ?? '-') as any,
-        r.student?.hscBoard || '-',
-        (r.student?.hscYear ?? '-') as any,
-        r.reviewedAt ? 'Approved' : 'Under Review',
-      ])
+      // Render meta in two columns using autoTable (theme plain)
+      let y = 50
+      autoTable(doc, {
+        startY: y,
+        margin: { left: marginX, right: marginX },
+        theme: 'plain',
+        styles: { fontSize: 10, cellPadding: 1 },
+        columnStyles: { 0: { fontStyle: 'bold', textColor: 60 }, 2: { fontStyle: 'bold', textColor: 60 } },
+        tableWidth: 'auto',
+        head: [],
+        body: metaRows,
+      })
+      // Position table below meta panel using plugin-augmented fields
+      type JsPDFWithAutoTable = InstanceType<typeof jsPDF> & {
+        lastAutoTable?: { finalY: number }
+        autoTable?: { previous?: { finalY: number } }
+      }
+      const d = doc as JsPDFWithAutoTable
+      y = d.lastAutoTable?.finalY ?? d.autoTable?.previous?.finalY ?? 56
+
+      // Define columns with customizable widths and value accessors
+      type Col = { key: string; header: string; width?: number; value: (r: ApplicationRow) => string }
+      const columns: Col[] = [
+        { key: 'id', header: 'App ID', width: 50, value: (r) => r.id },
+        { key: 'unit', header: 'Unit', width: 25, value: (r) => r.unit?.name || '-' },
+        { key: 'student', header: 'Student', width: 72, value: (r) => r.student?.fullName || '-' },
+        { key: 'email', header: 'Email', width: 100, value: (r) => r.student?.email || '-' },
+        { key: 'phone', header: 'Phone', width: 52, value: (r) => r.student?.phone || '-' },
+        { key: 'center', header: 'Center', width: 50, value: (r) => (r.examCenter || r.centerPreference || '-') as string },
+        { key: 'seat', header: 'Seat', width: 50, value: (r) => r.seatNo || '-' },
+        { key: 'curric', header: 'Curric', width: 40, value: (r) => r.student?.examPath || '-' },
+        { key: 'medium', header: 'Medium', width: 30, value: (r) => r.student?.medium || '-' },
+        { key: 'sscRoll', header: 'SSC Roll', width: 32, value: (r) => r.student?.sscRoll || '-' },
+        { key: 'sscReg', header: 'SSC Reg', width: 32, value: (r) => r.student?.sscRegistration || '-' },
+        { key: 'hscRoll', header: 'HSC Roll', width: 32, value: (r) => r.student?.hscRoll || '-' },
+        { key: 'hscReg', header: 'HSC Reg', width: 32, value: (r) => r.student?.hscRegistration || '-' },
+        { key: 'sscBd', header: 'SSC Bd', width: 40, value: (r) => r.student?.sscBoard || '-' },
+        { key: 'sscYr', header: 'SSC Yr', width: 30, value: (r) => String(r.student?.sscYear ?? '-') },
+        { key: 'hscBd', header: 'HSC Bd', width: 40, value: (r) => r.student?.hscBoard || '-' },
+        { key: 'hscYr', header: 'HSC Yr', width: 30, value: (r) => String(r.student?.hscYear ?? '-') },
+        { key: 'status', header: 'Status', width: 36, value: (r) => (r.reviewedAt ? 'Approved' : 'Pending') },
+      ]
+
+      const head = [columns.map((c) => c.header)]
+      const body = allRows.map((r) => columns.map((c) => c.value(r)))
+
+      // Compute per-column widths from definitions, distributing any remaining width equally
+      const innerWidth = pageWidth - marginX * 2
+      const explicitSum = columns.reduce((sum, c) => sum + (c.width ?? 0), 0)
+      const remaining = Math.max(0, innerWidth - explicitSum)
+      const flexibleCount = columns.filter((c) => !c.width).length
+      const flexibleWidth = flexibleCount > 0 ? Math.floor(remaining / flexibleCount) : 0
+      const columnStyles: Record<number, { cellWidth: number }> = {}
+      columns.forEach((c, i) => {
+        const w = c.width ?? flexibleWidth
+        columnStyles[i] = { cellWidth: w }
+      })
 
       autoTable(doc, {
         head,
         body,
         startY: y + 6,
-        styles: { fontSize: 8, cellPadding: 4, overflow: 'linebreak' },
-        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-        columnStyles: {
-          0: { cellWidth: 110 }, // Application ID
-          1: { cellWidth: 100 }, // Unit
-          2: { cellWidth: 120 }, // Student
-          3: { cellWidth: 140 }, // Email
-          4: { cellWidth: 90 },  // Phone
-          5: { cellWidth: 90 },  // Exam Center
-          6: { cellWidth: 70 },  // Seat No
+        margin: { left: marginX, right: marginX },
+        styles: {
+          fontSize: 6,
+          cellPadding: 1,
+          overflow: 'linebreak',
+          lineWidth: 0.1,
+          minCellHeight: 10,
+          cellWidth: 'wrap',
         },
+        headStyles: { fillColor: [245, 245, 245], textColor: 20, fontStyle: 'bold', halign: 'center' },
+        bodyStyles: { valign: 'middle' },
+        alternateRowStyles: { fillColor: [252, 252, 252] },
+        tableWidth: innerWidth,
+        columnStyles,
       })
 
       // Add footer page numbers in a second pass
@@ -201,8 +267,9 @@ function RouteComponent() {
         doc.text(footer, pageWidth - marginX - textWidth, doc.internal.pageSize.getHeight() - 18)
       }
 
-      const dateStr = new Date().toISOString().substring(0,10)
-      doc.save(`applications_report_${dateStr}.pdf`)
+      const dateStr = new Date().toISOString().substring(0, 10)
+      const safeShort = institution?.shortName?.replace(/[^a-z0-9_-]+/gi, '_')
+      doc.save(`${safeShort ? `${safeShort}_` : ''}applications_report_${dateStr}.pdf`)
     } catch (e) {
       const err = e as { message?: string }
       toast.error('Failed to export PDF', { description: err?.message || 'Please try again.' })
@@ -354,7 +421,7 @@ function RouteComponent() {
               variant="destructive"
               className="disabled:opacity-60"
               disabled={!!detail?.reviewedAt}
-              onClick={() => setConfirmAction({ type: 'cancel', id: detail?.id })}
+              onClick={() => setConfirmAction({ type: 'cancel', id: detail?.id ?? null })}
               title={detail?.reviewedAt ? 'Already approved' : undefined}
             >
               Cancel Application
@@ -362,7 +429,7 @@ function RouteComponent() {
             <Button
               className="bg-gray-900 hover:bg-gray-800 disabled:opacity-60"
               disabled={!!detail?.reviewedAt}
-              onClick={() => setConfirmAction({ type: 'approve', id: detail?.id })}
+              onClick={() => setConfirmAction({ type: 'approve', id: detail?.id ?? null })}
               title={detail?.reviewedAt ? 'Already approved' : undefined}
             >
               Approve

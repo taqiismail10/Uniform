@@ -1,995 +1,154 @@
-# UniForm API Testing Data
-
-## 1. Student Authentication
-
-### Student Reg
-
-`Input`
-
-POST http://localhost:5000/api/auth/register
-
-```json
-{
-  "fullName": "Aong Cho",
-  "email": "aongcho880@example.com",
-  "phone": "+1234567123",
-  "password": "Password123",
-  "password_confirmation": "Password123",
-  "address": "123 Main Street",
-  "role": "STUDENT",
-  "dob": "2000-01-01T00:00:00.000Z",
-  "examPath": "NATIONAL",
-  "medium": "English"
-}
-```
-
-`Output`
-
-```json
-{
-  "status": 200,
-  "message": "User created successfully",
-  "user": {
-    "studentId": "67a91bfd-8965-447a-8fd9-fd247c94a3e7",
-    "fullName": "Aong Cho",
-    "email": "aongcho880@example.com",
-    "phone": "+1234567123",
-    "password": "$2b$10$iXg4L2MsA1lQCMzKwSlvSeLGfY2oHcshmxYabcB.XP1xF0cKSBVMC",
-    "address": "123 Main Street",
-    "role": "STUDENT",
-    "dob": "2000-01-01T00:00:00.000Z",
-    "profile": null,
-    "createdAt": "2025-08-07T05:58:54.410Z",
-    "updatedAt": "2025-08-07T05:58:54.410Z"
-  }
-}
-```
-
-### Student Login
-
-POST http://localhost:5000/api/auth/login
-
-```json
-{
-  "email": "aongcho880@example.com",
-  "password": "Password123",
-  "role": "STUDENT"
-}
-```
-
-### Student Profile
-
-GET http://localhost:5000/api/profile
-
-```json
-  "status": 200,
-  "profile": {
-    "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
-    "fullName": "Aong Cho",
-    "email": "aongcho880@example.com",
-    "phone": "+1234567123",
-    "password": "$2b$10$6LLzDM41opQXygS.ujA17e.0iPFAurTJ3rDna.MKpxsh32KjmO0KO",
-    "address": "123 Main Street",
-    "role": "STUDENT",
-    "dob": "2000-01-01T00:00:00.000Z",
-    "profile": null,
-    "createdAt": "2025-08-07T06:06:17.419Z",
-    "updatedAt": "2025-08-07T06:06:17.419Z"
-  },
-```
-
-```json
-  "user": {
-    "studentId": "59833947-c809-45c4-8a7f-bf8b2e064bd0",
-    "email": "aongcho880@example.com",
-    "iat": 1754579660,
-    "exp": 1786115660
-  }
-```
-
-## 2. System Admin Authentication
-
-### System Admin Login
-
-POST http://localhost:5000/api/system/auth/login
-`Input`
-
-```json
-{
-  "email": "taqiismail10@uniform.com",
-  "password": "admin",
-  "role": "SYSTEM_ADMIN"
-}
-```
-
-`Output`
-
-```json
-{
-  "status": 200,
-  "message": "System admin logged in successfully",
-  "access_token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzeXN0ZW1BZG1pbklkIjoiZDc0YjgyMGItYzk2Yy00MjM0LWJiZDQtY2VjZWE3YzNiNzc4IiwiZW1haWwiOiJ0YXFpaXNtYWlsMTBAdW5pZm9ybS5jb20iLCJyb2xlIjoiU1lTVEVNX0FETUlOIiwiaWF0IjoxNzU0NjMxNzE4LCJleHAiOjE3ODYxNjc3MTh9.y8Iq9md_PL7i1uT-9MJU8dnnzrYs_2u1Eh3QNw6CQLs"
-}
-```
-
-### System Admin Profile
-
-GET http://localhost:5000/api/system/admins/profile
-
-`Output`
-
-```json
-{
-  "status": 200,
-  "profile": {
-    "systemAdminId": "d74b820b-c96c-4234-bbd4-cecea7c3b778",
-    "email": "taqiismail10@uniform.com",
-    "role": "SYSTEM_ADMIN",
-    "createdAt": "2025-08-07T20:48:45.009Z",
-    "updatedAt": "2025-08-07T20:48:45.009Z"
-  },
-  "admin": {
-    "systemAdminId": "d74b820b-c96c-4234-bbd4-cecea7c3b778",
-    "email": "taqiismail10@uniform.com",
-    "role": "SYSTEM_ADMIN",
-    "iat": 1755800697,
-    "exp": 1787336697
-  }
-}
-```
-
-### Institution and Institution Category Created
-
-POST http://localhost:5000/api/system/institutions
-
-`Output`
-
-```json
-{
-  "name": "University of Dhaka",
-  "categoryName": "public university"
-}
-```
-
-```json
-{
-  "status": 201,
-  "message": "Institution added successfully!",
-  "institution": {
-    "institutionId": "9ede37aa-ed91-4b5a-a6e6-34eb01706806",
-    "name": "University of Dhaka",
-    "description": null,
-    "address": null,
-    "phone": null,
-    "email": null,
-    "website": null,
-    "establishedYear": null,
-    "logoUrl": null,
-    "requirementsHscGPA": null,
-    "requirementsSscGPA": null,
-    "institutionCategoryInstitutionCategoryId": "683b4ff2-17e2-48bf-88f1-33bfe5c934e6"
-  }
-}
-```
-
-### Institution List
-
-#### Without Pagination
-
-GET http://localhost:5000/api/system/institutions
-
-```json
-{
-  "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
-  "name": "University of Chittagong",
-  "description": null,
-  "address": null,
-  "phone": null,
-  "email": null,
-  "website": null,
-  "establishedYear": null,
-  "logoUrl": null,
-  "requirementsHscGPA": null,
-  "requirementsSscGPA": null,
-  "institutionCategoryInstitutionCategoryId": null
-}
-```
-
-#### With Pagination
-
-GET http://localhost:5000/api/system/institutions?page=1&limit=3
-
-```json
-{
-  "status": 200,
-  "institutions": [
-    {
-      "institutionId": "16555078-d8f3-4388-a86a-be068a5de984",
-      "name": "University of Comilla",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:06:17.020Z",
-      "updatedAt": "2025-08-16T16:06:17.020Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    },
-    {
-      "institutionId": "66ddda15-4567-479e-a1b0-77f84f9534ab",
-      "name": "University of Khulna",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:06:07.244Z",
-      "updatedAt": "2025-08-16T16:06:07.244Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    },
-    {
-      "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
-      "name": "University of Chittagong",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-14T01:52:08.535Z",
-      "updatedAt": "2025-08-14T01:52:08.535Z",
-      "institutionCategoryInstitutionCategoryId": null
-    }
-  ],
-  "metadata": { "totalPages": 2, "currentPage": 1, "currentLimit": 3 }
-}
-```
-
-GET http://localhost:5000/api/system/institutions?page=2&limit=3
-
-```json
-{
-  "status": 200,
-  "institutions": [
-    {
-      "institutionId": "beda0826-bddc-4c94-ad95-aa75e5e77fae",
-      "name": "University of Rajshahi",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:05:54.865Z",
-      "updatedAt": "2025-08-16T16:05:54.865Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    },
-    {
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-      "name": "University of Dhaka",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:05:44.966Z",
-      "updatedAt": "2025-08-16T16:05:44.966Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    },
-    {
-      "institutionId": "f9b18667-9e89-4e81-9c45-8cfa010a27da",
-      "name": "University of Barishal",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:06:32.071Z",
-      "updatedAt": "2025-08-16T16:06:32.071Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    }
-  ],
-  "metadata": { "totalPages": 2, "currentPage": 2, "currentLimit": 3 }
-}
-```
-
-GET http://localhost:5000/api/system/institutions?page=1&limit=5
-
-```json
-{
-  "status": 200,
-  "institutions": [
-    {
-      "institutionId": "16555078-d8f3-4388-a86a-be068a5de984",
-      "name": "University of Comilla",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:06:17.020Z",
-      "updatedAt": "2025-08-16T16:06:17.020Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    },
-    {
-      "institutionId": "66ddda15-4567-479e-a1b0-77f84f9534ab",
-      "name": "University of Khulna",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:06:07.244Z",
-      "updatedAt": "2025-08-16T16:06:07.244Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    },
-    {
-      "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
-      "name": "University of Chittagong",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-14T01:52:08.535Z",
-      "updatedAt": "2025-08-14T01:52:08.535Z",
-      "institutionCategoryInstitutionCategoryId": null
-    },
-    {
-      "institutionId": "beda0826-bddc-4c94-ad95-aa75e5e77fae",
-      "name": "University of Rajshahi",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:05:54.865Z",
-      "updatedAt": "2025-08-16T16:05:54.865Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    },
-    {
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-      "name": "University of Dhaka",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:05:44.966Z",
-      "updatedAt": "2025-08-16T16:05:44.966Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    }
-  ],
-  "metadata": { "totalPages": 2, "currentPage": 1, "currentLimit": 5 }
-}
-```
-
-GET http://localhost:5000/api/system/institutions?page=2&limit=5
-
-```json
-{
-  "status": 200,
-  "institutions": [
-    {
-      "institutionId": "f9b18667-9e89-4e81-9c45-8cfa010a27da",
-      "name": "University of Barishal",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "createdAt": "2025-08-16T16:06:32.071Z",
-      "updatedAt": "2025-08-16T16:06:32.071Z",
-      "institutionCategoryInstitutionCategoryId": "e518178d-9520-4675-9e67-d04371e122b4"
-    }
-  ],
-  "metadata": { "totalPages": 2, "currentPage": 2, "currentLimit": 5 }
-}
-```
-
-### Institution Deletion
-
-DELETE http://localhost:5000/api/system/institutions/9ede37aa-ed91-4b5a-a6e6-34eb01706806
-
-```json
-{ "status": 200, "message": "Institution deleted successfully!" }
-```
-
-## 3. Admin Authentication
-
-### Admin Creation and Assigned to Institution
-
-POST http://localhost:5000/api/system/admins/create-and-assign
-
-```json
-{
-  "email": "admin@example.com",
-  "password": "admin",
-  "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0"
-}
-```
-
-```json
-{
-  "status": 200,
-  "message": "Institution admin created successfully",
-  "admin": {
-    "adminId": "dd3b19cf-e066-4b7a-a7f7-29ed636245b3",
-    "email": "admin@example.com",
-    "password": "$2b$10$22czEW1tczaD4yX5sgazpeHiz7C5MvkZ1jUHskXT.MuBLhppyG2Fm",
-    "role": "INSTITUTION_ADMIN",
-    "createdAt": "2025-08-10T21:28:38.047Z",
-    "updatedAt": "2025-08-10T21:28:38.047Z",
-    "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
-    "institution": {
-      "institutionId": "991733aa-64ef-4040-aa0c-81491fa810d0",
-      "name": "University of Chittagong",
-      "description": null,
-      "address": null,
-      "phone": null,
-      "email": null,
-      "website": null,
-      "establishedYear": null,
-      "logoUrl": null,
-      "requirementsHscGPA": null,
-      "requirementsSscGPA": null,
-      "institutionCategoryInstitutionCategoryId": null
-    }
-  }
-}
-```
-
-### Admin Login
-
-POST http://localhost:5000/api/admin/auth/login
-
-```json
-{
-  "email": "admin@example.com",
-  "password": "admin",
-  "role": "INSTITUTION_ADMIN"
-}
-```
-
-```json
-{
-  "status": 200,
-  "message": "User logged in successfully",
-  "access_token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbklkIjoiYmVmMWZiN2UtODExNi00ZGY0LWJmMWEtNjZhY2ZkMzM3YWRkIiwiZW1haWwiOiJhZG1pbmN1QGV4YW1wbGUuY29tIiwiaWF0IjoxNzU0NjM2NDUyLCJleHAiOjE3ODYxNzI0NTJ9.y7n7QVCMV9751LMjSP5PtEkT4W10juxIDgx0jUgJHVw"
-}
-```
-
-### Admin Update Password
-
-PUT http://localhost:5000/api/admin/update-password
-
-```json
-{
-  "oldPassword": "admincu",
-  "newPassword": "admin"
-}
-```
-
-```json
-{ "status": 200, "message": "Password updated successfully" }
-```
-
-### Unit Creation
-
-POST http://localhost:5000/api/admin/units
-`Single Stream -> Input`
-
-```json
-{
-  "name": "A",
-  "description": "Engineering Department",
-  "isActive": true,
-  "applicationDeadline": "2025-12-31 23:59:59",
-  "maxApplications": 100,
-  "requirements": [
-    {
-      "sscStream": "SCIENCE",
-      "hscStream": "SCIENCE",
-      "minSscGPA": 4.0,
-      "minHscGPA": 4.5
-    }
-  ]
-}
-```
-
-`Output`
-
-```json
-{
-  "status": 201,
-  "data": {
-    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-    "name": "Engineering",
-    "description": "Engineering Department",
-    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-    "isActive": true,
-    "applicationDeadline": "2025-12-31T23:59:59.000Z",
-    "maxApplications": 100,
-    "autoCloseAfterDeadline": true,
-    "createdAt": "2025-08-17T14:22:59.178Z",
-    "updatedAt": "2025-08-17T14:22:59.178Z",
-    "requirements": [
-      {
-        "id": "ec6feb0d-6836-414a-b78f-5383a7d5c41e",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "SCIENCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4,
-        "minHscGPA": 4.5,
-        "createdAt": "2025-08-17T14:22:59.179Z",
-        "updatedAt": "2025-08-17T14:22:59.179Z"
-      }
-    ],
-    "institution": {
-      "name": "University of Dhaka",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
-    }
-  }
-}
-```
-
-`Multiple Stream -> Input`
-
-```json
-{
-  "name": "Engineering Faculty",
-  "description": "Multi-disciplinary engineering program",
-  "isActive": true,
-  "applicationDeadline": "2025-12-31",
-  "maxApplications": 300,
-  "requirements": [
-    {
-      "sscStream": "SCIENCE",
-      "hscStream": "SCIENCE",
-      "minSscGPA": 4.0,
-      "minHscGPA": 4.5
-    },
-    {
-      "sscStream": "SCIENCE",
-      "hscStream": "COMMERCE",
-      "minSscGPA": 4.5,
-      "minHscGPA": 4.0
-    },
-    {
-      "sscStream": "SCIENCE",
-      "hscStream": "ARTS",
-      "minSscGPA": 4.2,
-      "minHscGPA": 4.3
-    }
-  ]
-}
-```
-
-`Output`
-
-```json
-{
-  "status": 201,
-  "data": {
-    "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
-    "name": "Engineering Faculty",
-    "description": "Multi-disciplinary engineering program",
-    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-    "isActive": true,
-    "applicationDeadline": "2025-12-31T00:00:00.000Z",
-    "maxApplications": 300,
-    "autoCloseAfterDeadline": true,
-    "createdAt": "2025-08-17T14:37:00.016Z",
-    "updatedAt": "2025-08-17T14:37:00.016Z",
-    "requirements": [
-      {
-        "id": "3bf7c7e3-bb4a-40f3-b44b-10354e85f870",
-        "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
-        "sscStream": "SCIENCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4,
-        "minHscGPA": 4.5,
-        "createdAt": "2025-08-17T14:37:00.017Z",
-        "updatedAt": "2025-08-17T14:37:00.017Z"
-      },
-      {
-        "id": "0b78dfc9-4801-4b03-a739-734769cad139",
-        "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
-        "sscStream": "COMMERCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4.5,
-        "minHscGPA": 4,
-        "createdAt": "2025-08-17T14:37:00.017Z",
-        "updatedAt": "2025-08-17T14:37:00.017Z"
-      },
-      {
-        "id": "5204fc96-f7e2-462a-913d-ae8cb5e3f661",
-        "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
-        "sscStream": "ARTS",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4.2,
-        "minHscGPA": 4.3,
-        "createdAt": "2025-08-17T14:37:00.017Z",
-        "updatedAt": "2025-08-17T14:37:00.017Z"
-      }
-    ],
-    "institution": {
-      "name": "University of Dhaka",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
-    }
-  }
-}
-```
-
-### Updating Unit
-
-PUT http://localhost:5000/api/admin/units/f9777252-b9ca-4b32-9817-379c2386790f
-
-`Output`
-
-```json
-{
-  "status": 200,
-  "message": "Unit updated successfully",
-  "data": {
-    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-    "name": "Updated Engineering Department",
-    "description": "Engineering with multiple stream options",
-    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-    "isActive": true,
-    "applicationDeadline": "2025-12-31T23:59:59.000Z",
-    "maxApplications": 100,
-    "autoCloseAfterDeadline": true,
-    "createdAt": "2025-08-17T14:22:59.178Z",
-    "updatedAt": "2025-08-17T15:36:42.050Z",
-    "requirements": [
-      {
-        "id": "999b8cb3-a650-416d-813f-7570af68580b",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "SCIENCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4,
-        "minHscGPA": 4.5,
-        "createdAt": "2025-08-17T15:36:42.054Z",
-        "updatedAt": "2025-08-17T15:36:42.054Z"
-      },
-      {
-        "id": "13332f15-1479-4b6c-a93f-91a175cc8736",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "COMMERCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4.2,
-        "minHscGPA": 4,
-        "createdAt": "2025-08-17T15:36:42.054Z",
-        "updatedAt": "2025-08-17T15:36:42.054Z"
-      }
-    ],
-    "institution": {
-      "name": "University of Dhaka",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
-    },
-    "_count": { "applications": 0 }
-  }
-}
-```
-
-### Adding Extra Stream to Unit
-
-POST http://localhost:5000/api/admin/units/f9777252-b9ca-4b32-9817-379c2386790f/requirements
-
-`Input`
-
-```json
-{
-  "requirements": [
-    {
-      "sscStream": "ARTS",
-      "hscStream": "COMMERCE",
-      "minSscGPA": 3.5,
-      "minHscGPA": 3.8
-    },
-    {
-      "sscStream": "ARTS",
-      "hscStream": "ARTS",
-      "minSscGPA": 3.0,
-      "minHscGPA": 3.5
-    }
-  ]
-}
-```
-
-```json
-{
-  "status": 201,
-  "message": "2 requirement(s) added successfully",
-  "data": {
-    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-    "name": "Updated Engineering Department",
-    "description": "Engineering with multiple stream options",
-    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-    "isActive": true,
-    "applicationDeadline": "2025-12-31T23:59:59.000Z",
-    "maxApplications": 100,
-    "autoCloseAfterDeadline": true,
-    "createdAt": "2025-08-17T14:22:59.178Z",
-    "updatedAt": "2025-08-17T15:36:42.050Z",
-    "requirements": [
-      {
-        "id": "999b8cb3-a650-416d-813f-7570af68580b",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "SCIENCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4,
-        "minHscGPA": 4.5,
-        "createdAt": "2025-08-17T15:36:42.054Z",
-        "updatedAt": "2025-08-17T15:36:42.054Z"
-      },
-      {
-        "id": "13332f15-1479-4b6c-a93f-91a175cc8736",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "COMMERCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4.2,
-        "minHscGPA": 4,
-        "createdAt": "2025-08-17T15:36:42.054Z",
-        "updatedAt": "2025-08-17T15:36:42.054Z"
-      },
-      {
-        "id": "348eb4ed-437c-4f27-be6e-67398b253467",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "ARTS",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4,
-        "minHscGPA": 4.2,
-        "createdAt": "2025-08-17T16:07:49.498Z",
-        "updatedAt": "2025-08-17T16:07:49.498Z"
-      },
-      {
-        "id": "c71c8bea-ce52-4968-8e56-dfb6ddfeb731",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "ARTS",
-        "hscStream": "COMMERCE",
-        "minSscGPA": 3.5,
-        "minHscGPA": 3.8,
-        "createdAt": "2025-08-17T16:09:11.013Z",
-        "updatedAt": "2025-08-17T16:09:11.013Z"
-      },
-      {
-        "id": "88e0dff0-7743-4298-b59c-16994a78feed",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "ARTS",
-        "hscStream": "ARTS",
-        "minSscGPA": 3,
-        "minHscGPA": 3.5,
-        "createdAt": "2025-08-17T16:09:11.013Z",
-        "updatedAt": "2025-08-17T16:09:11.013Z"
-      }
-    ],
-    "institution": {
-      "name": "University of Dhaka",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
-    },
-    "_count": { "applications": 0 }
-  }
-}
-```
-
-### Delete Requirements from Units
-
-DELETE http://localhost:5000/api/admin/units/f9777252-b9ca-4b32-9817-379c2386790f/requirements/c71c8bea-ce52-4968-8e56-dfb6ddfeb731
-
-```json
-{
-  "status": 200,
-  "message": "Requirement removed successfully",
-  "data": {
-    "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-    "name": "Updated Engineering Department",
-    "description": "Engineering with multiple stream options",
-    "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-    "isActive": true,
-    "applicationDeadline": "2025-12-31T23:59:59.000Z",
-    "maxApplications": 100,
-    "autoCloseAfterDeadline": true,
-    "createdAt": "2025-08-17T14:22:59.178Z",
-    "updatedAt": "2025-08-17T15:36:42.050Z",
-    "requirements": [
-      {
-        "id": "999b8cb3-a650-416d-813f-7570af68580b",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "SCIENCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4,
-        "minHscGPA": 4.5,
-        "createdAt": "2025-08-17T15:36:42.054Z",
-        "updatedAt": "2025-08-17T15:36:42.054Z"
-      },
-      {
-        "id": "13332f15-1479-4b6c-a93f-91a175cc8736",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "COMMERCE",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4.2,
-        "minHscGPA": 4,
-        "createdAt": "2025-08-17T15:36:42.054Z",
-        "updatedAt": "2025-08-17T15:36:42.054Z"
-      },
-      {
-        "id": "348eb4ed-437c-4f27-be6e-67398b253467",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "ARTS",
-        "hscStream": "SCIENCE",
-        "minSscGPA": 4,
-        "minHscGPA": 4.2,
-        "createdAt": "2025-08-17T16:07:49.498Z",
-        "updatedAt": "2025-08-17T16:07:49.498Z"
-      },
-      {
-        "id": "88e0dff0-7743-4298-b59c-16994a78feed",
-        "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-        "sscStream": "ARTS",
-        "hscStream": "ARTS",
-        "minSscGPA": 3,
-        "minHscGPA": 3.5,
-        "createdAt": "2025-08-17T16:09:11.013Z",
-        "updatedAt": "2025-08-17T16:09:11.013Z"
-      }
-    ],
-    "institution": {
-      "name": "University of Dhaka",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883"
-    },
-    "_count": { "applications": 0 }
-  }
-}
-```
-
-### Unit List
-
-#### Without Pagination
-
-GET http://localhost:5000/api/admin/units
-
-```json
-{
-  "status": 200,
-  "data": [
-    {
-      "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
-      "name": "Engineering Faculty",
-      "description": "Multi-disciplinary engineering program",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-      "isActive": true,
-      "applicationDeadline": "2025-12-31T00:00:00.000Z",
-      "maxApplications": 300,
-      "autoCloseAfterDeadline": true,
-      "createdAt": "2025-08-17T14:37:00.016Z",
-      "updatedAt": "2025-08-17T14:37:00.016Z"
-    },
-    {
-      "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-      "name": "Updated Engineering Department",
-      "description": "Engineering with multiple stream options",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-      "isActive": true,
-      "applicationDeadline": "2025-12-31T23:59:59.000Z",
-      "maxApplications": 100,
-      "autoCloseAfterDeadline": true,
-      "createdAt": "2025-08-17T14:22:59.178Z",
-      "updatedAt": "2025-08-17T15:36:42.050Z"
-    }
-  ]
-}
-```
-
-#### With Pagination
-
-GET http://localhost:5000/api/admin/units?page=1&limit=1
-
-```json
-{
-  "status": 200,
-  "data": [
-    {
-      "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
-      "name": "Engineering Faculty",
-      "description": "Multi-disciplinary engineering program",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-      "isActive": true,
-      "applicationDeadline": "2025-12-31T00:00:00.000Z",
-      "maxApplications": 300,
-      "autoCloseAfterDeadline": true,
-      "createdAt": "2025-08-17T14:37:00.016Z",
-      "updatedAt": "2025-08-17T14:37:00.016Z"
-    }
-  ],
-  "metadata": {
-    "totalPages": 2,
-    "currentPage": 1,
-    "currentLimit": 1,
-    "totalUnits": 2
-  }
-}
-```
-
-GET http://localhost:5000/api/admin/units?page=1&limit=2
-
-```json
-{
-  "status": 200,
-  "data": [
-    {
-      "unitId": "33a8ae8e-e3dd-4cff-bde1-c3a138336c9d",
-      "name": "Engineering Faculty",
-      "description": "Multi-disciplinary engineering program",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-      "isActive": true,
-      "applicationDeadline": "2025-12-31T00:00:00.000Z",
-      "maxApplications": 300,
-      "autoCloseAfterDeadline": true,
-      "createdAt": "2025-08-17T14:37:00.016Z",
-      "updatedAt": "2025-08-17T14:37:00.016Z"
-    },
-    {
-      "unitId": "f9777252-b9ca-4b32-9817-379c2386790f",
-      "name": "Updated Engineering Department",
-      "description": "Engineering with multiple stream options",
-      "institutionId": "e833dd84-e308-40ba-be2b-63cfe5299883",
-      "isActive": true,
-      "applicationDeadline": "2025-12-31T23:59:59.000Z",
-      "maxApplications": 100,
-      "autoCloseAfterDeadline": true,
-      "createdAt": "2025-08-17T14:22:59.178Z",
-      "updatedAt": "2025-08-17T15:36:42.050Z"
-    }
-  ],
-  "metadata": {
-    "totalPages": 1,
-    "currentPage": 1,
-    "currentLimit": 2,
-    "totalUnits": 2
-  }
-}
-```
-
-### Unassign Admin From Institution
-
-PATCH http://localhost:5000/api/system/admins/dd3b19cf-e066-4b7a-a7f7-29ed636245b3/unassign-institution
-
-```json
-{
-  "status": 200,
-  "message": "Admin unassigned from institution successfully.",
-  "admin": {
-    "adminId": "dd3b19cf-e066-4b7a-a7f7-29ed636245b3",
-    "email": "admin@example.com",
-    "password": "$2b$10$22czEW1tczaD4yX5sgazpeHiz7C5MvkZ1jUHskXT.MuBLhppyG2Fm",
-    "role": "INSTITUTION_ADMIN",
-    "createdAt": "2025-08-10T21:28:38.047Z",
-    "updatedAt": "2025-08-10T21:42:13.140Z",
-    "institutionId": null
-  }
-}
-```
+# Testing Guide / QA Checklist
+
+This guide outlines end-to-end testing steps for the Uniform project across backend and frontend, including PDF export, caching, and rate limiting.
+
+## Prerequisites
+- Node.js and npm installed
+- Two terminals (backend and frontend)
+- .env files configured (tokens/URLs as needed)
+
+## Start The App
+- Backend:
+  - From `backend`: `npm install && npm run server`
+  - Default port: `http://localhost:5000`
+- Frontend:
+  - From `uniform-frontend`: `npm install && npm run dev`
+  - Default port: `http://localhost:5173`
+
+---
+
+## Backend Checks
+
+### 1) Health + CORS
+- GET `http://localhost:5000/` → `{ message: "Hello, it's working..." }`
+- Confirm CORS allows `http://localhost:5173` (requests from the frontend succeed).
+
+### 2) Rate Limiting (Student endpoints)
+- Endpoint examples: `/api/auth/login`, `/api/auth/register`, student writes like `/api/applications`.
+- Attempt >10 login posts within 15 minutes for the same email+IP → expect `429 Too Many Requests`.
+- For write-heavy actions, exceed 120/hour per student → expect `429`.
+
+### 3) User‑Scoped Caching
+- Some GET routes are cached after auth (e.g., student eligibility, certain admin/system lists):
+  - Make the same GET twice as the same authenticated user → second response should be faster and may include `X-Cache: HIT` (server sets headers on some cached paths).
+  - Perform a write (e.g., update/create) under the same scope → next GET should be fresh (cache invalidated).
+
+### 4) Static Asset Caching
+- Request a file under `/public` (e.g., an uploaded image): `curl -I http://localhost:5000/public/<file>`
+  - Expect headers: `Cache-Control: public, max-age=86400, immutable`, `ETag`, `Last-Modified`.
+
+---
+
+## Frontend Checks
+
+### 1) Color Scheme (Light Only)
+- Open the app with OS/browser in Light mode → UI is light.
+- Switch OS to Dark mode and reload → UI remains light (no dark auto-theming, scrollbars and form controls stay light).
+
+### 2) Student – My Applications
+- Navigate: `/student/applications`.
+- For each row:
+  - Status: Approved or Pending ("Under Review" displays as "Pending").
+  - Actions:
+    - Pending → shows text "Pending" (no details link).
+    - Approved → shows "View Admit Card" linking to `/student/admit/$id`.
+
+### 3) Student – Admit Card (Preview)
+- Open: `/student/admit/<applicationId>` for an approved application.
+- Verify preview contents:
+  - Header with institution logo/name, ADMIT CARD badge, meta strip (Application ID, Issued).
+  - Candidate & Institution section: photo, name, email, phone, curriculum/medium, institution, unit.
+  - Exam details: seat no, date, time, center.
+  - Academic info (SSC/HSC or Dakhil/Alim depending on curriculum).
+  - Signature lines and instructions.
+
+### 4) Student – Admit Card (Print / Save as PDF)
+- Click "Print / Save as PDF":
+  - A4 portrait, content centered with margins.
+  - Sections should not split across pages (no-break applied).
+
+### 5) Student – Admit Card (Download PDF)
+- Click "Download PDF":
+  - Should open a new tab with the PDF.
+  - PDF should match on-page layout (raster capture) and include all content with margins.
+  - Mobile:
+    - Android Chrome → opens PDF viewer; can Save/Share.
+    - iOS Safari → opens PDF; Save/Share via system sheet.
+  - If cross-origin logo/photo lacks CORS, a placeholder is used but PDF still renders.
+
+### 6) Institution – Applications List
+- Navigate: `/institution/applications`.
+- Filters: Unit, Status (Approved/Under Review), Curriculum, Medium, Board, Center, Search → confirm filtering updates table.
+- Row details: open a row details dialog and verify student/institution/unit info loads.
+
+### 7) Institution – Applications PDF Export
+- Click "Download PDF" on the Applications page.
+- Verify PDF elements:
+  - Header with institution logo/name (if available) and title.
+  - Meta panel (Exported time, totals, filters, contact/institution).
+  - Table:
+    - Columns fit on a single page (landscape) with wrapping.
+    - Applied/Reviewed columns are not included (per requirements).
+    - Abbreviated headers (e.g., `Med`, `SSC Bd`, `HSC Yr`) to save space.
+  - Page numbers on each page.
+
+- Column width tuning:
+  - Columns are defined with per-column widths; adjust in code and re-export to confirm expected widths are applied.
+
+---
+
+## Mobile QA Checklist
+- iOS Safari (latest):
+  - App loads and routes work.
+  - "Download PDF" opens a new tab with the PDF; Share/Save works.
+  - Print from Safari works; scaling correct.
+- Android Chrome (latest):
+  - "Download PDF" opens viewer; Save from menu works.
+  - Print dialog works and renders correctly.
+
+---
+
+## Accessibility & UX
+- Keyboard navigation on major screens (tab order, focus states).
+- Sufficient contrast (especially in action buttons and text on cards).
+- Buttons have clear labels; links are descriptive.
+
+---
+
+## Performance Smoke Checks
+- Cached pages return quickly on repeat (post-auth cached GETs).
+- Large lists paginate efficiently (institution applications with filters).
+- PDF generation (institution export and admit card download) completes within a reasonable time (< 3–5s on typical devices).
+
+---
+
+## Error Scenarios
+- Invalid auth token → protected routes redirect or 401 in API.
+- Approve/delete on nonexistent ID → friendly error toasts.
+- Missing images (logo/photo) → placeholders; no crashes.
+
+---
+
+## Known Limitations
+- Client-side PDF capture relies on html2canvas; complex cross-origin images may be replaced by placeholders for reliability.
+- In multi-instance deployments, the in-memory cache is per instance (consider Redis-backed cache if needed).
+
+---
+
+## Where To Adjust Behaviors
+- Frontend Print/PDF styling: `uniform-frontend/src/components/student/AdmitCard.tsx`
+- Student applications UI: `uniform-frontend/src/routes/student/applications.tsx`
+- Institution applications export: `uniform-frontend/src/routes/institution/applications.tsx`
+- Backend rate limiters: `backend/middleware/rateLimiters.js`
+- Backend caching: `backend/middleware/cache.js`, `backend/middleware/cacheBust.js`
+- Static asset cache headers: `backend/server.js`
+
+---
+
+## Reporting
+For issues, please provide:
+- Browser/OS and version
+- Exact route and action performed
+- Console/network logs or response payloads
+- PDFs/screenshots when relevant
+

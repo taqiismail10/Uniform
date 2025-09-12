@@ -7,7 +7,8 @@ import institutionController from "../controllers/institutionController.js";
 import unitController from "../controllers/unitController.js";
 import adminStatsController from "../controllers/adminStatsController.js";
 import applicationController from "../controllers/applicationController.js";
-import redisCache from "../DB/redis.config.js";
+import { cacheRoute } from "../middleware/cache.js";
+import { bustUserCache } from "../middleware/cacheBust.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
 const router = Router();
 
@@ -45,31 +46,53 @@ router.get(
   institutionController.getOwnInstitution
 );
 
-router.post("/units", adminMiddleware, unitController.createUnit); // Create units
-router.put("/units/:unitId", adminMiddleware, unitController.updateUnit);
-router.get("/units/:unitId", adminMiddleware, unitController.getUnitById);
-router.delete("/units/:unitId", adminMiddleware, unitController.deleteUnit);
+router.post(
+  "/units",
+  adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
+  unitController.createUnit
+); // Create units
+router.put(
+  "/units/:unitId",
+  adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
+  unitController.updateUnit
+);
+router.get(
+  "/units/:unitId",
+  adminMiddleware,
+  cacheRoute({ ttl: 300 }),
+  unitController.getUnitById
+);
+router.delete(
+  "/units/:unitId",
+  adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
+  unitController.deleteUnit
+);
 // Update unit-level exam details
-router.put("/units/:unitId/exam", adminMiddleware, unitController.setUnitExamDetails);
+router.put(
+  "/units/:unitId/exam",
+  adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
+  unitController.setUnitExamDetails
+);
 
 // Add these routes to your adminRoute.js
 router.post(
   "/units/:unitId/requirements",
   adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
   unitController.addUnitRequirements
 );
 router.delete(
   "/units/:unitId/requirements/:requirementId",
   adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
   unitController.removeUnitRequirement
 );
 
-router.get(
-  "/units",
-  redisCache.route(),
-  adminMiddleware,
-  unitController.listUnits
-);
+router.get("/units", adminMiddleware, cacheRoute({ ttl: 300 }), unitController.listUnits);
 
 // Institution stats summary
 router.get(
@@ -82,6 +105,7 @@ router.get(
 router.put(
   "/institution",
   adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
   institutionController.updateOwnInstitution
 );
 
@@ -89,26 +113,31 @@ router.put(
 router.get(
   "/applications",
   adminMiddleware,
+  // Applications list changes often; skip caching to avoid stale data
   applicationController.list
 );
 router.get(
   "/applications/:id",
   adminMiddleware,
+  cacheRoute({ ttl: 120 }),
   applicationController.getById
 );
 router.put(
   "/applications/:id/approve",
   adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
   applicationController.approve
 );
 router.put(
   "/applications/:id/exam",
   adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
   applicationController.setExamDetails
 );
 router.delete(
   "/applications/:id",
   adminMiddleware,
+  bustUserCache({ scope: "/api/admin" }),
   applicationController.remove
 );
 

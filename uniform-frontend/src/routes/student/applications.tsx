@@ -77,15 +77,13 @@ function RouteComponent() {
                       <TableCell className="text-gray-700">{r.unit?.name || '-'}</TableCell>
                       <TableCell className="text-gray-700">{formatStatus(r)}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
                           {r.reviewedAt ? (
                             <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" asChild>
                               <Link to="/student/admit/$id" params={{ id: r.id }}>View Admit Card</Link>
                             </Button>
                           ) : (
-                            <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" asChild>
-                              <Link to="/student/institutions">View Details</Link>
-                            </Button>
+                            <span className="text-gray-600">Pending</span>
                           )}
                           <Button
                             variant="destructive"

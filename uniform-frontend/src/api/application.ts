@@ -15,6 +15,7 @@ type BackendApplicationRow = {
   status?: Application['status'] | string;
   institutionName?: string;
   unitName?: string;
+  reviewedAt?: string | null;
 };
 
 // Get Applications by User ID
@@ -26,14 +27,26 @@ export const getApplications = async (
     const response = await api.get<{ applications: BackendApplicationRow[] }>(`/applications`);
     const raw = response.data.applications || [];
     // Normalize server payload to Application shape expected by UI
-    return raw.map((a) => ({
-      id: a.id ?? a.applicationId ?? `${a.unitId || ''}-${a.institutionId || ''}-${a.appliedAt || ''}`,
-      userId: a.studentId ?? '',
-      university: a.institution?.name ?? a.institutionName ?? '-',
-      unit: a.unit?.name ?? a.unitName ?? '-',
-      appliedDate: a.appliedAt ?? a.appliedDate ?? '',
-      status: (a.status as Application['status']) ?? 'Pending',
-    })) as Application[];
+    return raw.map((a) => {
+      const normalizedStatus = (() => {
+        const s = String(a.status || '').toLowerCase();
+        if (s === 'approved') return 'Approved' as const;
+        if (s === 'rejected') return 'Rejected' as const;
+        // If backend tracks review via reviewedAt timestamp, treat as Approved
+        if (a.reviewedAt) return 'Approved' as const;
+        // Default all other in-progress states to Pending for clarity
+        return 'Pending' as const;
+      })();
+
+      return {
+        id: a.id ?? a.applicationId ?? `${a.unitId || ''}-${a.institutionId || ''}-${a.appliedAt || ''}`,
+        userId: a.studentId ?? '',
+        university: a.institution?.name ?? a.institutionName ?? '-',
+        unit: a.unit?.name ?? a.unitName ?? '-',
+        appliedDate: a.appliedAt ?? a.appliedDate ?? '',
+        status: normalizedStatus,
+      } as Application;
+    });
   } catch (error) {
     console.error("Get Applications Failed:", error);
     return [];

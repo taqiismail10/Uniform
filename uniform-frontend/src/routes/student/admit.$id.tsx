@@ -1,6 +1,6 @@
 import ProtectedRoutes from '@/utils/ProtectedRoutes'
 import { ROLES } from '@/utils/role'
-import { createFileRoute, useNavigate, useParams, useSearch } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { listMyApplications, type MyApplication } from '@/api/studentApplications'
 import { getUserProfile, getAcademicDetails } from '@/api'
@@ -19,7 +19,6 @@ export const Route = createFileRoute('/student/admit/$id')({
 
 function RouteComponent() {
   const { id } = useParams({ from: '/student/admit/$id' })
-  const search = useSearch({ from: '/student/admit/$id' }) as { download?: string | number | boolean }
   const navigate = useNavigate()
   const [rows, setRows] = useState<MyApplication[] | null>(null)
   const [profile, setProfile] = useState<User | null>(null)
@@ -72,7 +71,6 @@ function RouteComponent() {
               app={app}
               student={profile}
               institutionLogoUrl={app?.institution?.logoUrl || undefined}
-              autoDownload={!!search?.download}
             />
           </div>
         )}
