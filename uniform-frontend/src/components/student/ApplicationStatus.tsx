@@ -1,25 +1,24 @@
-import { type Application } from './types';
+import { type Application } from './types'
 import { Link } from '@tanstack/react-router'
 
 interface ApplicationStatusProps {
-  applications: Application[];
+  applications: Application[]
 }
 
 export default function ApplicationStatus({ applications }: ApplicationStatusProps) {
+  const displayStatus = (status: Application['status']) => (status === 'Under Review' ? 'Pending' : status)
   const getStatusColor = (status: Application['status']) => {
-    switch (status) {
+    const s = displayStatus(status)
+    switch (s) {
       case 'Approved':
-        return 'bg-green-100 text-green-800';
-      case 'Under Review':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-green-100 text-green-800'
       case 'Rejected':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800'
       case 'Pending':
-        return 'bg-blue-100 text-blue-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-blue-100 text-blue-800'
     }
-  };
+  }
 
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
@@ -60,15 +59,15 @@ export default function ApplicationStatus({ applications }: ApplicationStatusPro
                       {application.unit}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {application.appliedDate}
+                      {application.appliedDate ? new Date(application.appliedDate).toLocaleString() : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(application.status)}`}>
-                        {application.status}
+                        {displayStatus(application.status)}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
-                      {application.status === 'Approved' ? (
+                      {displayStatus(application.status) === 'Approved' ? (
                         <Link
                           to="/student/admit/$id"
                           params={{ id: application.id }}
@@ -78,7 +77,7 @@ export default function ApplicationStatus({ applications }: ApplicationStatusPro
                           Admit Card
                         </Link>
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-gray-600">Pending</span>
                       )}
                     </td>
                   </tr>
@@ -89,5 +88,6 @@ export default function ApplicationStatus({ applications }: ApplicationStatusPro
         </div>
       </div>
     </div>
-  );
+  )
 }
+

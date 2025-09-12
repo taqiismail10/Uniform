@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
 import { getEligibleInstitutions, type EligibleInstitution } from '@/api/studentExplore'
 
 import type { MyApplication } from '@/api/studentApplications'
@@ -12,10 +11,9 @@ interface AdmitCardProps {
   app: MyApplication
   student: User
   institutionLogoUrl?: string
-  autoDownload?: boolean
 }
 
-export default function AdmitCard({ app, student, institutionLogoUrl, autoDownload = false }: AdmitCardProps) {
+export default function AdmitCard({ app, student, institutionLogoUrl }: AdmitCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null)
   const [resolvedLogo, setResolvedLogo] = useState<string | null>(
     institutionLogoUrl || app?.institution?.logoUrl || null
@@ -40,8 +38,8 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
     if (institutionLogoUrl || app?.institution?.logoUrl) return
     const normalize = (s?: string | null) => (s || '')
       .toLowerCase()
-      .replace(/\([^)]*\)/g, ' ') // remove parentheses content
-      .replace(/[^a-z0-9]+/g, ' ') // non-alphanumerics to space
+      .replace(/\([^)]*\)/g, ' ')
+      .replace(/[^a-z0-9]+/g, ' ')
       .trim()
       .replace(/\s+/g, ' ')
       ; (async () => {
@@ -49,13 +47,9 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
           const list = await getEligibleInstitutions()
           const target = normalize(app.institution?.name)
           let found: EligibleInstitution | undefined
-          // exact normalized match by name
           found = list.find(i => normalize(i.name) === target)
-          // startsWith / includes match
           if (!found) found = list.find(i => normalize(i.name).includes(target) || target.includes(normalize(i.name)))
-          // shortName match
           if (!found) found = list.find(i => normalize(i.shortName) === target)
-          // match by unit name when names don't align
           if (!found && app.unit?.name) {
             const unitNorm = normalize(app.unit.name)
             found = list.find(i => (i.units || []).some(u => normalize(u.name) === unitNorm))
@@ -66,7 +60,7 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
   }, [app, institutionLogoUrl])
 
   const safe = (v?: string | null) => (v && String(v).trim().length > 0 ? v : '-')
-  const candidatePhoto = useMemo(() => {
+  const candidatePhoto = useMemo<string>(() => {
     const fromProp = (student?.profile || '').trim()
     if (fromProp) return fromProp
     try {
@@ -83,7 +77,6 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
     const raw = resolvedLogo
     if (!raw || raw.trim() === '') return '/logo.svg'
     if (raw.startsWith('http') || raw.startsWith('data:')) return raw
-    // Stitch with API origin if relative
     if (raw.startsWith('/')) return `${API_ORIGIN}${raw}`
     return `${API_ORIGIN}/${raw}`
   }, [resolvedLogo, API_ORIGIN])
@@ -100,167 +93,98 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
   const logoCrossOrigin = useMemo(() => isCorsAllowed(instLogo), [isCorsAllowed, instLogo])
   const photoCrossOrigin = useMemo(() => isCorsAllowed(candidatePhoto), [isCorsAllowed, candidatePhoto])
 
-  const buildPdf = useCallback(async () => {
+  // Download/export helpers removed per request. Only Print/Save via browser remains.
+
+  const openPdfInNewTab = useCallback(async () => {
     const node = cardRef.current
-    if (!node) throw new Error('Card not ready')
-    const sameOrigin = window.location.origin
-    // Measure for potential sizing, but let html2canvas handle element coordinates
-    const rect = node.getBoundingClientRect()
-    const cardW = Math.ceil(rect.width || node.scrollWidth || node.clientWidth)
-    const cardH = Math.ceil(rect.height || node.scrollHeight || node.clientHeight)
-    const canvas = await html2canvas(node, {
-      scale: 2,
-      useCORS: true,
-      foreignObjectRendering: true,
-      allowTaint: false,
-      backgroundColor: '#ffffff',
-      imageTimeout: 15000,
-      width: cardW,
-      height: cardH,
-      onclone: (clonedDoc) => {
-        // 1) Sanitize colors to avoid html2canvas oklch() parse errors
-        try {
-          const style = clonedDoc.createElement('style')
-          style.textContent = `
-            html, body { background: #ffffff !important; color: #000000 !important; }
-            * { color: #000000 !important; border-color: #000000 !important; box-shadow: none !important; }
-            [data-admit-root] { background: #ffffff !important; color: #000000 !important; }
-            [data-admit-root] * { color: #000000 !important; background: transparent !important; border-color: #000000 !important; box-shadow: none !important; filter: none !important; }
-          `
-          clonedDoc.head.appendChild(style)
-        } catch (e) { void e }
+    if (!node) return
 
-        // 1b) Inline override every descendant to be extra safe
-        try {
-          const root = clonedDoc.querySelector('[data-admit-root]') as HTMLElement | null
-          if (root) {
-            const all: HTMLElement[] = [root, ...Array.from(root.querySelectorAll('*')) as HTMLElement[]]
-            for (const el of all) {
-              el.style.background = 'transparent'
-              el.style.backgroundImage = 'none'
-              el.style.backgroundColor = 'transparent'
-              el.style.color = '#000'
-              el.style.borderColor = '#000'
-              el.style.boxShadow = 'none'
-              el.style.outlineColor = '#000'
-              el.style.caretColor = '#000'
-              el.style.accentColor = '#000'
-            }
-          }
-        } catch (e) { void e }
-
-        // 2) Replace cross-origin images to safe local assets
-        const imgs = clonedDoc.querySelectorAll('img[data-admit-image]') as NodeListOf<HTMLImageElement>
-        imgs.forEach((img) => {
-          try {
-            const u = new URL(img.getAttribute('src') || '', window.location.href)
-            const isData = u.protocol === 'data:' || u.protocol === 'blob:'
-            if (!isData) {
-              const allowed = (u.origin === sameOrigin) || (u.origin === API_ORIGIN)
-              if (!allowed) {
-                const kind = img.getAttribute('data-admit-image')
-                if (kind === 'logo') img.src = '/logo.svg'
-                else if (kind === 'photo') img.src = '/logo.svg'
-              }
-            }
-          } catch (e) { void e }
-        })
-      }
-    })
-    const imgData = canvas.toDataURL('image/png')
-    const orientation = canvas.width >= canvas.height ? 'landscape' : 'portrait' as const
-    const pdf = new jsPDF({ orientation, unit: 'pt', format: 'a4' })
-    const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    const imgW = canvas.width
-    const imgH = canvas.height
-    const scale = Math.min(pageWidth / imgW, pageHeight / imgH)
-    const drawW = Math.floor(imgW * scale)
-    const drawH = Math.floor(imgH * scale)
-    const x = Math.floor((pageWidth - drawW) / 2)
-    const y = Math.floor((pageHeight - drawH) / 2)
-    pdf.addImage(imgData, 'PNG', x, y, drawW, drawH)
-    return pdf
-  }, [API_ORIGIN])
-
-  const forceDownload = (href: string, filename: string) => {
-    const a = document.createElement('a')
-    a.href = href
-    a.download = filename
-    a.rel = 'noopener'
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-  }
-
-  const downloadPngFallback = useCallback(async (filename: string) => {
-    const node = cardRef.current
-    if (!node) throw new Error('Card not ready')
-    const canvas = await html2canvas(node, { scale: 2, useCORS: true, foreignObjectRendering: true, backgroundColor: '#ffffff' })
-    const dataUrl = canvas.toDataURL('image/png')
-    forceDownload(dataUrl, filename.replace(/\.pdf$/i, '.png'))
-  }, [])
-
-  // Preload images to improve PDF reliability (stable)
-  const preloadImage = useCallback(async (src?: string | null) => {
-    return new Promise<void>((resolve) => {
-      if (!src) return resolve()
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = () => resolve()
-      img.onerror = () => resolve()
-      img.src = src
-    })
-  }, [])
-
-  const downloadPdf = useCallback(async () => {
-    try {
-      // Warm-up images (only when CORS-allowed) to reduce html2canvas failures
-      const warmups: Promise<unknown>[] = []
-      if (isCorsAllowed(instLogo)) warmups.push(preloadImage(instLogo))
-      if (isCorsAllowed(candidatePhoto)) warmups.push(preloadImage(candidatePhoto))
-      if (warmups.length) await Promise.allSettled(warmups)
-      const pdf = await buildPdf()
-      const safeName = `${student.userName || 'Student'}_${app.unit?.name || 'Unit'}`.replace(/[^a-z0-9_-]+/gi, '_')
-      pdf.save(`AdmitCard_${safeName}.pdf`)
-      toast.success('Admit card downloaded')
-    } catch (e) {
-      console.error('PDF generation failed', e)
-      const safeName = `${student.userName || 'Student'}_${app.unit?.name || 'Unit'}`.replace(/[^a-z0-9_-]+/gi, '_')
-      // Fallback: export raster image (PNG)
+    // Open a blank tab immediately (within user gesture) to avoid popup blocking
+    const win = window.open('', '_blank')
+    if (win) {
       try {
-        await downloadPngFallback(`AdmitCard_${safeName}.pdf`)
-        toast.success('Downloaded PNG as fallback')
-        return
-      } catch (e3) {
-        console.error('PNG fallback failed', e3)
-      }
-      toast.error('Unable to download admit card. See console for details.')
+        win.document.write('<p style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:16px;">Preparing PDF…</p>')
+      } catch { /* ignore */ }
     }
-  }, [
-    app.unit?.name,
-    buildPdf,
-    candidatePhoto,
-    downloadPngFallback,
-    instLogo,
-    isCorsAllowed,
-    preloadImage,
-    student.userName,
-  ])
 
-  // Preview generation removed per requirements (no preview UI)
+    try {
+      // Measure full content area
+      const rect = node.getBoundingClientRect()
+      const cardW = Math.ceil(Math.max(node.scrollWidth, node.clientWidth, rect.width))
+      const cardH = Math.ceil(Math.max(node.scrollHeight, node.clientHeight, rect.height))
 
-  // Optional: auto trigger PDF download when requested
-  // Guard to prevent duplicate downloads as dependencies change
-  const lastAutoKeyRef = useRef<string | null>(null)
-  const autoKey = useMemo(() => (autoDownload ? String(app.id) : null), [autoDownload, app.id])
-  useEffect(() => {
-    if (!autoKey) return
-    if (lastAutoKeyRef.current === autoKey) return
-    lastAutoKeyRef.current = autoKey
-    const id = requestAnimationFrame(() => { downloadPdf().catch(() => void 0) })
-    return () => cancelAnimationFrame(id)
-  }, [autoKey, downloadPdf])
+      // Render card to canvas
+      const canvas = await html2canvas(node, {
+        scale: window.devicePixelRatio > 1 ? 2 : 1.5,
+        useCORS: true,
+        foreignObjectRendering: true,
+        backgroundColor: '#ffffff',
+        width: cardW,
+        height: cardH,
+        scrollX: 0,
+        scrollY: 0,
+        onclone: (doc) => {
+          try {
+            const root = doc.querySelector('[data-admit-root]') as HTMLElement | null
+            if (root) {
+              root.style.overflow = 'visible'
+              root.style.height = 'auto'
+              root.style.maxHeight = 'none'
+            }
+            // Replace non-CORS images to avoid tainted canvas
+            const sameOrigin = window.location.origin
+            const imgs = doc.querySelectorAll('img[data-admit-image]') as NodeListOf<HTMLImageElement>
+            imgs.forEach((img) => {
+              try {
+                const src = img.getAttribute('src') || ''
+                const u = new URL(src, window.location.href)
+                const isSafe = u.protocol === 'data:' || u.protocol === 'blob:' || u.origin === sameOrigin || u.origin === API_ORIGIN
+                if (!isSafe) img.src = '/logo.svg'
+              } catch { /* ignore */ }
+            })
+          } catch { /* ignore */ }
+        },
+      })
+
+      // Compose A4 PDF portrait with margins and open in the pre-opened tab
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const margin = 24
+      const innerW = pageW - margin * 2
+      const innerH = pageH - margin * 2
+      const imgW = canvas.width
+      const imgH = canvas.height
+      const scale = Math.min(innerW / imgW, innerH / imgH)
+      const drawW = Math.round(imgW * scale)
+      const drawH = Math.round(imgH * scale)
+      const x = Math.round(margin + (innerW - drawW) / 2)
+      const y = Math.round(margin + (innerH - drawH) / 2)
+      const dataUrl = canvas.toDataURL('image/png')
+      pdf.addImage(dataUrl, 'PNG', x, y, drawW, drawH)
+
+      const blob = pdf.output('blob') as Blob
+      const url = URL.createObjectURL(blob)
+      if (win && !win.closed) {
+        win.location.href = url
+        setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      } else {
+        const a = document.createElement('a')
+        a.href = url
+        a.target = '_blank'
+        a.rel = 'noopener'
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      }
+    } catch (err) {
+      // Fallback: try triggering print dialog as a last resort
+      try { if (win && !win.closed) win.close() } catch { /* ignore */ }
+      console.error('PDF generation failed', err)
+      window.print()
+    }
+  }, [API_ORIGIN])
 
   return (
     <div className="w-full">
@@ -269,12 +193,19 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
         dangerouslySetInnerHTML={{
           __html: `
 @media print {
-  @page { size: A4; margin: 10mm; }
+  @page { size: A4 portrait; margin: 12mm 12mm 14mm 12mm; }
   html, body { background: #ffffff !important; }
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body * { visibility: hidden !important; }
   #admit-card-print, #admit-card-print * { visibility: visible !important; }
-  #admit-card-print { position: absolute; inset: 0 auto auto 0; right: 0; margin: 0 auto; width: auto; max-width: 190mm; }
+  #admit-card-print {
+    position: static !important;
+    margin: 0 auto !important;
+    width: 190mm !important;
+    max-width: 190mm !important;
+  }
+  /* Avoid breaking boxes across pages */
+  #admit-card-print .no-break { break-inside: avoid; page-break-inside: avoid; }
 }
         ` }}
       />
@@ -286,7 +217,7 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
         id="admit-card-print"
       >
         {/* Header (black & white) */}
-        <div className="bg-white text-black rounded-t-[5px] px-6 py-4 flex items-center justify-between border-b border-black">
+        <div className="bg-white text-black rounded-t-[5px] px-6 py-4 flex items-center justify-between border-b border-black no-break">
           <div className="flex items-center gap-3">
             {/* Keep logo colorful. Use CORS only when allowed to avoid blocking image load. */}
             <img
@@ -307,13 +238,13 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
         </div>
 
         {/* Top meta strip (keep concise – no SSC/HSC here) */}
-        <div className="px-6 py-2 text-xs text-black border-b border-black flex flex-wrap items-center gap-x-6 gap-y-1 justify-between">
+        <div className="px-6 py-2 text-xs text-black border-b border-black flex flex-wrap items-center gap-x-6 gap-y-1 justify-between no-break">
           <div>Application ID: <span className="font-medium">{app.id}</span></div>
           <div>Issued: <span className="font-medium">{new Date().toLocaleDateString()}</span></div>
         </div>
 
         {/* Body */}
-        <div className="p-4 grid grid-cols-3 gap-4">
+        <div className="p-4 grid grid-cols-3 gap-4 no-break">
           {/* Candidate photo (left, keep colorful) */}
           <div className="col-span-1">
             <div className="border border-black rounded-sm p-2 flex items-center justify-center h-56">
@@ -398,8 +329,8 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
         </div>
 
         {/* Exam details */}
-        <div className="px-6 pb-2">
-          <div className="border border-black rounded-sm p-4 text-sm">
+        <div className="px-6 pb-2 no-break">
+          <div className="border border-black rounded-sm p-4 text-sm no-break">
             <div className="text-black font-medium mb-2">Exam Details</div>
             <div className="grid grid-cols-4 gap-3">
               <div>
@@ -423,7 +354,7 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
         </div>
 
         {/* Footer signatures */}
-        <div className="px-6 mt-4 grid grid-cols-2 gap-6">
+        <div className="px-6 mt-4 grid grid-cols-2 gap-6 no-break">
           <div className="text-center">
             <div className="h-10"></div>
             <div className="border-t border-black inline-block px-8 text-sm text-black">Applicant's Signature</div>
@@ -435,7 +366,7 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
         </div>
 
         {/* Instructions */}
-        <div className="mx-6 mt-4 mb-2 border border-black rounded-sm p-3">
+        <div className="mx-6 mt-4 mb-2 border border-black rounded-sm p-3 no-break">
           <div className="text-sm font-medium text-black mb-1">Instructions</div>
           <ul className="text-xs text-black list-disc list-inside space-y-1">
             <li>Bring this admit card and a valid photo ID on exam day.</li>
@@ -455,7 +386,10 @@ export default function AdmitCard({ app, student, institutionLogoUrl, autoDownlo
         </div>
       </div>
 
-      <div className="mt-4 flex justify-center">
+      <div className="mt-4 flex justify-center gap-2">
+        <Button className="bg-gray-900 hover:bg-gray-800" onClick={() => void openPdfInNewTab()}>
+          Download PDF
+        </Button>
         <Button variant="secondary" className="border border-gray-300 text-gray-800 hover:bg-gray-100" onClick={() => window.print()}>
           Print / Save as PDF
         </Button>
