@@ -5,7 +5,8 @@ import {
 	default as institutionController,
 	default as systemAdminAuthController,
 } from "../controllers/systemAdminAuthController.js";
-import redisCache from "../DB/redis.config.js";
+import { cacheRoute } from "../middleware/cache.js";
+import { bustUserCache } from "../middleware/cacheBust.js";
 import unitController from "../controllers/unitController.js";
 import systemAdminMiddleware from "../middleware/systemAdminMiddleware.js";
 
@@ -17,20 +18,21 @@ router.post("/auth/login", systemAdminAuthController.login);
 router.post(
 	"/admins/create-and-assign",
 	systemAdminMiddleware, // Only SYSTEM_ADMIN can access
+	bustUserCache({ scope: "/api/system" }),
 	systemAdminAuthController.createAndAssignInstitutionAdmin
 );
 
 router.get(
 	"/admins/profile",
-	redisCache.route(),
 	systemAdminMiddleware, // Only SYSTEM_ADMIN can access
+	cacheRoute({ ttl: 300 }),
 	systemAdminAuthController.index
 );
 
 router.get(
 	"/admins",
-	redisCache.route(),
 	systemAdminMiddleware,
+	cacheRoute({ ttl: 300 }),
 	systemAdminAuthController.fetchAdmins
 );
 
@@ -38,12 +40,14 @@ router.get(
 router.post(
 	"/institutions",
 	systemAdminMiddleware,
+	bustUserCache({ scope: "/api/system" }),
 	institutionController.createInstitution
 );
 
 router.delete(
     "/institutions/:institutionId",
     systemAdminMiddleware,
+    bustUserCache({ scope: "/api/system" }),
     institutionController.deleteInstitution
 );
 
@@ -56,6 +60,7 @@ router.get(
 router.put(
     "/institutions/:institutionId",
     systemAdminMiddleware,
+    bustUserCache({ scope: "/api/system" }),
     institutionController.updateInstitution
 );
 
@@ -63,14 +68,15 @@ router.put(
 
 router.get(
     "/institutions",
-    redisCache.route(),
     systemAdminMiddleware,
+    cacheRoute({ ttl: 300 }),
     systemAdminAuthController.fetchInstitutions
 );
 
 router.delete(
     "/admins/:adminId",
     systemAdminMiddleware,
+    bustUserCache({ scope: "/api/system" }),
     systemAdminAuthController.deleteAdmin
 );
 
