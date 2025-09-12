@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState, useCallback } from 'react'
 import { applicationsApi, type ApplicationRow, type ApplicationDetail } from '@/api/applications'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+
+// Stable constants (outside component) so hooks don't depend on array identity
+const DIVISION_OPTIONS = ['Dhaka','Chattogram','Rajshahi','Khulna','Barishal','Sylhet','Rangpur','Mymensingh'] as const
 // Layout and protection are provided by parent /institution route
 
 export const Route = createFileRoute('/institution/applications')({
@@ -17,7 +20,6 @@ export const Route = createFileRoute('/institution/applications')({
 })
 
 function RouteComponent() {
-  const navigate = useNavigate()
   const [rows, setRows] = useState<ApplicationRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -33,27 +35,36 @@ function RouteComponent() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detail, setDetail] = useState<ApplicationDetail | null>(null)
-  const [seatNo, setSeatNo] = useState('')
-  const [examDate, setExamDate] = useState('')
-  const [examTime, setExamTime] = useState('')
-  const [examCenter, setExamCenter] = useState('')
+  // Local editing state removed as unused
   const [centerOptions, setCenterOptions] = useState<string[]>([])
   const [exporting, setExporting] = useState(false)
 
-  // Fixed division list for exam centers
-  const divisionOptions = ['Dhaka','Chattogram','Rajshahi','Khulna','Barishal','Sylhet','Rangpur','Mymensingh']
-
   const boardOptions = ['Dhaka','Rajshahi','Chittagong','Jessore','Comilla','Sylhet','Barisal','Dinajpur','Madrasha','Technical']
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await applicationsApi.list({ page: 1, limit: 50, search, unitId: unitId || undefined, examPath: examPath || undefined, medium: medium || undefined, board: board || undefined, status: status || undefined, center: center || undefined })
+      // Narrow optional union filters to their exact types to avoid widening to string
+      const examPathParam = (examPath || undefined) as undefined | 'NATIONAL' | 'MADRASHA'
+      const mediumParam = (medium || undefined) as undefined | 'Bangla' | 'English' | 'Arabic'
+      const statusParam = (status || undefined) as undefined | 'approved' | 'under_review'
+
+      const res = await applicationsApi.list({
+        page: 1,
+        limit: 50,
+        search,
+        unitId: unitId || undefined,
+        examPath: examPathParam,
+        medium: mediumParam,
+        board: board || undefined,
+        status: statusParam,
+        center: center || undefined,
+      })
       setRows(res.data)
     } finally {
       setLoading(false)
     }
-  }
+  }, [search, unitId, examPath, medium, board, status, center])
 
   useEffect(() => {
     (async () => {
@@ -62,11 +73,11 @@ function RouteComponent() {
         const list = (res?.data || []).map((u: { unitId: string; name: string }) => ({ unitId: u.unitId, name: u.name }))
         setUnits(list)
         // Use fixed division options for exam center filter
-        setCenterOptions(divisionOptions)
+        setCenterOptions([...DIVISION_OPTIONS])
       } catch { /* ignore */ }
       fetchData()
     })()
-  }, [])
+  }, [fetchData])
 
   const openDetail = async (id: string) => {
     setDetailOpen(true)
@@ -75,10 +86,7 @@ function RouteComponent() {
       const res = await applicationsApi.getById(id)
       const d = res?.data || null
       setDetail(d)
-      setSeatNo(d?.seatNo || '')
-      setExamDate(d?.examDate ? new Date(d.examDate).toISOString().substring(0,10) : '')
-      setExamTime(d?.examTime || '')
-      setExamCenter(d?.examCenter || d?.centerPreference || '')
+      // Using detail-only view; no local edit state to set
     } finally {
       setDetailLoading(false)
     }
@@ -97,10 +105,10 @@ function RouteComponent() {
           limit: 100,
           search,
           unitId: unitId || undefined,
-          examPath: (examPath || undefined) as any,
-          medium: (medium || undefined) as any,
+          examPath: (examPath || undefined) as undefined | 'NATIONAL' | 'MADRASHA',
+          medium: (medium || undefined) as undefined | 'Bangla' | 'English' | 'Arabic',
           board: board || undefined,
-          status: (status || undefined) as any,
+          status: (status || undefined) as undefined | 'approved' | 'under_review',
           center: center || undefined,
         })
         allRows.push(...(res?.data || []))
@@ -168,9 +176,9 @@ function RouteComponent() {
         r.student?.examPath || '-',
         r.student?.medium || '-',
         r.student?.sscBoard || '-',
-        (r.student?.sscYear ?? '-') as any,
+        String(r.student?.sscYear ?? '-'),
         r.student?.hscBoard || '-',
-        (r.student?.hscYear ?? '-') as any,
+        String(r.student?.hscYear ?? '-'),
         r.reviewedAt ? 'Approved' : 'Under Review',
       ])
 
@@ -354,7 +362,7 @@ function RouteComponent() {
               variant="destructive"
               className="disabled:opacity-60"
               disabled={!!detail?.reviewedAt}
-              onClick={() => setConfirmAction({ type: 'cancel', id: detail?.id })}
+              onClick={() => setConfirmAction({ type: 'cancel', id: detail?.id ?? null })}
               title={detail?.reviewedAt ? 'Already approved' : undefined}
             >
               Cancel Application
@@ -362,7 +370,7 @@ function RouteComponent() {
             <Button
               className="bg-gray-900 hover:bg-gray-800 disabled:opacity-60"
               disabled={!!detail?.reviewedAt}
-              onClick={() => setConfirmAction({ type: 'approve', id: detail?.id })}
+              onClick={() => setConfirmAction({ type: 'approve', id: detail?.id ?? null })}
               title={detail?.reviewedAt ? 'Already approved' : undefined}
             >
               Approve
